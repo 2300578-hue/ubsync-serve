@@ -13,240 +13,235 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #f8fafc; 
-            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
-            background-size: 30px 30px;
-            color: #1e293b;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Premium Glass Card */
+        /* Glass Effect */
         .glass-card {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        .maroon-gradient { 
-            background: linear-gradient(135deg, #800000 0%, #4a0000 100%); 
+        .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #4a0000 100%); }
+
+        /* Priority Borders */
+        .priority-low { border-top: 10px solid #10b981; }      /* Green: 0-5 mins */
+        .priority-medium { border-top: 10px solid #f59e0b; }   /* Amber: 5-10 mins */
+        .priority-high { 
+            border-top: 10px solid #ef4444; 
+            animation: pulse-red 2s infinite; 
         }
 
-        /* Ticket Design */
-        .ticket-shadow {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
-            border: 1px solid #f1f5f9;
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Custom Scrollbar */
+        /* Checklist Strike-through */
+        .done-item { 
+            text-decoration: line-through; 
+            opacity: 0.3; 
+            filter: grayscale(1);
+        }
+
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-
-        [x-cloak] { display: none !important; }
         
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide { animation: slideIn 0.3s ease-out forwards; }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="min-h-screen pb-12" x-data="kitchenHandler()">
 
-    <nav class="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 px-8 py-4 flex justify-between items-center">
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200 px-8 py-4 flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-5">
-            <div class="w-14 h-14 maroon-gradient rounded-2xl flex items-center justify-center shadow-xl shadow-red-900/20 rotate-3 hover:rotate-0 transition-transform duration-500">
-                <i class="fa-solid fa-utensils text-2xl text-white"></i>
+            <div class="w-14 h-14 maroon-gradient rounded-2xl flex items-center justify-center shadow-lg shadow-red-900/20 rotate-3">
+                <i class="fa-solid fa-fire-burner text-2xl text-white"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase">UB <span class="text-[#800000]">Sync</span> Serve</h1>
-                <div class="flex items-center gap-2">
-                    <span class="flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Kitchen Command Center</p>
-                </div>
+                <h1 class="text-2xl font-black tracking-tighter text-slate-800 uppercase leading-none text-red-900">UB SYNC SERVE</h1>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-1">Kitchen Command Center</p>
             </div>
         </div>
 
         <div class="flex items-center gap-8">
-            <div class="text-right hidden md:block">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">System Clock</p>
-                <p class="text-lg font-black text-slate-700 mono leading-none" x-text="currentTime"></p>
+            <div class="hidden lg:flex items-center gap-3 bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest">POS SYNC ACTIVE</span>
             </div>
 
-            <div class="h-10 w-[1px] bg-slate-200"></div>
+            <div class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">System Time</p>
+                <p class="text-xl font-black text-slate-700 mono" x-text="currentTime"></p>
+            </div>
 
             <form method="POST" action="{{ route('logout') }}" id="logout-form">
                 @csrf
-                <button type="button" @click="confirmLogout()" 
-                    class="group relative flex items-center justify-center w-12 h-12 bg-white rounded-2xl border border-slate-200 text-slate-400 hover:border-red-200 hover:text-red-600 hover:bg-red-50 transition-all duration-300 shadow-sm active:scale-90">
+                <button type="button" @click="confirmLogout()" class="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm">
                     <i class="fa-solid fa-power-off text-xl"></i>
-                    <span class="absolute -bottom-10 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-lg whitespace-nowrap shadow-lg">Exit System</span>
                 </button>
             </form>
         </div>
     </nav>
 
-    <main class="max-w-[1700px] mx-auto p-8 space-y-10">
+    <main class="max-w-[1750px] mx-auto p-8 space-y-8">
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="glass-card p-6 rounded-[2.5rem] flex items-center gap-5">
-                <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 text-xl shadow-inner">
-                    <i class="fa-solid fa-clipboard-list"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Tickets</p>
-                    <h3 class="text-3xl font-black text-slate-800 mono" x-text="orders.length"></h3>
+            <div class="glass-card p-6 rounded-[2.5rem] border-l-8 border-blue-500 shadow-xl">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Tickets</p>
+                <h3 class="text-4xl font-black text-slate-800 mono" x-text="orders.length"></h3>
+            </div>
+
+            <div class="glass-card p-6 rounded-[2.5rem] border-l-8 border-amber-500 shadow-xl">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory (Patties)</p>
+                <div class="flex items-baseline gap-2">
+                    <h3 class="text-4xl font-black text-slate-800 mono" x-text="inventory.burgers"></h3>
+                    <span class="text-xs font-bold text-slate-400">/ 50</span>
                 </div>
             </div>
 
-            <div class="glass-card p-6 rounded-[2.5rem] flex items-center gap-5">
-                <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 text-xl shadow-inner">
-                    <i class="fa-solid fa-fire animate-pulse"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Prep</p>
-                    <h3 class="text-3xl font-black text-slate-800 mono">12<span class="text-sm ml-1 font-bold">min</span></h3>
-                </div>
+            <div class="glass-card p-6 rounded-[2.5rem] border-l-8 border-emerald-500 shadow-xl">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Orders Served</p>
+                <h3 class="text-4xl font-black text-slate-800 mono" x-text="fulfilledCount"></h3>
             </div>
 
-            <div class="glass-card p-6 rounded-[2.5rem] flex items-center gap-5">
-                <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 text-xl shadow-inner">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Served Today</p>
-                    <h3 class="text-3xl font-black text-slate-800 mono" x-text="fulfilledCount"></h3>
-                </div>
-            </div>
-
-            <div @click="openRecipeModal = true" class="maroon-gradient p-6 rounded-[2.5rem] flex items-center gap-5 cursor-pointer hover:scale-[1.02] transition-transform shadow-2xl shadow-red-900/20 group">
-                <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-white text-xl border border-white/20">
-                    <i class="fa-solid fa-book-open group-hover:rotate-12 transition-transform"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-black text-white/60 uppercase tracking-widest">Chef's Handbook</p>
-                    <h3 class="text-xl font-black text-white leading-tight">View Recipes</h3>
+            <div @click="simulateNewOrder()" class="maroon-gradient p-6 rounded-[2.5rem] shadow-2xl shadow-red-900/40 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all group">
+                <div class="flex justify-between items-start text-white">
+                    <div>
+                        <p class="text-[10px] font-black opacity-60 uppercase tracking-widest">Simulator</p>
+                        <h3 class="text-xl font-black uppercase leading-tight">New Order<br>Incoming</h3>
+                    </div>
+                    <i class="fa-solid fa-plus-circle text-2xl group-hover:rotate-90 transition-transform"></i>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <template x-for="(order, index) in orders" :key="order.id">
-                <div class="bg-white rounded-[3rem] overflow-hidden ticket-shadow flex flex-col animate-slide group border-t-8 border-[#800000]">
-                    <div class="px-8 py-6 flex justify-between items-start bg-slate-50/50">
+                <div :class="{
+                        'priority-low': order.minutes < 5,
+                        'priority-medium': order.minutes >= 5 && order.minutes < 10,
+                        'priority-high': order.minutes >= 10
+                    }" 
+                    class="bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col transition-all duration-500">
+                    
+                    <div class="px-8 py-6 bg-slate-50/80 flex justify-between items-start border-b border-slate-100">
                         <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[9px] font-black px-2 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-widest" x-show="order.isRush">Rush</span>
-                                <span class="text-[9px] font-bold text-slate-400 uppercase mono" x-text="'#' + order.id"></span>
-                            </div>
-                            <h2 class="text-5xl font-black text-slate-800 tracking-tighter mono" x-text="order.table"></h2>
+                            <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded mb-2 inline-block tracking-widest" x-text="'#' + order.id"></span>
+                            <h2 class="text-5xl font-black text-slate-800 mono tracking-tighter" x-text="order.table"></h2>
                         </div>
-                        <div class="bg-white px-4 py-2 rounded-2xl border border-slate-100 text-center shadow-sm">
-                            <p class="text-[9px] font-black text-slate-400 uppercase">Time</p>
-                            <p class="text-lg font-black text-amber-600 mono" x-text="order.elapsed"></p>
+                        <div class="text-right">
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-1 tracking-tighter">Cook Time</p>
+                            <div class="px-3 py-1 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                <p class="text-xl font-black mono text-red-800" x-text="order.minutes + ':' + order.seconds"></p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="p-8 flex-1 space-y-6">
-                        <template x-for="item in order.items">
-                            <div class="flex items-start gap-4 p-4 rounded-3xl bg-slate-50/50 border border-transparent hover:border-slate-100 transition-colors">
-                                <div class="w-10 h-10 maroon-gradient rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg" x-text="item.qty"></div>
-                                <div class="flex-1">
-                                    <h4 class="font-black text-slate-800 text-lg leading-none uppercase tracking-tight" x-text="item.name"></h4>
-                                    <p class="text-[10px] font-bold text-slate-400 mt-1 italic" x-text="item.details"></p>
+                    <div class="p-8 flex-1 space-y-4 overflow-y-auto max-h-[350px] custom-scroll">
+                        <template x-for="(item, iIdx) in order.items">
+                            <div @click="item.done = !item.done" 
+                                class="group flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 cursor-pointer transition-all border border-transparent hover:border-slate-100">
+                                <div :class="item.done ? 'bg-emerald-500 shadow-emerald-200' : 'bg-slate-200'" 
+                                    class="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all shadow-lg">
+                                    <i class="fa-solid fa-check text-sm"></i>
                                 </div>
+                                <div class="flex-1">
+                                    <h4 :class="item.done ? 'done-item' : ''" 
+                                        class="font-black text-slate-800 uppercase text-md leading-tight" x-text="item.name"></h4>
+                                    <div x-show="item.details" class="mt-2 bg-red-50 border border-red-100 px-3 py-1 rounded-lg inline-block">
+                                        <p class="text-[10px] font-black text-red-600 uppercase italic" x-text="item.details"></p>
+                                    </div>
+                                </div>
+                                <div class="text-lg font-black text-slate-300" x-text="'x'+item.qty"></div>
                             </div>
                         </template>
                     </div>
 
-                    <div class="p-8 pt-0 mt-auto">
-                        <div class="flex items-center justify-between mb-4 px-2">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Staff: <span class="text-slate-800 ml-1" x-text="order.staff"></span></p>
-                            <i class="fa-solid fa-ellipsis text-slate-300"></i>
-                        </div>
-                        <button @click="serveOrder(index)" 
-                            class="w-full py-5 maroon-gradient text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-red-900/20 hover:shadow-red-900/40 hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3">
-                            <span>Ready to Serve</span>
-                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <div class="p-8 bg-slate-50 border-t border-slate-100">
+                        <button @click="serveOrder(index)" class="w-full py-5 maroon-gradient text-white rounded-[2rem] text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-red-900/30 hover:shadow-red-900/50 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <span>Order Ready</span>
+                            <i class="fa-solid fa-bell-concierge"></i>
                         </button>
                     </div>
                 </div>
             </template>
         </div>
-    </main>
-
-    <div x-show="openRecipeModal" x-cloak 
-        class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md"
-        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-        <div class="bg-white/90 backdrop-blur-2xl w-full max-w-xl rounded-[3rem] p-10 shadow-2xl border border-white" @click.away="openRecipeModal = false">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-black text-slate-800 tracking-tighter uppercase">Kitchen <span class="text-[#800000]">Guide</span></h2>
-                <button @click="openRecipeModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-2xl"></i></button>
-            </div>
-            <div class="space-y-4 max-h-[400px] overflow-y-auto custom-scroll pr-4">
-                <div class="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                    <p class="font-black text-slate-800 uppercase tracking-tight">Classic UB Burger</p>
-                    <p class="text-xs text-slate-500 mt-1">Brioche Bun, 150g Angus Beef, Double Cheese, Caramelized Onions.</p>
-                </div>
-                <div class="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                    <p class="font-black text-slate-800 uppercase tracking-tight">Garlic Truffle Fries</p>
-                    <p class="text-xs text-slate-500 mt-1">Russet Potatoes, Truffle Oil, Parmesan, Fresh Parsley.</p>
-                </div>
-            </div>
-            <button @click="openRecipeModal = false" class="mt-8 w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg active:scale-95 transition-all">Close Handbook</button>
-        </div>
-    </div>
+    </nav>
 
     <script>
         function kitchenHandler() {
             return {
                 currentTime: '',
-                openRecipeModal: false,
                 fulfilledCount: 124,
+                inventory: { burgers: 42 },
                 orders: [
                     {
-                        id: '7721',
+                        id: '8821',
                         table: 'T-04',
-                        isRush: true,
-                        elapsed: '08:45',
-                        staff: 'Chef Marco',
+                        minutes: 3,
+                        seconds: '15',
                         items: [
-                            { qty: 2, name: 'Classic UB Burger', details: 'No Pickles, Medium Rare' },
-                            { qty: 1, name: 'Garlic Truffle Fries', details: 'Extra Parmesan' }
+                            { qty: 2, name: 'UB Burger Deluxe', details: 'NO ONIONS - ALLERGY', done: false },
+                            { qty: 1, name: 'Truffle Fries', details: 'EXTRA CHEESE', done: false }
                         ]
                     },
                     {
-                        id: '7725',
+                        id: '8825',
                         table: 'T-12',
-                        isRush: false,
-                        elapsed: '03:12',
-                        staff: 'Chef Liza',
+                        minutes: 11, // High Priority (Red)
+                        seconds: '42',
                         items: [
-                            { qty: 1, name: 'Carbonara Pasta', details: 'No Onions' }
+                            { qty: 1, name: 'Spicy Carbonara', details: 'MILD ONLY', done: false }
                         ]
                     }
                 ],
                 init() {
                     this.updateTime();
-                    setInterval(() => this.updateTime(), 1000);
+                    setInterval(() => {
+                        this.updateTime();
+                        this.incrementTimers();
+                    }, 1000);
                 },
                 updateTime() {
                     const now = new Date();
                     this.currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
                 },
+                incrementTimers() {
+                    this.orders.forEach(order => {
+                        let sec = parseInt(order.seconds) + 1;
+                        if(sec >= 60) {
+                            order.minutes++;
+                            sec = 0;
+                        }
+                        order.seconds = sec < 10 ? '0' + sec : sec.toString();
+                    });
+                },
+                simulateNewOrder() {
+                    new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play();
+                    this.orders.push({
+                        id: Math.floor(Math.random() * 9000) + 1000,
+                        table: 'T-' + (Math.floor(Math.random() * 20) + 1),
+                        minutes: 0,
+                        seconds: '00',
+                        items: [
+                            { qty: 1, name: 'Simulated Paid Order', details: 'PRIORITY', done: false }
+                        ]
+                    });
+                },
                 serveOrder(index) {
-                    if(confirm("Confirm: Order is ready for dispatch?")) {
+                    if(confirm("Notify Customer & POS that this order is ready?")) {
+                        this.inventory.burgers -= 1;
                         this.orders.splice(index, 1);
                         this.fulfilledCount++;
-                        // Play a subtle chime
-                        new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play();
+                        new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3').play();
                     }
                 },
                 confirmLogout() {
-                    if(confirm("System Alert: You are about to shut down the kitchen console. Continue?")) {
-                        // Mag-su-submit ng Laravel logout form
+                    if(confirm("Shut down Kitchen Console?")) {
                         document.getElementById('logout-form').submit();
                     }
                 }
