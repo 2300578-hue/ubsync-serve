@@ -1,385 +1,350 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UB-SYNCSERVE</title>
+    <title>UB SYNC | Student Performance Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
-        .ub-maroon { background-color: #800000; }
-        .ub-text-maroon { color: #800000; }
-        .nav-link:hover { color: #800000 !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Public Sans', sans-serif; background-color: #f2f3f3; color: #334155; overflow-x: hidden; }
         
-        body {
-            background: linear-gradient(-45deg, #ffffff, #fcf8f8, #fffafa, #ffffff);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-        }
+        .aws-header { background-color: #800000; height: 55px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; color: white; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .gold-accent { background-color: #D4AF37; height: 4px; position: fixed; top: 55px; width: 100%; z-index: 999; }
+        
+        /* Sidebar & Content Transitions */
+        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 59px); position: fixed; top: 59px; left: 0; transition: all 0.3s ease; z-index: 998; }
+        .sidebar-collapsed { left: -260px; }
+        .main-content { margin-left: 260px; margin-top: 59px; padding: 30px 40px; transition: all 0.3s ease; }
+        .content-wide { margin-left: 0; }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(128, 0, 0, 0.08);
-        }
-
-        .hero-title {
-            color: #800000;
-            padding-bottom: 0.2em; 
-            line-height: 1.2;
-        }
-
-        /* Slideshow Styling */
-        .slideshow-container {
-            position: relative;
-            background: transparent;
-        }
-        .slideshow-container img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            opacity: 0;
-            transition: opacity 1.2s ease-in-out;
-        }
-        .slideshow-container img.active {
-            opacity: 1;
-            position: relative;
-        }
-
-        /* Scroll Reveal Animation Classes */
-        .reveal-hidden {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .reveal-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .delay-1 { transition-delay: 0.2s; }
-        .delay-2 { transition-delay: 0.4s; }
-        .delay-3 { transition-delay: 0.6s; }
-
-        /* Badge Styling for new sections */
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 99px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .aws-card { background: white; border: 1px solid #eaeded; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .no-padding { padding: 0 !important; }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="antialiased overflow-x-hidden text-slate-900">
+<body class="antialiased" x-data="consoleApp()">
 
-    <nav class="fixed top-0 left-0 w-full z-50 glass-nav px-6 py-4 flex justify-between items-center shadow-md">
-        <div class="flex items-center gap-2 group cursor-pointer">
-            <div class="w-10 h-10 ub-maroon rounded-xl flex items-center justify-center">
-                <span class="text-white font-black text-xl">UB</span>
-            </div>
-            <span class="text-2xl font-black tracking-tighter ub-text-maroon">SYNCSERVE</span>
-        </div>
-        
-        <div class="hidden md:flex gap-10 text-[12px] font-black uppercase tracking-[0.2em] text-gray-500">
-            <a href="#" class="nav-link transition-colors">Home</a>
-            <a href="#features" class="nav-link transition-colors">Modules</a>
-            <a href="#workflow" class="nav-link transition-colors">Workflow</a>
-            <a href="#management" class="nav-link transition-colors">Management</a>
-            <a href="#objectives" class="nav-link transition-colors">Objectives</a>
-        </div>
-
-        <div>
-            <a href="{{ route('login') }}" class="ub-maroon text-white px-8 py-2.5 rounded-full font-bold text-xs shadow-xl hover:shadow-red-900/20 transition-all inline-block active:scale-95">
-                Login
-            </a>
-        </div>
-    </nav>
-
-    <section class="relative min-h-screen flex items-center justify-center pt-28 px-6 overflow-hidden text-center">
-        <div class="max-w-5xl relative z-10">
-            <h1 class="hero-title text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-[1.1] reveal-hidden delay-1">
-                Elevating Business and <br> Hospitality Excellence
-            </h1>
-            
-            <p class="text-slate-600 text-lg md:text-2xl max-w-3xl mx-auto leading-relaxed mb-12 reveal-hidden delay-2">
-                Provides hands-on training to improve learning and build practical skills in real-world kitchen and dining operations
-            </p>
-
-            <div class="flex justify-center reveal-hidden delay-3">
-                <a href="{{ route('login') }}" class="ub-maroon text-white px-12 py-5 rounded-2xl font-bold text-lg shadow-[0_20px_50px_rgba(128,0,0,0.3)] hover:bg-red-900 hover:-translate-y-1 transition-all flex items-center gap-3">
-                    Start Training
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section id="features" class="py-32 bg-white px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-20 reveal-hidden">
-                <h2 class="text-5xl font-black ub-text-maroon tracking-tight">Core Training Modules</h2>
-                <p class="text-slate-400 mt-4 font-medium uppercase tracking-widest text-xs">Essential Tools for Hospitality Management</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 reveal-hidden delay-1 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
-                    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center text-3xl">💳</div>
-                    <h3 class="text-2xl font-black ub-text-maroon mb-4">POS Operations</h3>
-                    <p class="text-slate-500 leading-relaxed text-lg">Learn to handle ordering, billing, and payment processing systems effectively and accurately.</p>
-                </div>
-
-                <div class="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 reveal-hidden delay-2 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
-                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-3xl">📦</div>
-                    <h3 class="text-2xl font-black text-blue-900 mb-4">Inventory Control</h3>
-                    <p class="text-slate-500 leading-relaxed text-lg">Monitor ingredient stocks, manage wastage, and optimize kitchen supplies with automated tracking.</p>
-                </div>
-
-                <div class="p-10 rounded-[2.5rem] bg-slate-50 border border-slate-100 reveal-hidden delay-3 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
-                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center text-3xl">📊</div>
-                    <h3 class="text-2xl font-black text-green-900 mb-4">Performance Analytics</h3>
-                    <p class="text-slate-500 leading-relaxed text-lg">Check daily sales, identify top menus, and manage profits for your hospitality training.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="management" class="py-32 bg-white px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid md:grid-cols-2 gap-16">
-                <div class="reveal-hidden">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-12 h-12 bg-red-50 text-red-800 rounded-2xl flex items-center justify-center animate-pulse">
-                            <i class="fas fa-tower-broadcast text-xl"></i>
-                        </div>
-                        <h2 class="text-4xl font-black text-slate-900 tracking-tight">Live Sessions</h2>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex justify-between items-center hover:bg-white hover:shadow-xl transition-all group">
-                            <div>
-                                <h4 class="font-black text-slate-800 uppercase text-xs tracking-widest">Section 4A - Morning Shift</h4>
-                                <p class="text-slate-500 text-sm">Main Kitchen Simulation Room</p>
-                            </div>
-                            <span class="status-badge bg-green-100 text-green-700">Online</span>
-                        </div>
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex justify-between items-center hover:bg-white hover:shadow-xl transition-all group">
-                            <div>
-                                <h4 class="font-black text-slate-800 uppercase text-xs tracking-widest">Section 2B - Dining Lab</h4>
-                                <p class="text-slate-500 text-sm">Front-of-House Protocol Training</p>
-                            </div>
-                            <span class="status-badge bg-amber-100 text-amber-700">Pending</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="reveal-hidden delay-2">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-800 rounded-2xl flex items-center justify-center">
-                            <i class="fas fa-users-gear text-xl"></i>
-                        </div>
-                        <h2 class="text-4xl font-black text-slate-900 tracking-tight">Class Control</h2>
-                    </div>
-                    <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
-                        <div class="relative z-10">
-                            <div class="flex justify-between items-center mb-6">
-                                <span class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">Active Student Roster</span>
-                                <i class="fas fa-ellipsis-h opacity-40"></i>
-                            </div>
-                            <div class="space-y-4">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-slate-700"></div>
-                                    <div class="flex-1 border-b border-slate-800 pb-2">
-                                        <p class="text-sm font-bold">BSHM 4-A Participants</p>
-                                        <p class="text-[10px] opacity-50">45 Students Enrolled</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-slate-700"></div>
-                                    <div class="flex-1 border-b border-slate-800 pb-2">
-                                        <p class="text-sm font-bold">Culinary Arts Batch 2026</p>
-                                        <p class="text-[10px] opacity-50">32 Students Enrolled</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="py-20 bg-slate-50 px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="bg-white rounded-[3rem] p-12 border border-slate-200 shadow-sm reveal-hidden">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-                    <div>
-                        <h2 class="text-3xl font-black text-slate-900">Security Audit Logs</h2>
-                        <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mt-1">Transaction History & Activity Tracking</p>
-                    </div>
-                    <button class="bg-slate-100 text-slate-600 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-colors">Export Logs</button>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="text-slate-400 text-[10px] font-black uppercase tracking-widest border-b border-slate-100">
-                                <th class="pb-4">Timestamp</th>
-                                <th class="pb-4">Action</th>
-                                <th class="pb-4">User Role</th>
-                                <th class="pb-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm">
-                            <tr class="border-b border-slate-50 group hover:bg-slate-50 transition-colors">
-                                <td class="py-5 font-mono text-xs text-slate-400">2026-03-27 10:45:12</td>
-                                <td class="py-5 font-bold text-slate-700">Inventory Deduction (Patties)</td>
-                                <td class="py-5"><span class="px-3 py-1 bg-red-50 text-red-700 rounded-lg text-[10px] font-black uppercase">Kitchen Staff</span></td>
-                                <td class="py-5 text-green-500 font-bold">SUCCESS</td>
-                            </tr>
-                            <tr class="border-b border-slate-50 group hover:bg-slate-50 transition-colors">
-                                <td class="py-5 font-mono text-xs text-slate-400">2026-03-27 10:42:05</td>
-                                <td class="py-5 font-bold text-slate-700">POS Session Initiated</td>
-                                <td class="py-5"><span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-black uppercase">Cashier</span></td>
-                                <td class="py-5 text-green-500 font-bold">SUCCESS</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="workflow" class="py-32 bg-slate-50 px-6">
-        <div class="max-w-[1600px] mx-auto text-center">
-            <div class="mb-20 reveal-hidden">
-                <h2 class="text-5xl md:text-6xl font-black text-slate-900 tracking-tight">Project Phases</h2>
-                <p class="text-red-800 text-lg font-bold uppercase tracking-[0.3em] mt-4">Operational Simulation Lifecycle</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
-                <div class="bg-white p-12 rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-1 min-h-[450px] flex flex-col justify-center relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-6 text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">1</div>
-                    <h4 class="font-black text-2xl mb-6 ub-text-maroon relative z-10">PRE-OPERATION</h4>
-                    <p class="text-xl text-slate-600 leading-relaxed relative z-10">Menu & inventory setup, table QR configuration, and network synchronization.</p>
-                </div>
-                <div class="bg-white p-12 rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-2 min-h-[450px] flex flex-col justify-center relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-6 text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">2</div>
-                    <h4 class="font-black text-2xl mb-6 ub-text-maroon relative z-10">GUEST JOURNEY</h4>
-                    <p class="text-xl text-slate-600 leading-relaxed relative z-10">QR scan identification, digital ordering, and real-time bill calculation.</p>
-                </div>
-                <div class="bg-white p-12 rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-3 min-h-[450px] flex flex-col justify-center relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-6 text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">3</div>
-                    <h4 class="font-black text-2xl mb-6 ub-text-maroon relative z-10">PAYMENT GATE</h4>
-                    <p class="text-xl text-slate-600 leading-relaxed relative z-10">Verification of Cash or Mock E-Wallet to trigger system production.</p>
-                </div>
-                <div class="bg-white p-12 rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-1 min-h-[450px] flex flex-col justify-center relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-6 text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">4</div>
-                    <h4 class="font-black text-2xl mb-6 ub-text-maroon relative z-10">DUAL-PRINTING</h4>
-                    <p class="text-xl text-slate-600 leading-relaxed relative z-10">Synchronized Kitchen Order Slip (KOS) and Official Receipt issuance.</p>
-                </div>
-                <div class="bg-white p-12 rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-2 min-h-[450px] flex flex-col justify-center relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-6 text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">5</div>
-                    <h4 class="font-black text-2xl mb-6 ub-text-maroon relative z-10">ANALYTICS</h4>
-                    <p class="text-xl text-slate-600 leading-relaxed relative z-10">Inventory auto-deduction and faculty-led performance monitoring.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="objectives" class="py-32 bg-white px-6">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
-            <div class="relative h-[500px] w-full slideshow-container reveal-hidden">
-                <img src="{{ asset('img/IndustryExposure.png') }}" class="active" alt="Industry Exposure">
-                <img src="{{ asset('img/OperationalSimulation.png') }}" alt="Operational Simulation">
-                <img src="{{ asset('img/EfficiencyTraining.png') }}" alt="Efficiency Training">
-                <img src="{{ asset('img/AnalyticalSkills.png') }}" alt="Analytical Skills">
-            </div>
-            
-            <div class="px-4 reveal-hidden delay-1">
-                <h2 class="text-5xl font-black text-slate-900 tracking-tight mb-12">Program Objectives</h2>
-                <div class="space-y-12">
-                    <div class="flex gap-6">
-                        <div class="w-14 h-14 rounded-2xl bg-red-50 flex-shrink-0 flex items-center justify-center text-red-800 text-2xl"><i class="fas fa-check-circle"></i></div>
-                        <p class="text-slate-700 text-xl leading-relaxed">
-                            <b class="text-slate-900 block text-3xl mb-2">Industry Exposure</b> Hands-on experience with standard POS workflows and hospitality technology.
-                        </p>
-                    </div>
-                    <div class="flex gap-6">
-                        <div class="w-14 h-14 rounded-2xl bg-red-50 flex-shrink-0 flex items-center justify-center text-red-800 text-2xl"><i class="fas fa-check-circle"></i></div>
-                        <p class="text-slate-700 text-xl leading-relaxed">
-                            <b class="text-slate-900 block text-3xl mb-2">Operational Simulation</b> Bridging the gap between theory and practical laboratory simulations.
-                        </p>
-                    </div>
-                    <div class="flex gap-6">
-                        <div class="w-14 h-14 rounded-2xl bg-red-50 flex-shrink-0 flex items-center justify-center text-red-800 text-2xl"><i class="fas fa-check-circle"></i></div>
-                        <p class="text-slate-700 text-xl leading-relaxed">
-                            <b class="text-slate-900 block text-3xl mb-2">Efficiency Training</b> Manage order processing to reduce errors and service delays efficiently.
-                        </p>
-                    </div>
-                    <div class="flex gap-6">
-                        <div class="w-14 h-14 rounded-2xl bg-red-50 flex-shrink-0 flex items-center justify-center text-red-800 text-2xl"><i class="fas fa-check-circle"></i></div>
-                        <p class="text-slate-700 text-xl leading-relaxed">
-                            <b class="text-slate-900 block text-3xl mb-2">Analytical Skills</b> Utilizing data to evaluate performance and improve operational outcomes.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="pt-20 pb-3 bg-slate-50 border-t border-slate-100 px-6">
-        <div class="max-w-8xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+    <header class="aws-header shadow-lg">
+        <div class="flex items-center gap-4">
+            <button @click="isSidebarOpen = !isSidebarOpen" class="hover:bg-white/20 p-2 rounded transition text-xl cursor-pointer">
+                <i class="fas fa-bars"></i>
+            </button>
             <div class="flex items-center gap-2">
-                <div class="w-10 h-8 ub-maroon rounded-lg flex items-center justify-center shadow-md">
-                    <span class="text-white font-black text-sm">UB</span>
-                </div>
-                <span class="text-xl font-black tracking-tighter ub-text-maroon">SYNCSERVE</span>
-            </div>
-            
-            <p class="text-slate-500 text-sm font-bold text-center">
-                © 2026 UB-SYNCSERVE. All Rights Reserved
-            </p>
-
-            <div class="text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">
-                Built for Excellence
+                <i class="fas fa-layer-group text-yellow-500 text-xl"></i>
+                <span class="font-bold tracking-tighter text-lg uppercase">UB SYNC</span>
             </div>
         </div>
-    </footer>
+
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3 border-l border-white/20 pl-6 h-full text-right">
+                <div class="hidden md:block text-right">
+                    <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-bold">Account</span>
+                    <p class="font-bold text-white uppercase text-sm tracking-tight">
+                        {{ Auth::user()->name ?? 'Administrator' }}
+                    </p>
+                </div>
+                <i class="fas fa-user-circle text-2xl text-white/80"></i>
+            </div>
+            
+            <form action="{{ route('logout') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="bg-black/20 hover:bg-black/40 px-4 py-2 rounded-sm font-bold text-xs uppercase border border-white/10 transition flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+            </form>
+        </div>
+    </header>
+    <div class="gold-accent"></div>
+
+    <aside class="aws-sidebar shadow-sm" :class="!isSidebarOpen ? 'sidebar-collapsed' : ''">
+        <div class="p-6 space-y-8">
+            <div>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Monitoring</p>
+                <nav class="space-y-2">
+                    <button @click="currentTab = 'dashboard'" :class="currentTab === 'dashboard' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-th-large w-5"></i> Dashboard
+                    </button>
+                    <button @click="currentTab = 'sessions'" :class="currentTab === 'sessions' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-signal w-5 text-green-600"></i> Live Sessions
+                    </button>
+                </nav>
+            </div>
+            <div>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Settings</p>
+                <nav class="space-y-2">
+                    <button @click="currentTab = 'management'" :class="currentTab === 'management' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-users-cog w-5"></i> Class Management
+                    </button>
+                    <button @click="currentTab = 'audit'" :class="currentTab === 'audit' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-history w-5"></i> Audit Logs
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content" :class="!isSidebarOpen ? 'content-wide' : ''">
+        
+        <div x-show="currentTab === 'dashboard'" x-cloak>
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Performance Console</h1>
+                    <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">
+                        <span>University of Batangas</span> <span class="mx-3 text-slate-300">|</span>
+                        <span class="text-red-800 font-bold">Student Monitoring</span>
+                    </nav>
+                </div>
+                <button @click="refreshData()" class="bg-white border border-slate-300 px-6 py-2.5 text-sm font-bold hover:bg-slate-50 transition shadow-sm rounded flex items-center gap-2">
+                    <i class="fas fa-sync-alt text-slate-400" :class="isRefreshing ? 'animate-spin' : ''"></i> Refresh Data
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 text-center sm:text-left">
+                <div class="aws-card border-t-4 border-t-red-800 p-5">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">System Status</p>
+                    <p class="text-xl font-bold text-green-600 mt-2 uppercase flex items-center justify-center sm:justify-start gap-2">
+                        <i class="fas fa-check-circle"></i> Operational
+                    </p>
+                </div>
+                <div class="aws-card p-5">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Enrolled Students</p>
+                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="students.length"></p>
+                </div>
+                <div class="aws-card p-5">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Average Grade</p>
+                    <p class="text-3xl font-black text-slate-800 mt-1">88.5%</p>
+                </div>
+                <div class="aws-card border-l-4 border-l-blue-500 p-5">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Term</p>
+                    <p class="text-2xl font-black text-blue-600 mt-1 uppercase">S1-2026</p>
+                </div>
+            </div>
+
+            <div class="aws-card no-padding overflow-hidden border-slate-200">
+                <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-black text-sm uppercase tracking-wider text-slate-600">Student Performance</h3>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" x-model="searchQuery" placeholder="Search student..." class="text-sm border border-slate-300 pl-10 pr-4 py-2.5 w-64 md:w-80 rounded outline-none focus:border-red-800 transition">
+                    </div>
+                </div>
+
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-slate-500 font-bold uppercase text-xs border-b bg-white">
+                            <th class="p-5">Student ID</th> 
+                            <th class="p-5">Name</th>
+                            <th class="p-5">Score</th>
+                            <th class="p-5 text-center">History</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        <template x-for="student in filteredStudents" :key="student.id">
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-5 font-bold text-blue-600 font-mono text-base" x-text="student.id"></td>
+                                <td class="p-5 font-black text-slate-800 text-base uppercase" x-text="student.name"></td>
+                                <td class="p-5">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-40 bg-slate-100 h-2.5 rounded-full overflow-hidden border">
+                                            <div class="bg-red-800 h-full transition-all duration-700" :style="'width: ' + student.totalScore + '%'"></div>
+                                        </div>
+                                        <span class="font-black text-slate-700 text-base" x-text="student.totalScore + '%'"></span>
+                                    </div>
+                                </td>
+                                <td class="p-5 text-center">
+                                    <button @click="viewDetails(student)" class="bg-slate-800 text-white px-5 py-2 text-xs font-black rounded-sm uppercase hover:bg-slate-700 transition tracking-widest">View</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'sessions'" x-cloak>
+            <h2 class="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-8">Live Sessions Monitor</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <template x-for="session in liveSessions" :key="session.id">
+                    <div class="aws-card border-l-8 p-6" :class="session.active ? 'border-l-green-500' : 'border-l-slate-300'">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <span class="text-xs font-black uppercase text-slate-400 tracking-widest">Node: <span class="text-slate-800" x-text="session.id"></span></span>
+                                <h3 class="text-2xl font-black text-slate-800 uppercase mt-1" x-text="session.student"></h3>
+                                <p class="text-sm text-slate-500 mt-2 font-bold"><i class="far fa-clock mr-1"></i> Started: 27-03-2026 08:30 AM</p>
+                            </div>
+                            <span :class="session.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'" class="text-xs font-black px-4 py-1.5 uppercase rounded border" x-text="session.active ? 'Online' : 'Idle'"></span>
+                        </div>
+                        <div class="mt-8">
+                            <div class="flex justify-between text-sm font-black uppercase mb-2">
+                                <span>Progress</span>
+                                <span class="text-blue-600" x-text="session.progress + '%'"></span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden border shadow-inner">
+                                <div class="bg-blue-600 h-full transition-all duration-1000" :style="'width: ' + session.progress + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'management'" x-cloak>
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Class Management</h2>
+                <button class="bg-red-800 text-white px-8 py-3 text-sm font-black uppercase rounded shadow-md hover:bg-red-900 transition flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Register Student
+                </button>
+            </div>
+            <div class="aws-card shadow-sm overflow-hidden no-padding">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-slate-500 font-bold uppercase text-xs border-b bg-slate-50">
+                            <th class="p-6">Student ID / Email</th>
+                            <th class="p-6">Access Level</th>
+                            <th class="p-6">Last Login</th>
+                            <th class="p-6">Status</th>
+                            <th class="p-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        <template x-for="student in students" :key="student.id">
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-6">
+                                    <div class="flex flex-col">
+                                        <span class="font-black text-slate-800 text-base" x-text="student.id"></span>
+                                        <span class="text-sm text-slate-500 lowercase font-medium" x-text="student.id + '@ub.edu.ph'"></span>
+                                    </div>
+                                </td>
+                                <td class="p-6 text-sm font-bold text-blue-700">TRAINEE_ACCESS</td>
+                                <td class="p-6 text-slate-600 text-base font-normal">27-03-2026 08:30 AM</td>
+                                <td class="p-6">
+                                    <div class="flex items-center gap-2 text-green-600 font-bold text-sm">
+                                        <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></span>
+                                        <span class="uppercase">Authorized</span>
+                                    </div>
+                                </td>
+                                <td class="p-6 text-right">
+                                    <div class="flex justify-end gap-5 text-xl">
+                                        <button class="text-slate-400 hover:text-blue-600 transition"><i class="fas fa-user-edit"></i></button>
+                                        <button class="text-slate-400 hover:text-red-800 transition"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'audit'" x-cloak>
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Audit Event Logs</h2>
+                <div class="flex gap-2">
+                    <input type="date" class="border p-2 text-sm font-bold rounded outline-none focus:border-red-800">
+                    <button class="bg-slate-800 text-white px-6 py-2 text-sm font-black uppercase rounded">Filter</button>
+                </div>
+            </div>
+            <div class="aws-card p-0 overflow-hidden shadow-sm">
+                <div class="divide-y divide-slate-100">
+                    <template x-for="log in auditLogs" :key="log.action + Math.random()">
+                        <div class="p-6 flex items-center gap-8 hover:bg-slate-50 transition">
+                            <div class="text-sm font-black text-slate-400 w-48 shrink-0">27-03-2026 08:30 AM</div>
+                            <div class="w-12 h-12 rounded bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                                <i class="fas text-lg text-slate-600" :class="log.type === 'auth' ? 'fa-user-shield' : 'fa-database'"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-base font-black text-slate-800 uppercase tracking-tight" x-text="log.action"></p>
+                                <p class="text-sm text-slate-500 font-bold uppercase mt-1">Operator: <span class="text-slate-800" x-text="log.user"></span></p>
+                            </div>
+                            <span class="text-[10px] font-black text-green-700 bg-green-50 px-3 py-1 rounded uppercase border border-green-100">Success</span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div x-show="showModal" class="fixed inset-0 z-[2000] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md" x-cloak x-transition>
+        <div class="bg-white w-full max-w-2xl rounded shadow-2xl overflow-hidden border-t-8 border-t-red-800">
+            <div class="p-8">
+                <div class="flex justify-between items-start border-b pb-6 mb-6">
+                    <div>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]" x-text="'Record: ' + selectedStudent?.id"></span>
+                        <h2 class="text-3xl font-black text-slate-800 uppercase mt-1" x-text="selectedStudent?.name"></h2>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-4xl font-black text-red-800" x-text="selectedStudent?.totalScore + '%'"></p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <template x-for="task in selectedStudent?.workflows" :key="task.name">
+                        <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded">
+                            <span class="text-sm font-black text-slate-600 uppercase" x-text="task.name"></span>
+                            <span class="text-sm font-black text-slate-900 bg-white px-4 py-1 border rounded shadow-sm" x-text="task.score + ' / 100'"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-6 flex justify-end">
+                <button @click="showModal = false" class="px-8 py-3 text-xs font-black bg-slate-800 text-white uppercase tracking-[0.2em] rounded hover:bg-red-800 transition">Close View</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Intersection Observer for Scroll Reveal
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('reveal-visible');
+        function consoleApp() {
+            return {
+                currentTab: 'dashboard',
+                searchQuery: '',
+                isRefreshing: false,
+                showModal: false,
+                isSidebarOpen: true,
+                selectedStudent: null,
+
+                // SAMPLE DATA
+                liveSessions: [
+                    { id: 'NODE-01', student: 'JUAN DELA CRUZ', progress: 85, active: true },
+                    { id: 'NODE-02', student: 'MARIA SANTOS', progress: 45, active: true },
+                    { id: 'NODE-03', student: 'STANDBY', progress: 0, active: false },
+                    { id: 'NODE-04', student: 'ARNEL BAUTISTA', progress: 12, active: true }
+                ],
+
+                auditLogs: [
+                    { action: 'SEC_USER_LOGIN', user: 'JUAN DELA CRUZ', type: 'auth' },
+                    { action: 'DATA_ENTRY_UPDATE', user: 'MARIA SANTOS', type: 'db' },
+                    { action: 'ADMIN_SESS_REVOKE', user: 'SYSTEM_ADMIN', type: 'auth' },
+                    { action: 'TRX_LOG_WRITE', user: 'ARNEL BAUTISTA', type: 'db' }
+                ],
+
+                students: [
+                    { id: '2024-1001-UB', name: 'JUAN DELA CRUZ', totalScore: 92, workflows: [{ name: 'Authentication', score: 100 }, { name: 'Transaction', score: 85 }, { name: 'Inventory', score: 92 }] },
+                    { id: '2024-1002-UB', name: 'MARIA SANTOS', totalScore: 78, workflows: [{ name: 'Authentication', score: 90 }, { name: 'Transaction', score: 65 }, { name: 'Inventory', score: 75 }] },
+                    { id: '2024-1003-UB', name: 'ARNEL BAUTISTA', totalScore: 98, workflows: [{ name: 'Authentication', score: 100 }, { name: 'Transaction', score: 98 }, { name: 'Inventory', score: 100 }] },
+                    { id: '2024-1004-UB', name: 'ELENA MERCADO', totalScore: 65, workflows: [{ name: 'Authentication', score: 80 }, { name: 'Transaction', score: 50 }, { name: 'Inventory', score: 60 }] },
+                    { id: '2024-1005-UB', name: 'RICARDO REYES', totalScore: 88, workflows: [{ name: 'Authentication', score: 95 }, { name: 'Transaction', score: 82 }, { name: 'Inventory', score: 85 }] }
+                ],
+
+                get filteredStudents() {
+                    return this.students.filter(s => 
+                        s.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                        s.id.includes(this.searchQuery)
+                    );
+                },
+
+                viewDetails(student) {
+                    this.selectedStudent = student;
+                    this.showModal = true;
+                },
+
+                refreshData() {
+                    this.isRefreshing = true;
+                    setTimeout(() => { this.isRefreshing = false; }, 800);
                 }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.reveal-hidden').forEach(el => observer.observe(el));
-
-        // Smooth Cross-fade Slideshow
-        let slideIndex = 0;
-        const slides = document.querySelectorAll(".slideshow-container img");
-        function showSlides() {
-            if(slides.length === 0) return;
-            slides.forEach(s => s.classList.remove("active"));
-            slideIndex++;
-            if (slideIndex > slides.length) slideIndex = 1;
-            slides[slideIndex - 1].classList.add("active");
-            setTimeout(showSlides, 4000); 
+            }
         }
-        if(slides.length > 0) showSlides();
     </script>
 </body>
 </html>
