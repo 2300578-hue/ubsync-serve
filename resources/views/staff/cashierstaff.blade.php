@@ -10,36 +10,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f2f3f3; color: #334155; overflow-x: hidden; }
+        
+        /* Consistent UB Branding Header */
+        .aws-header { background-color: #800000; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; color: white; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .gold-accent { background-color: #D4AF37; height: 4px; position: fixed; top: 65px; width: 100%; z-index: 999; }
+        
+        /* Sidebar Navigation */
+        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 998; }
+        .sidebar-collapsed { left: -260px; }
+        
+        /* Main Content Area */
+        .main-content { margin-left: 260px; margin-top: 69px; padding: 25px; transition: all 0.3s ease; min-height: calc(100vh - 69px); }
+        .content-wide { margin-left: 0; width: 100%; }
+
         .clay-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1.25rem;
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #eaeded;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
-       /* BURAHIN ITO */
 
-
-        .bg-maroon { background-color: #800000; }
-        .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a52a2a 100%); }
-        .nav-active { 
-            background: #800000 !important; 
-            color: white !important;
-            box-shadow: 0 10px 15px -3px rgba(128, 0, 0, 0.3);
+        /* Sign Out Button Style (Based on Screenshot) */
+        .sign-out-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            color: white;
         }
+        .sign-out-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a52a2a 100%); }
+        .status-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 800; text-transform: uppercase; }
         [x-cloak] { display: none !important; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #800000; border-radius: 10px; }
-        
-        .status-badge {
-            font-size: 0.65rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
     </style>
 </head>
 
@@ -47,12 +60,10 @@
     tab: 'home',
     sidebarOpen: true,
     showTableDetail: null,
-    showVacantModal: false, // DAGDAG: Para sa View Table modal
+    showVacantModal: false,
     salesSummary: { total: 24500 },
-    
     selectedTableForOrder: '',
     cart: [],
-    
     products: [
         { id: 1, name: 'Burger Steak', cat: 'Meals', price: 150, stock: 25, img: 'burgersteak.png' },
         { id: 2, name: 'Carbonara', cat: 'Pasta', price: 180, stock: 15, img: 'carbonara.png' },
@@ -60,7 +71,6 @@
         { id: 4, name: 'Leche Flan', cat: 'Desserts', price: 75, stock: 20, img: 'lecheflan.png' },
         { id: 5, name: 'Mozarella Sticks', cat: 'Appetizer', price: 130, stock: 15, img: 'mozarella.png' }
     ],
-
     tables: [
         { id: 1, isSessionActive: true, payment: 'Unpaid', isMarkedPaid: false, orders: ['Burger Steak x2', 'Ice Tea x2'], bill: 345 },
         { id: 2, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: ['Carbonara x1', 'Ice Tea x1'], bill: 150 },
@@ -72,23 +82,19 @@
         { id: 8, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: ['Leche flan x3', 'Carbonara x3'], bill: 450 },
         { id: 9, isSessionActive: true, payment: 'Unpaid', isMarkedPaid: false, orders: ['Burger Steak x1'], bill: 120 }
     ],
-
     addToCart(product) {
         if(product.stock <= 0) return alert('Out of Stock!');
         let item = this.cart.find(i => i.id === product.id);
         if(item) { item.qty++; } else { this.cart.push({ ...product, qty: 1 }); }
         product.stock--;
     },
-
     removeFromCart(index) {
         let item = this.cart[index];
         let p = this.products.find(x => x.id === item.id);
         if(p) p.stock += item.qty;
         this.cart.splice(index, 1);
     },
-
     get cartTotal() { return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0); },
-
     placeOrder() {
         if(!this.selectedTableForOrder) return alert('Select Table First');
         let t = this.tables.find(x => x.id == this.selectedTableForOrder);
@@ -101,14 +107,12 @@
         this.selectedTableForOrder = '';
         this.tab = 'home';
     },
-
     markAsPaid(id) {
         let t = this.tables.find(x => x.id === id);
         this.salesSummary.total += t.bill;
         t.isMarkedPaid = true;
         t.payment = 'Paid';
     },
-
     resetTable(id) {
         let t = this.tables.find(x => x.id === id);
         t.isSessionActive = false;
@@ -119,231 +123,222 @@
     }
 }">
 
-    <div class="flex min-h-screen">
-        <aside :class="sidebarOpen ? 'w-72' : 'w-0 -ml-72'" class="bg-white border-r border-gray-100 flex flex-col fixed h-full z-50 overflow-hidden transition-all duration-300 shadow-2xl">
-            <div class="p-8 flex items-center gap-3">
-                <div class="w-10 h-10 maroon-gradient rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-sync text-white"></i></div>
-                <h1 class="font-extrabold text-2xl text-[#800000] uppercase tracking-tighter">UB-SYNC</h1>
+    <header class="aws-header shadow-lg">
+        <div class="flex items-center gap-4">
+            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
+                <i class="fas fa-bars-staggered"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                
+                <span class="font-bold tracking-tighter text-lg uppercase">UB SYNC CONTROL</span>
+            </div>
+        </div>
+
+  <div class="flex items-center gap-6">
+    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+        
+        <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full text-right hover:bg-white/5 p-2 rounded transition-all cursor-pointer focus:outline-none">
+            <div class="hidden md:block text-right">
+                <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-bold">Account</span>
+                <p class="font-bold text-white uppercase text-sm tracking-tight">
+                    {{ Auth::user()->name ?? 'Guest User' }}
+                </p>
+            </div>
+            
+            <div class="relative">
+                <i class="fas fa-user-circle text-2xl text-white/80 transition-transform" :class="open ? 'scale-110' : ''"></i>
+                <div class="absolute -bottom-0.5 -right-0.5 bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-[#800000]"></div>
             </div>
 
-            <nav class="flex-1 px-4 space-y-2">
-                <button x-on:click="tab = 'home'" :class="tab === 'home' ? 'nav-active' : 'hover:bg-gray-50'" class="w-full flex items-center gap-4 px-4 py-4 rounded-2xl font-bold text-gray-500 transition-all text-sm text-left">
-                    <i class="fa-solid fa-table-cells-large w-5 text-lg"></i> Control Center
-                </button>
-                <button x-on:click="tab = 'pos'" :class="tab === 'pos' ? 'nav-active' : 'hover:bg-gray-50'" class="w-full flex items-center gap-4 px-4 py-4 rounded-2xl font-bold text-gray-500 transition-all text-sm text-left">
-                    <i class="fa-solid fa-cash-register w-5 text-lg"></i> Service Hub
-                </button>
-                <button x-on:click="tab = 'inventory'" :class="tab === 'inventory' ? 'nav-active' : 'hover:bg-gray-50'" class="w-full flex items-center gap-4 px-4 py-4 rounded-2xl font-bold text-gray-500 transition-all text-sm text-left">
-                    <i class="fa-solid fa-boxes-stacked w-5 text-lg"></i> Stock Vault
-                </button>
-            </nav>
+            <i class="fa-solid fa-chevron-down text-[9px] text-white/40 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+        </button>
 
-            <div class="p-6 border-t border-gray-50">
-                <form method="POST" action="{{ route('logout') }}">
+        <div x-show="open" 
+             x-cloak
+             x-transition:enter="transition ease-out duration-150"
+             x-transition:enter-start="transform opacity-0 scale-95 -translate-y-2"
+             x-transition:enter-end="transform opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="transform opacity-100 scale-100"
+             x-transition:leave-end="transform opacity-0 scale-95"
+             class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] py-2 z-[1100] border border-slate-200 overflow-hidden">
+            
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 mb-1">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Signed in as</p>
+                <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'Guest User' }}</p>
+            </div>
+
+            <div class="px-2">
+                <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest text-red-600 bg-red-50 hover:bg-red-100 transition-colors">
-                        <i class="fa-solid fa-power-off"></i> Sign Out
+                    <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 hover:bg-red-50 rounded-lg uppercase tracking-widest flex items-center gap-3 transition-all group">
+                        <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-power-off text-sm"></i> 
+                        </div>
+                        Sign Out
                     </button>
                 </form>
             </div>
-        </aside>
-
-        <main :class="sidebarOpen ? 'ml-72' : 'ml-0'" class="flex-1 transition-all duration-300">
-            <header class="bg-white border-b border-gray-100 px-8 py-4 flex justify-between items-center sticky top-0 z-40">
-                <div class="flex items-center gap-6">
-                    <button x-on:click="sidebarOpen = !sidebarOpen" class="w-10 h-10 bg-gray-50 text-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-transform">
-                        <i class="fa-solid fa-bars-staggered"></i>
-                    </button>
-                    <span class="font-extrabold text-sm text-gray-800 uppercase tracking-widest" x-text="tab === 'home' ? 'Dashboard' : (tab === 'pos' ? 'POS' : 'Inventory')"></span>
-                </div>
-
-                <div class="flex items-center gap-4 py-1 px-2 pr-4 rounded-2xl border border-gray-50 bg-gray-50/30">
-                    <div class="w-9 h-9 rounded-xl maroon-gradient flex items-center justify-center text-white font-black text-xs shadow-md uppercase">
-                        {{ substr(Auth::user()->name, 0, 2) }}
-                    </div>
-                    <div class="hidden sm:block">
-                        <p class="text-[13px] font-black text-gray-800 uppercase tracking-tight">{{ Auth::user()->name }}</p>
-                    </div>
-                </div>
-            </header>
-
-            <div class="p-8">
-                <div x-show="tab === 'home'" x-cloak class="space-y-8">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="clay-card p-6 bg-white border-b-4 border-green-500">
-                            <div class="flex justify-between items-center mb-2">
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Sales Today</p>
-                                <i class="fa-solid fa-chart-line text-green-500"></i>
-                            </div>
-                            <h3 class="text-2xl font-black text-gray-800" x-text="'₱' + salesSummary.total.toLocaleString()"></h3>
-                        </div>
-                        <div class="clay-card p-6 bg-white border-b-4 border-blue-500">
-                            <div class="flex justify-between items-center mb-2">
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Live Tables</p>
-                                <i class="fa-solid fa-users text-blue-500"></i>
-                            </div>
-                            <h3 class="text-2xl font-black text-gray-800" x-text="tables.filter(t => t.isSessionActive).length"></h3>
-                        </div>
-                        <div class="clay-card p-6 bg-white border-b-4 border-orange-500">
-                            <div class="flex justify-between items-center mb-2">
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Unpaid Orders</p>
-                                <i class="fa-solid fa-clock-rotate-left text-orange-500"></i>
-                            </div>
-                            <h3 class="text-2xl font-black text-gray-800" x-text="tables.filter(t => t.isSessionActive && t.payment === 'Unpaid').length"></h3>
-                        </div>
-
-                       <div x-on:click="showVacantModal = true" class="clay-card p-6 bg-white border-b-4 border-white cursor-pointer">
-                            <div class="flex justify-between items-center mb-2">
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Table Manager</p>
-                                <i class="fa-solid fa-eye text-[#800000]"></i>
-                            </div>
-                            <h3 class="text-sm font-black text-[#800000] uppercase tracking-tighter">VIEW TABLE</h3>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="table in tables" :key="table.id">
-                            <div x-show="table.isSessionActive" x-transition class="clay-card overflow-hidden">
-                                <div class="p-5 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center font-black text-[#800000]" x-text="table.id"></div>
-                                        <h4 class="font-black text-gray-700 uppercase text-xs">Table Session</h4>
-                                    </div>
-                                    <span class="status-badge bg-maroon text-white">Occupied</span>
-                                </div>
-                                
-                                <div class="p-6">
-                                    <div class="flex justify-between items-end mb-6">
-                                        <div>
-                                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Bill</p>
-                                            <template x-if="table.payment === 'Paid'">
-                                                <h2 class="text-3xl font-black text-gray-800" x-text="'₱' + table.bill.toLocaleString()"></h2>
-                                            </template>
-                                            <template x-if="table.payment === 'Unpaid'">
-                                                <div class="flex items-center gap-2 text-gray-400">
-                                                    <i class="fa-solid fa-lock text-xs"></i>
-                                                    <span class="text-sm font-bold italic tracking-tighter uppercase">Ordering...</span>
-                                                </div>
-                                            </template>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid grid-cols-2 gap-3 mb-6">
-                                        <div class="p-3 rounded-xl border border-dashed flex flex-col items-center justify-center gap-1"
-                                             :class="table.payment === 'Unpaid' ? 'border-blue-200 bg-blue-50 text-blue-600' : 'border-green-200 bg-green-50 text-green-600'">
-                                            <i class="fa-solid" :class="table.payment === 'Unpaid' ? 'fa-utensils' : 'fa-check-double'"></i>
-                                            <span class="text-[9px] font-black uppercase" x-text="table.payment === 'Unpaid' ? 'Ordering' : 'Order Ready'"></span>
-                                        </div>
-                                        <div class="p-3 rounded-xl border border-dashed flex flex-col items-center justify-center gap-1"
-                                             :class="table.payment === 'Unpaid' ? 'border-red-200 bg-red-50 text-red-600' : 'border-green-200 bg-green-50 text-green-600'">
-                                            <i class="fa-solid" :class="table.payment === 'Unpaid' ? 'fa-wallet' : 'fa-receipt'"></i>
-                                            <span class="text-[9px] font-black uppercase" x-text="table.payment === 'Unpaid' ? 'Unpaid' : 'Paid'"></span>
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <button x-on:click="table.payment === 'Paid' ? showTableDetail = table : alert('Please wait for order settlement.')" 
-                                                class="w-full py-3 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm"
-                                                :class="table.payment === 'Paid' ? 'bg-gray-800 text-white hover:bg-gray-900' : 'bg-gray-100 text-gray-300 cursor-not-allowed'">
-                                            <i class="fa-solid fa-eye"></i> View Order Details
-                                        </button>
-
-                                        <template x-if="table.payment === 'Unpaid'">
-                                            <div class="w-full py-3 bg-orange-50 text-orange-600 rounded-xl text-[10px] font-black uppercase text-center border border-orange-100">
-                                                <i class="fa-solid fa-spinner animate-spin mr-2"></i> Session Ongoing
-                                            </div>
-                                        </template>
-
-                                        <template x-if="table.payment === 'Paid' && !table.isMarkedPaid">
-                                            <button x-on:click="markAsPaid(table.id)" class="w-full py-3 bg-[#800000] text-white rounded-xl text-[10px] font-black uppercase hover:opacity-90 transition-all shadow-md">
-                                                <i class="fa-solid fa-hand-holding-dollar mr-1"></i> Settle Payment
-                                            </button>
-                                        </template>
-
-                                        <template x-if="table.payment === 'Paid' && table.isMarkedPaid">
-                                            <button x-on:click="resetTable(table.id)" class="w-full py-3 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-green-700 transition-all shadow-md">
-                                                <i class="fa-solid fa-broom mr-1"></i> Clear & Close Table
-                                            </button>
-                                        </template>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <div x-show="tab === 'pos'" x-cloak>@include('pos.service_hub')</div>
-                <div x-show="tab === 'inventory'" x-cloak>@include('pos.stock_vault')</div>
-            </div>
-        </main>
+        </div>
     </div>
-
-    <div x-show="showVacantModal" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-        <div class="clay-card w-full max-w-2xl bg-white overflow-hidden shadow-2xl relative">
-            <div class="maroon-gradient p-6 text-white flex justify-between items-center">
-                <div>
-                 <h3 class="text-xl font-black uppercase tracking-normal">AVAILABLE &nbsp; &nbsp;TABLES</h3>
-                    <p class="text-[10px] font-bold opacity-70 uppercase">Ready for new customers</p>
-                </div>
-                
-            </div>
-            
-            <div class="p-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto custom-scroll">
-                <template x-for="table in tables" :key="table.id">
-                    <div x-show="!table.isSessionActive" class="p-6 rounded-2xl border border-[#800000] flex flex-col items-center justify-center gap-2 bg-white">
-    <span class="text-3xl font-black text-[#800000]" x-text="table.id"></span>
-    <span class="text-[10px] font-black text-[#800000] uppercase">VACANT</span>
 </div>
+        
+    </header>
+    <div class="gold-accent"></div>
+
+    <aside class="aws-sidebar shadow-sm" :class="!sidebarOpen ? 'sidebar-collapsed' : ''">
+        <div class="p-6 space-y-8">
+            <div>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Main Navigation</p>
+                <nav class="space-y-1">
+                    <button @click="tab = 'home'" :class="tab === 'home' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
+                        <i class="fa-solid fa-table-cells-large w-5"></i> Control Center
+                    </button>
+                    <button @click="tab = 'pos'" :class="tab === 'pos' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
+                        <i class="fa-solid fa-cash-register w-5"></i> Service Hub
+                    </button>
+                    <button @click="tab = 'inventory'" :class="tab === 'inventory' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
+                        <i class="fa-solid fa-boxes-stacked w-5"></i> Stock Vault
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
+        
+        <div x-show="tab === 'home'" x-cloak class="space-y-8">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">System Overview</h1>
+                    <p class="text-sm text-slate-500 font-bold tracking-widest uppercase">Admin Command Console</p>
+                </div>
+                <button x-on:click="showVacantModal = true" class="bg-slate-800 text-white px-6 py-2.5 text-sm font-black hover:bg-slate-700 transition rounded flex items-center gap-2">
+                    <i class="fa-solid fa-eye"></i> View Vacant Tables
+                </button>
+            </div>
+
+            
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="clay-card p-6 border-t-4 border-t-emerald-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sales Today</p>
+                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="'₱' + salesSummary.total.toLocaleString()"></h3>
+                </div>
+                <div class="clay-card p-6 border-t-4 border-t-blue-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Sessions</p>
+                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></h3>
+                </div>
+                <div class="clay-card p-6 border-t-4 border-t-orange-500">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Settlements</p>
+                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive && t.payment === 'Unpaid').length"></h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="table in tables" :key="table.id">
+                    <div x-show="table.isSessionActive" x-transition class="clay-card flex flex-col overflow-hidden">
+                        <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded bg-white border font-black text-red-800 flex items-center justify-center shadow-sm" x-text="table.id"></span>
+                                <span class="font-bold text-slate-700 text-xs uppercase">Occupied</span>
+                            </div>
+                            <span class="status-badge bg-red-800 text-white">Active</span>
+                        </div>
+                        
+                        <div class="p-5 flex-1">
+                            <div class="mb-4">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Current Bill</p>
+                                <h2 class="text-2xl font-black text-slate-800" x-text="table.payment === 'Paid' ? '₱' + table.bill.toLocaleString() : '---'"></h2>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                <div class="p-2 rounded border border-dashed text-center" :class="table.payment === 'Unpaid' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'">
+                                    <p class="text-[9px] font-black uppercase" x-text="table.payment === 'Unpaid' ? 'Ordering' : 'Order Ready'"></p>
+                                </div>
+                                <div class="p-2 rounded border border-dashed text-center" :class="table.payment === 'Unpaid' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'">
+                                    <p class="text-[9px] font-black uppercase" x-text="table.payment === 'Unpaid' ? 'Unpaid' : 'Settled'"></p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <button @click="table.payment === 'Paid' ? showTableDetail = table : alert('Wait for order settlement.')" 
+                                        class="w-full py-2.5 rounded text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 border border-slate-200 hover:bg-slate-50">
+                                    <i class="fa-solid fa-eye"></i> View Details
+                                </button>
+
+                                <template x-if="table.payment === 'Paid' && !table.isMarkedPaid">
+                                    <button @click="markAsPaid(table.id)" class="w-full py-2.5 bg-red-800 text-white rounded text-[10px] font-black uppercase shadow-sm">
+                                        Settle Payment
+                                    </button>
+                                </template>
+
+                                <template x-if="table.payment === 'Paid' && table.isMarkedPaid">
+                                    <button @click="resetTable(table.id)" class="w-full py-2.5 bg-emerald-600 text-white rounded text-[10px] font-black uppercase shadow-sm">
+                                        Clear & Close Table
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
                 </template>
             </div>
-            <div class="p-6 bg-gray-50 text-center border-t border-gray-100">
-                <button x-on:click="showVacantModal = false" class="px-8 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase">Close Viewer</button>
+        </div>
+
+        <div x-show="tab === 'pos'" x-cloak>
+            @include('pos.service_hub')
+        </div>
+
+        <div x-show="tab === 'inventory'" x-cloak>
+            @include('pos.stock_vault')
+        </div>
+    </main>
+
+    <div x-show="showVacantModal" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="clay-card w-full max-w-2xl overflow-hidden shadow-2xl">
+            <div class="maroon-gradient p-5 text-white flex justify-between items-center">
+                <h3 class="font-black uppercase tracking-widest">Available Tables</h3>
+                
+            </div>
+            <div class="p-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto custom-scroll">
+                <template x-for="table in tables" :key="table.id">
+                    <div x-show="!table.isSessionActive" class="p-6 rounded-xl border-2 border-slate-100 flex flex-col items-center justify-center bg-slate-50">
+                        <span class="text-3xl font-black text-red-800" x-text="table.id"></span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">Vacant</span>
+                    </div>
+                </template>
+            </div>
+            <div class="p-4 bg-slate-50 text-right border-t">
+                <button @click="showVacantModal = false" class="px-6 py-2 bg-slate-800 text-white rounded text-[10px] font-black uppercase">Close</button>
             </div>
         </div>
     </div>
 
-    <div x-show="showTableDetail" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-md p-4">
-        <div class="clay-card w-full max-w-md bg-white overflow-hidden shadow-2xl relative" @click.away="showTableDetail = null">
-            <div class="maroon-gradient p-6 text-white text-center">
-                <h3 class="text-2xl font-black uppercase mb-1" x-text="showTableDetail ? 'Table ' + showTableDetail.id : ''"></h3>
-                <p class="text-[10px] opacity-80 font-bold uppercase tracking-[0.2em]">Transaction Verified</p>
+    <div x-show="showTableDetail" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
+        <div class="clay-card w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="maroon-gradient p-5 text-white text-center">
+                <h3 class="text-xl font-black uppercase" x-text="showTableDetail ? 'Table ' + showTableDetail.id : ''"></h3>
+                <p class="text-[9px] font-bold uppercase tracking-widest opacity-70">Order Breakdown</p>
             </div>
-            
-            <div class="p-8">
-                <div class="space-y-3 mb-6 max-h-[40vh] overflow-y-auto custom-scroll pr-2">
+            <div class="p-6">
+                <div class="space-y-2 mb-6 max-h-[40vh] overflow-y-auto custom-scroll">
                     <template x-for="(orderStr, index) in (showTableDetail ? showTableDetail.orders : [])" :key="index">
-                        <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                            
-                            <div class="w-14 h-14 rounded-xl overflow-hidden bg-white border border-gray-200 flex-shrink-0">
-                          <img :src="
-                           (() => {
-                          let found = products.find(p => orderStr.toLowerCase().includes(p.name.toLowerCase()));
-                         return found ? '/img/' + found.img : 'https://via.placeholder.com/150?text=Food';
-                         })()
-                    " class="w-full h-full object-cover">
-                      </div>
-
+                        <div class="flex items-center gap-4 p-3 bg-slate-50 border rounded-lg">
                             <div class="flex-1">
-                                <p class="text-[11px] font-black text-gray-800 uppercase leading-tight" x-text="orderStr"></p>
-                                <div class="flex items-center gap-1 mt-1">
-                                    <i class="fa-solid fa-circle-check text-[10px] text-green-500"></i>
-                                    <span class="text-[8px] font-bold text-gray-400 uppercase">Confirmed</span>
-                                </div>
+                                <p class="text-[11px] font-black text-slate-700 uppercase" x-text="orderStr"></p>
+                                <span class="text-[8px] text-emerald-600 font-bold uppercase"><i class="fas fa-check"></i> Confirmed</span>
                             </div>
                         </div>
                     </template>
                 </div>
-
-                <div class="flex justify-between items-center mb-8 px-2 border-t border-dashed pt-4">
-                    <span class="text-xs font-black text-gray-400 uppercase">Grand Total</span>
-                    <span class="text-2xl font-black text-[#800000]" x-text="showTableDetail ? '₱' + showTableDetail.bill.toLocaleString() : '₱0'"></span>
+                <div class="flex justify-between items-center border-t border-dashed pt-4 mb-6">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Grand Total</span>
+                    <span class="text-2xl font-black text-red-800" x-text="showTableDetail ? '₱' + showTableDetail.bill.toLocaleString() : '₱0'"></span>
                 </div>
-
-                <button x-on:click="showTableDetail = null" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-black transition-all">
-                    Confirm & Exit
-                </button>
+                <button @click="showTableDetail = null" class="w-full py-3 bg-slate-800 text-white rounded font-black text-xs uppercase hover:bg-black transition-all">Confirm & Exit</button>
             </div>
         </div>
     </div>
+
 </body>
 </html>

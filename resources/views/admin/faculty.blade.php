@@ -38,23 +38,48 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-6">
-            <div class="flex items-center gap-3 border-l border-white/20 pl-6 h-full text-right">
-                <div class="hidden md:block text-right">
-                    <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-bold">Account</span>
-                    <p class="font-bold text-white uppercase text-sm tracking-tight">
-                        {{ Auth::user()->name ?? 'Guest User' }}
-                    </p>
-                </div>
-                <i class="fas fa-user-circle text-2xl text-white/80"></i>
+          <div class="flex items-center gap-6">
+    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+        
+        <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full text-right hover:bg-white/5 p-2 rounded transition-all cursor-pointer focus:outline-none">
+            <div class="hidden md:block text-right">
+                <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-bold">Account</span>
+                <p class="font-bold text-white uppercase text-sm tracking-tight">
+                    {{ Auth::user()->name ?? 'Guest User' }}
+                </p>
             </div>
-            <form action="{{ route('logout') }}" method="POST" class="inline">
+            <div class="relative">
+                <i class="fas fa-user-circle text-2xl text-white/80"></i>
+                <div class="absolute -bottom-1 -right-1 bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-[#800000]"></div>
+            </div>
+            <i class="fa-solid fa-chevron-down text-[9px] text-white/30 transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+        </button>
+
+        <div x-show="open" 
+             x-cloak
+             x-transition:enter="transition ease-out duration-100"
+             x-transition:enter-start="transform opacity-0 scale-95"
+             x-transition:enter-end="transform opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-75"
+             x-transition:leave-start="transform opacity-100 scale-100"
+             x-transition:leave-end="transform opacity-0 scale-95"
+             class="absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-2xl py-2 z-[1100] border border-slate-200 overflow-hidden">
+            
+            <div class="px-4 py-2 bg-slate-50/50 border-b border-slate-100 mb-1">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Signed in as</p>
+                <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'Guest User' }}</p>
+            </div>
+
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="bg-black/20 hover:bg-black/40 px-4 py-2 rounded-sm font-bold text-xs uppercase border border-white/10 transition flex items-center gap-2">
-                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                <button type="submit" class="w-full text-left px-4 py-3 text-[11px] font-black text-red-600 hover:bg-red-50 uppercase tracking-widest flex items-center gap-3 transition-colors">
+                    <i class="fa-solid fa-power-off text-sm"></i> 
+                    Sign Out
                 </button>
             </form>
         </div>
+    </div>
+</div>
     </header>
     <div class="gold-accent"></div>
 
@@ -116,8 +141,9 @@
                     <p class="text-3xl font-black text-slate-800 mt-1">88.5%</p>
                 </div>
                 <div class="aws-card border-l-4 border-l-blue-500 p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Term</p>
-                    <p class="text-2xl font-black text-blue-600 mt-1 uppercase">S1-2026</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Tables</p>
+                    <p class="text-3xl font-black text-emerald-600 mt-1">8</p>
+                 
                 </div>
             </div>
 
@@ -168,7 +194,7 @@
                    <div class="aws-card border-l-8 p-6" :class="session.active ? 'border-l-green-500' : 'border-l-slate-300'">
                        <div class="flex justify-between items-start mb-6">
                            <div>
-                               <span class="text-xs font-black uppercase text-slate-400 tracking-widest">Node: <span class="text-slate-800" x-text="session.id"></span></span>
+                              
                                <h3 class="text-2xl font-black text-slate-800 uppercase mt-1" x-text="session.student"></h3>
                            </div>
                            <span :class="session.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'" class="text-xs font-black px-4 py-1.5 uppercase rounded border" x-text="session.active ? 'Online' : 'Idle'"></span>
