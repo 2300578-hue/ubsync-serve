@@ -50,7 +50,7 @@
             <div class="pt-4 border-t border-gray-100">
                 <a href="{{ url('/menu?table=' . $tableNumber) }}" 
                    class="inline-flex items-center gap-2 text-maroon font-bold hover:opacity-70 transition-all text-sm uppercase tracking-widest">
-                    <span>Test Order Link</span>
+                    <span>Test QR ORDER Link</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
