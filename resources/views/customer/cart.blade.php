@@ -43,7 +43,8 @@
                 <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">MY <span class="text-maroon">CART</span></h1>
             </div>
             
-           <a :href="'/table/' + (new URLSearchParams(window.location.search).get('table') || '1')"  class="group flex items-center bg-gray-50 px-5 py-3 rounded-2xl border border-gray-100 transition-all hover:bg-gray-100">
+         <a :href="'{{ route('customer.menu') }}?table=' + (new URLSearchParams(window.location.search).get('table') || '1')" 
+   class="group flex items-center bg-gray-50 px-5 py-3 rounded-2xl border border-gray-100 transition-all hover:bg-gray-100">
                 <svg class="w-4 h-4 mr-2 text-gray-400 group-hover:text-maroon transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -100,19 +101,17 @@
                 </div>
             </template>
 
-            <div x-show="cart.length === 0" class="py-32 text-center bg-white rounded-[3.5rem] border-2 border-dashed border-gray-100 px-10">
-                <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
-                    <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                    </svg>
-                </div>
-                <h3 class="text-gray-400 font-bold uppercase tracking-[0.3em] text-sm mb-8">Your cart is empty</h3>
-                <a :href="'/table/' + (new URLSearchParams(window.location.search).get('table') || '1')" 
-   class="inline-block btn-maroon text-white px-12 py-5 rounded-[2rem] font-bold text-sm shadow-xl shadow-maroon/20">
-    Go Back to Menu
-</a>
-                </a>
-            </div>
+          <div x-show="cart.length === 0" class="py-32 text-center bg-white rounded-[3.5rem] border-2 border-dashed border-gray-100 px-10">
+    <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
+     <svg class="w-12 h-12 text-maroon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+        </svg>
+    </div>
+
+    <h3 class="text-gray-400 font-bold uppercase tracking-[0.3em] text-sm mb-8">Your cart is empty</h3>
+
+    
+</div>
         </div>
     </main>
 
@@ -134,106 +133,115 @@
     </footer>
 
     <script>
-        function cartPage() {
-            return {
-                cart: [],
-                showEditModal: false,
-                editIndex: -1,
-                editItem: null,
-                loadCart() {
-                    this.cart = JSON.parse(localStorage.getItem('ub_cart')) || [];
-                    console.log('Loaded cart:', this.cart);
-                },
-                get total() {
-                    return this.cart.reduce((sum, item) => sum + item.totalPrice, 0);
-                },
-                updateQty(index, amount) {
-                    let newQty = this.cart[index].qty + amount;
-                    if (newQty > 0) {
-                        this.cart[index].qty = newQty;
-                        this.cart[index].totalPrice = (this.cart[index].price + this.cart[index].selectedAddOns.reduce((sum, addon) => sum + addon.price, 0)) * newQty;
-                        this.saveCart();
-                    } else if (newQty === 0) {
-                        this.removeItem(index);
-                    }
-                },
-                removeItem(index) {
-                    this.cart.splice(index, 1);
-                    this.saveCart();
-                },
-                openEditModal(index) {
-                    if(index >= 0 && index < this.cart.length) {
-                        let item = this.cart[index];
-                        this.editIndex = index;
-                        this.editItem = {
-                            id: item.id,
-                            name: item.name,
-                            price: item.price,
-                            image: item.image,
-                            qty: item.qty,
-                            totalPrice: item.totalPrice,
-                            addOns: item.addOns ? JSON.parse(JSON.stringify(item.addOns)) : [],
-                            selectedAddOns: item.selectedAddOns ? JSON.parse(JSON.stringify(item.selectedAddOns)) : []
-                        };
-                        this.showEditModal = true;
-                    }
-                },
-                saveEdit() {
-                    if(this.editItem && this.editIndex >= 0 && this.editIndex < this.cart.length) {
-                        const addOnPrice = this.editItem.selectedAddOns ? this.editItem.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0) : 0;
-                        const newTotalPrice = (this.editItem.price + addOnPrice) * this.editItem.qty;
-                        
-                        // Update cart
-                        this.cart[this.editIndex] = {
-                            id: this.editItem.id,
-                            name: this.editItem.name,
-                            price: this.editItem.price,
-                            image: this.editItem.image,
-                            qty: this.editItem.qty,
-                            totalPrice: newTotalPrice,
-                            addOns: this.editItem.addOns,
-                            selectedAddOns: this.editItem.selectedAddOns
-                        };
-                        
-                        this.saveCart();
-                    }
-                    
-                    // Close modal and cleanup
-                    this.showEditModal = false;
-                    this.editItem = null;
-                    this.editIndex = -1;
-                },
-                closeEditModal() {
-                    this.showEditModal = false;
-                    this.editItem = null;
-                    this.editIndex = -1;
-                },
-                saveCart() {
-                    localStorage.setItem('ub_cart', JSON.stringify(this.cart));
-                },
-               placeOrder() {
-    if(this.cart.length === 0) {
-        alert('No items in cart');
-        return;
-    }
-    if(confirm('Confirm your order?')) {
-        // Kunin ang table number mula sa URL bago i-clear ang storage
-        const urlParams = new URLSearchParams(window.location.search);
-        const currentTable = urlParams.get('table') || '1';
+    function cartPage() {
+        return {
+            cart: [],
+            showEditModal: false,
+            editIndex: -1,
+            editItem: null,
 
-        // Clear storage
-        localStorage.removeItem('ub_cart');
-        localStorage.removeItem('ub_customer_name');
+            loadCart() {
+                this.cart = JSON.parse(localStorage.getItem('ub_cart')) || [];
+            },
+
+            get total() {
+                return this.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+            },
+
+           updateQty(index, amount) {
+    let item = this.cart[index];
+    if (!item) return; // Proteksyon kung sakaling mawala ang index
+
+    let newQty = item.qty + amount;
+
+    if (newQty > 0) {
+        item.qty = newQty;
         
-        alert('Order placed! Thank you!');
+        // Siguraduhin na laging Number ang ginagamit sa math (parseFloat)
+        const basePrice = parseFloat(item.price) || 0;
+        const addOnsTotal = item.selectedAddOns 
+            ? item.selectedAddOns.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0) 
+            : 0;
 
-        // REDIRECT pabalik sa tamang table
-        window.location.href = '/table/' + currentTable;
+        item.totalPrice = (basePrice + addOnsTotal) * newQty;
+        this.saveCart();
+    } else {
+        // Kapag naging 0 ang quantity, tawagin ang removeItem
+        this.removeItem(index);
     }
-}
+},
+
+removeItem(index) {
+    // Rekta bura sa array gamit ang splice
+    this.cart.splice(index, 1);
+    
+    // I-save ang updated na cart sa LocalStorage
+    this.saveCart();
+},
+
+            openEditModal(index) {
+                let item = this.cart[index];
+                this.editIndex = index;
+                // Deep copy para hindi mag-reflect agad sa cart habang nag-eedit
+                this.editItem = JSON.parse(JSON.stringify(item));
+                this.showEditModal = true;
+            },
+
+             saveEdit() {
+    if(!this.editItem) return;
+
+    // 1. Re-calculate price for the edited item using parseFloat for safety
+    const basePrice = parseFloat(this.editItem.price) || 0;
+    const addOnPrice = this.editItem.selectedAddOns.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0);
+    
+    // I-update ang totalPrice base sa bagong selected add-ons at current qty
+    this.editItem.totalPrice = (basePrice + addOnPrice) * this.editItem.qty;
+
+    // 2. Check if the "new" version already exists (Merging Logic)
+    const duplicateIndex = this.cart.findIndex((item, idx) => 
+        idx !== this.editIndex && 
+        item.id === this.editItem.id && 
+        JSON.stringify(item.selectedAddOns) === JSON.stringify(this.editItem.selectedAddOns)
+    );
+
+    if (duplicateIndex !== -1) {
+        this.cart[duplicateIndex].qty += this.editItem.qty;
+        // Re-calculate the total price of the merged item
+        const mergedBasePrice = parseFloat(this.cart[duplicateIndex].price) || 0;
+        const mergedAddOns = this.cart[duplicateIndex].selectedAddOns.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0);
+        this.cart[duplicateIndex].totalPrice = (mergedBasePrice + mergedAddOns) * this.cart[duplicateIndex].qty;
+        
+        this.cart.splice(this.editIndex, 1);
+    } else {
+        this.cart[this.editIndex] = this.editItem;
+    }
+
+    this.saveCart();
+    this.closeEditModal();
+},
+
+            closeEditModal() {
+                this.showEditModal = false;
+                this.editItem = null;
+                this.editIndex = -1;
+            },
+
+            saveCart() {
+                localStorage.setItem('ub_cart', JSON.stringify(this.cart));
+            },
+
+            placeOrder() {
+                if(this.cart.length === 0) {
+                    alert('Your cart is empty');
+                    return;
+                }
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentTable = urlParams.get('table') || '1';
+                window.location.href = '/customer/payment?table=' + currentTable;
             }
         }
-    </script>
+    }
+</script>
 
     <!-- Edit Add-ons Modal -->
     <div x-show="showEditModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4" @click.self="closeEditModal()">

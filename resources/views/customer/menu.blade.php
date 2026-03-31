@@ -199,8 +199,20 @@
     <script>
     function menuApp() {
         return {
-            customerName: '', tempFirstName: '', tempLastName: '', tableNumber: '1', selectedCategory: 'All', searchQuery: '', cart: [], showModal: false, selectedFood: null, pendingFood: null,
-            categories: [{name:'All'}, {name:'Main Course'}, {name:'Desserts'}, {name:'Beverages'}, {name:'Appetizer'}],
+            customerName: '', 
+            tempFirstName: '', 
+            tempLastName: '', 
+            tableNumber: '1', 
+            selectedCategory: 'All', 
+            searchQuery: '', 
+            cart: [], 
+            showModal: false, 
+            selectedFood: null,
+
+            categories: [
+                {name:'All'}, {name:'Main Course'}, {name:'Desserts'}, {name:'Beverages'}, {name:'Appetizer'}
+            ],
+
             foods: [
                 { id: 1, name: 'Burger Steak', category: 'Main Course', price: 150, tempQty: 1, stock: 10, image: "{{ asset('img/burgersteak.png') }}", selectedAddOns: [], addOns: [{name: 'Extra Cheese', price: 20}, {name: 'Bacon', price: 30}, {name: 'Fried Egg', price: 15}] },
                 { id: 2, name: 'Carbonara', category: 'Main Course', price: 120, tempQty: 1, stock: 5, image: "{{ asset('img/carbonara.png') }}", selectedAddOns: [], addOns: [{name: 'Extra Bacon', price: 25}, {name: 'Garlic Bread', price: 30}] },
@@ -208,33 +220,31 @@
                 { id: 5, name: 'Mozarella Sticks', category: 'Appetizer', price: 95, tempQty: 1, stock: 8, image: "{{ asset('img/mozarella.png') }}", selectedAddOns: [], addOns: [{name: 'Marinara Sauce', price: 10}] },
                 { id: 6, name: 'Leche Flan', category: 'Desserts', price: 55, tempQty: 1, stock: 8, image: "{{ asset('img/lecheflan.png') }}", selectedAddOns: [], addOns: [{name: 'Extra Caramel', price: 15}] },
             ],
-           initCart() {
-    const urlParams = new URLSearchParams(window.location.search);
-    this.tableNumber = urlParams.get('table') || '1';
-    
-    // IDAGDAG MO ITO: Para matandaan ng browser ang table kahit lumipat ng page
-    localStorage.setItem('ub_current_table', this.tableNumber);
-    
-    const savedName = localStorage.getItem('ub_customer_name');
-    if (savedName) {
-        this.customerName = savedName;
-    }
-    // ... yung iba pang code mo sa baba nito
 
+            initCart() {
+                // 1. Handle Table Number
+                const urlParams = new URLSearchParams(window.location.search);
+                this.tableNumber = urlParams.get('table') || localStorage.getItem('ub_current_table') || '1';
+                localStorage.setItem('ub_current_table', this.tableNumber);
                 
-                // Kunin ang cart sa storage kung meron na
+                // 2. Handle Customer Name
+                const savedName = localStorage.getItem('ub_customer_name');
+                if (savedName) this.customerName = savedName;
+
+                // 3. Handle Cart
                 const savedCart = localStorage.getItem('ub_cart');
-                if (savedCart) {
-                    this.cart = JSON.parse(savedCart);
-                }
+                this.cart = savedCart ? JSON.parse(savedCart) : [];
             },
+
             saveIdentity() {
                 if(this.tempFirstName.trim() && this.tempLastName.trim()) {
                     this.customerName = this.tempFirstName.trim() + ' ' + this.tempLastName.trim();
-                    // Save name sa localStorage
                     localStorage.setItem('ub_customer_name', this.customerName);
-                } else { alert('Name required.'); }
+                } else { 
+                    alert('Please enter your full name.'); 
+                }
             },
+
             get filteredFoods() {
                 let filtered = this.selectedCategory === 'All' ? this.foods : this.foods.filter(f => f.category === this.selectedCategory);
                 if (this.searchQuery.trim()) {
@@ -244,20 +254,18 @@
                 return filtered;
             },
             
-            // FIX: Ito yung nagbabago ng count sa cart icon badge
             get cartItemCount() { 
-                return this.cart.reduce((sum, item) => sum + item.qty, 0); // Sum of all quantities
+                return this.cart.reduce((sum, item) => sum + item.qty, 0);
             },
 
+            // FIX: Inalis ang manual reset ng selectedAddOns dito para maalala ng modal ang dating pinili
             openCustomizeModal(food) {
-                this.selectedFood = JSON.parse(JSON.stringify(food));
-                this.selectedFood.selectedAddOns = [];
+                this.selectedFood = JSON.parse(JSON.stringify(food)); 
                 this.showModal = true;
             },
 
             confirmAddOns() {
                 if (this.selectedFood) {
-                    // Find the original food in foods array
                     const originalFood = this.foods.find(f => f.id === this.selectedFood.id);
                     if (originalFood) {
                         originalFood.selectedAddOns = [...this.selectedFood.selectedAddOns];
@@ -273,42 +281,45 @@
             },
 
             addToCart(food) {
+                // Calculation of Add-ons
                 const addOnPrice = food.selectedAddOns ? food.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0) : 0;
-                const totalPrice = (food.price + addOnPrice) * food.tempQty;
+                const unitPriceWithAddOns = food.price + addOnPrice;
+                const totalPriceForThisEntry = unitPriceWithAddOns * food.tempQty;
                 
-                const item = {
+                const itemToCart = {
                     id: food.id,
                     name: food.name,
-                    price: food.price,
+                    price: food.price, // Base Price
                     image: food.image,
                     qty: food.tempQty,
                     selectedAddOns: [...food.selectedAddOns],
-                    totalPrice: totalPrice,
+                    totalPrice: totalPriceForThisEntry, // Ito ang gagamitin sa Cart page
                     addOns: food.addOns
                 };
                 
-                // Check if item with same id and same add-ons exists
-                const existing = this.cart.find(i => i.id === food.id && JSON.stringify(i.selectedAddOns) === JSON.stringify(item.selectedAddOns));
-                if (existing) {
-                    existing.qty += food.tempQty;
-                    existing.totalPrice += totalPrice;
+                // Smart Check: Dapat pareho ang ID AT pareho ang napiling Add-ons para mag-merge
+                const existingIndex = this.cart.findIndex(i => 
+                    i.id === itemToCart.id && 
+                    JSON.stringify(i.selectedAddOns) === JSON.stringify(itemToCart.selectedAddOns)
+                );
+
+                if (existingIndex !== -1) {
+                    this.cart[existingIndex].qty += itemToCart.qty;
+                    this.cart[existingIndex].totalPrice += itemToCart.totalPrice;
                 } else {
-                    this.cart.push(item);
+                    this.cart.push(itemToCart);
                 }
                 
-                // Save to local storage
+                // Save and Cleanup
                 localStorage.setItem('ub_cart', JSON.stringify(this.cart));
                 
-                // Optional: Reset tempQty to 1 after adding
                 food.tempQty = 1;
-                // Reset selectedAddOns
-                food.selectedAddOns = [];
-
-                // Feedback (Optional)
-                console.log('Added to cart. Total items:', this.cartItemCount);
+                food.selectedAddOns = []; // Reset add-ons sa menu card pagkatapos i-add
+                
+                
             }
         }
     }
-    </script>
+</script>
 </body>
 </html>

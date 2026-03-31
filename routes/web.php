@@ -14,6 +14,22 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 */
 
 
+
+// resources/routes/web.php
+
+Route::get('/payment/gateway/{method}', function ($method) {
+    // Pansinin ang 'customer.paymentgateway' (folder.filename)
+    return view('customer.paymentgateway', ['method' => $method]);
+})->name('payment.gateway');
+
+
+
+// Line 38: Idagdag itong payment route
+Route::get('/customer/payment', function () {
+    return view('customer.payment'); 
+})->name('customer.payment');
+
+
 Route::get('/table/{number}', function ($number) {
     // Kung lumampas sa 20 o mababa sa 1, i-abort (404)
     if ($number < 1 || $number > 20) {
@@ -102,7 +118,9 @@ Route::middleware(['auth'])->group(function () {
             'faculty', 'admin'     => redirect()->route('faculty.dashboard'),
             'cashier'              => redirect()->route('cashier.monitor'),
             'student_chef', 'chef' => redirect()->route('chef.display'),
-            default => Auth::logout() ?? redirect()->route('login')->withErrors(['email' => 'Unauthorized Role.']),
+            default => (function() { Auth::logout();  return redirect()->route('login')->withErrors(['email' => 'Unauthorized Role.']);
+})(),  
+
         };
     })->name('dashboard.redirect');
 
