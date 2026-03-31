@@ -11,32 +11,48 @@
         .ub-text-maroon { color: #800000; }
         body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
         .hidden-step { display: none !important; }
+        
+        /* Responsive OTP Squares */
         .otp-square { 
-            width: 2.5rem; height: 3rem; text-align: center; font-size: 1.25rem; 
-            font-weight: 800; border: 2px solid #e2e8f0; border-radius: 0.75rem; 
-            background-color: #f8fafc; transition: all 0.2s; 
+            width: 2rem; 
+            height: 2.5rem; 
+            text-align: center; 
+            font-size: 1rem; 
+            font-weight: 800; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 0.5rem; 
+            background-color: #f8fafc; 
+            transition: all 0.2s; 
+        }
+        @media (min-width: 640px) {
+            .otp-square {
+                width: 2.5rem; 
+                height: 3rem; 
+                font-size: 1.25rem;
+                border-radius: 0.75rem; 
+            }
         }
         .otp-square:focus { border-color: #800000; outline: none; box-shadow: 0 0 0 4px rgba(128,0,0,0.1); }
         input::placeholder { font-size: 0.8rem; opacity: 0.5; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
 
-    <div id="success-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/60 backdrop-blur-md animate__animated animate__fadeIn">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl text-center max-w-xs w-full mx-4 border border-white/20 animate__animated animate__zoomIn">
+    <div id="success-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/60 backdrop-blur-md animate__animated animate__fadeIn px-4">
+        <div class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-2xl text-center max-w-xs w-full border border-white/20 animate__animated animate__zoomIn">
             <div class="mb-4 flex justify-center">
                 <div class="bg-green-100 p-4 rounded-full animate__animated animate__bounceIn">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-10 sm:w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
             </div>
-            <h2 class="text-2xl font-black text-gray-800 tracking-tight">Success!</h2>
+            <h2 class="text-xl sm:text-2xl font-black text-gray-800 tracking-tight">Success!</h2>
             <p class="text-gray-500 text-[10px] font-bold mt-1 uppercase tracking-widest">Account Created</p>
         </div>
     </div>
 
-    <div class="bg-white px-7 pb-8 pt-6 rounded-[2.2rem] shadow-2xl w-full max-w-sm border border-white/20">
+    <div class="bg-white px-6 sm:px-8 pb-8 pt-6 rounded-[2.2rem] shadow-2xl w-full max-w-md border border-white/20">
         
         <div id="back-home-wrapper" class="flex justify-start mb-4">
             <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 text-gray-400 hover:text-red-800 transition-all font-bold text-[11px] uppercase tracking-widest no-underline group">
@@ -48,12 +64,12 @@
         </div>
 
         <div class="text-center mb-6">
-            <h1 class="text-4xl font-extrabold ub-text-maroon tracking-tighter leading-none">UB Sync</h1>
+            <h1 class="text-3xl sm:text-4xl font-extrabold ub-text-maroon tracking-tighter leading-none">UB Sync</h1>
             <p id="step-title" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Step 1: Account Details</p>
         </div>
 
         <div id="alert-container" class="min-h-[45px] mb-1">
-            <div id="error-alert" class="hidden w-full bg-red-50 text-red-600 p-2.5 rounded-xl text-[11px] font-bold border border-red-100 text-center animate__animated">
+            <div id="error-alert" class="hidden w-full bg-red-50 text-red-600 p-2.5 rounded-xl text-[11px] sm:text-xs font-bold border border-red-100 text-center animate__animated">
                 <span id="error-message"></span>
             </div>
         </div>
@@ -62,7 +78,7 @@
             @csrf
             
             <div id="step1" class="space-y-4 text-left">
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-1 tracking-widest">First Name</label>
                         <input type="text" id="first_name" name="first_name" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-red-800 transition-all text-sm shadow-sm">
@@ -88,7 +104,7 @@
                     </select>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-1 tracking-widest">Password</label>
                         <input type="password" id="password" name="password" required minlength="8" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-red-800 transition-all text-sm shadow-sm">
@@ -99,7 +115,7 @@
                     </div>
                 </div>
 
-                <button type="button" onclick="validateStep1()" id="btn-next" class="w-full ub-maroon hover:bg-red-900 text-white font-bold py-3.5 rounded-xl shadow-lg mt-1 uppercase tracking-widest active:scale-95 transition-all text-sm">
+                <button type="button" onclick="validateStep1()" id="btn-next" class="w-full ub-maroon hover:bg-red-900 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 uppercase tracking-widest active:scale-95 transition-all text-sm">
                     Create Account
                 </button>
             </div>
@@ -107,7 +123,7 @@
             <div id="step2" class="hidden-step text-center space-y-6 animate__animated animate__fadeIn">
                 <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
                     <p class="text-[10px] text-gray-500 mb-1 font-bold uppercase tracking-widest text-center">Verification Sent To</p>
-                    <b id="display-email" class="ub-text-maroon text-sm break-all"></b>
+                    <b id="display-email" class="ub-text-maroon text-xs sm:text-sm break-all"></b>
                 </div>
                 
                 <div class="flex items-center justify-center gap-2">
@@ -118,7 +134,7 @@
                 </div>
 
                 <div class="flex flex-col items-center">
-                    <div class="flex justify-center gap-1.5" id="otp-inputs-register">
+                    <div class="flex justify-center gap-1 sm:gap-1.5" id="otp-inputs-register">
                         <input type="text" maxlength="1" class="otp-square" inputmode="numeric">
                         <input type="text" maxlength="1" class="otp-square" inputmode="numeric">
                         <input type="text" maxlength="1" class="otp-square" inputmode="numeric">
@@ -139,12 +155,11 @@
         </form>
 
         <div id="login-link" class="text-center mt-7 pt-5 border-t border-gray-50">
-            <p class="text-sm text-gray-400 font-medium">Already have an account? <a href="{{ route('login') }}" class="ub-text-maroon font-black hover:opacity-70 transition-opacity">Sign In</a></p>
+            <p class="text-xs sm:text-sm text-gray-400 font-medium">Already have an account? <a href="{{ route('login') }}" class="ub-text-maroon font-black hover:opacity-70 transition-opacity">Sign In</a></p>
         </div>
     </div>
 
     <script>
-        // Script logic remains the same...
         let timerInterval;
         const regInputs = document.querySelectorAll('#otp-inputs-register input');
         const finalRegOtp = document.getElementById('final_otp_register');
@@ -199,6 +214,7 @@
                     document.getElementById('back-home-wrapper').classList.add('hidden');
                     document.getElementById('login-link').classList.add('hidden');
                     document.getElementById('step2').classList.remove('hidden-step');
+                    document.getElementById('step-title').innerText = "Step 2: Verification Code";
                     document.getElementById('display-email').innerText = email.value;
                     startTimer(60);
                     setTimeout(() => regInputs[0].focus(), 500);
@@ -241,6 +257,7 @@
             document.getElementById('back-home-wrapper').classList.remove('hidden');
             document.getElementById('login-link').classList.remove('hidden');
             document.getElementById('step2').classList.add('hidden-step');
+            document.getElementById('step-title').innerText = "Step 1: Account Details";
         }
 
         regInputs.forEach((input, index) => {

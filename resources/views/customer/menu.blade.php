@@ -74,84 +74,87 @@
         </a>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-32">
-        <div class="relative z-30 mb-8 sm:mb-10">
+    <main class="w-full max-w-7xl mx-auto px-2 pt-4 pb-32">
+        <div class="relative z-30 mb-6 sm:mb-10">
             <div class="bg-white border border-gray-100 shadow-md rounded-[1.5rem] p-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-                <div class="flex space-x-1 overflow-x-auto no-scrollbar flex-1 px-2">
-                    <template x-for="cat in categories" :key="cat.name">
-                        <button type="button" @click="selectedCategory = cat.name" 
-                            class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-[10px] sm:text-[11px] uppercase tracking-wider whitespace-nowrap"
-                            :class="selectedCategory === cat.name ? 'active-category' : 'text-gray-400 hover:text-maroon'">
-                            <span x-text="cat.name"></span>
-                        </button>
-                    </template>
+                <div class="flex items-center overflow-x-auto no-scrollbar flex-1 px-2 py-1 scroll-smooth">
+                    <div class="flex space-x-2 sm:space-x-4">
+                        <template x-for="cat in categories" :key="cat.name">
+                            <button type="button" @click="selectedCategory = cat.name" 
+                                class="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-bold text-[9px] sm:text-[11px] uppercase tracking-wider whitespace-nowrap transition-all shadow-sm"
+                                :class="selectedCategory === cat.name ? 'active-category' : 'text-gray-400 bg-gray-50/50 hover:text-maroon'">
+                                <span x-text="cat.name"></span>
+                            </button>
+                        </template>
+                    </div>
                 </div>
                 <div class="flex items-center gap-3 sm:gap-5 bg-gray-50 rounded-2xl px-4 sm:px-5 py-2 border border-gray-100 sm:ml-4">
-                    <div class="flex flex-col items-center justify-center min-w-[40px] sm:min-w-[50px]">
-                        <p class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none mb-0.5">Table</p>
-                        <p class="text-lg sm:text-xl font-black text-maroon leading-none" x-text="tableNumber"></p>
+                    <div class="flex flex-col items-center justify-center min-w-[35px] sm:min-w-[50px]">
+                        <p class="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none mb-0.5">Table</p>
+                        <p class="text-base sm:text-xl font-black text-maroon leading-none" x-text="tableNumber"></p>
                     </div>
-                    <div class="h-6 sm:h-8 w-[1px] sm:w-[1.5px] bg-gray-200"></div>
-                    <div class="flex flex-col items-start justify-center">
-                        <p class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none mb-0.5">Ordering as</p>
-                        <p class="text-[10px] sm:text-[11px] font-black text-gray-900 uppercase truncate max-w-[100px] sm:max-w-[120px]" x-text="customerName || '---'"></p>
-                    </div>
+                    <div class="h-6 sm:h-8 w-[1px] bg-gray-200"></div>
+                      <div class="flex flex-col items-start justify-center">
+    <p class="text-[7px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-tighter leading-none mb-0.5">Ordering as</p>
+    <p class="text-[9px] sm:text-[11px] font-black text-gray-900 uppercase truncate max-w-[80px] sm:max-w-[120px]" 
+       x-text="customerName || 'Waiting for name...'"></p>
+</div>
                 </div>
             </div>
         </div>
 
         <div class="relative z-30 mb-6 sm:mb-8">
-            <div class="bg-white border border-gray-100 shadow-md rounded-[1.5rem] p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" x-model="searchQuery" placeholder="Search menu items..." class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400 font-medium">
+            <div class="bg-white border border-gray-100 shadow-md rounded-[1.2rem] sm:rounded-[1.5rem] p-3 sm:p-4 flex items-center gap-3">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" x-model="searchQuery" placeholder="Search menu..." class="w-full bg-transparent outline-none text-xs sm:text-sm text-gray-700 placeholder-gray-400 font-medium">
                 <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="text-gray-400 hover:text-maroon transition-colors flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <p x-show="searchQuery && filteredFoods.length === 0" class="text-center text-gray-400 text-sm mt-3">No items match your search</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             <template x-for="food in filteredFoods" :key="food.id">
-                <div class="bg-white rounded-[2rem] product-card p-4 flex flex-col border border-gray-50">
-                    <div class="w-full h-48 sm:h-52 bg-gray-50 rounded-[1.5rem] flex items-center justify-center p-4 mb-4">
-                        <img :src="food.image" :id="'img-' + food.id" class="max-h-full object-contain drop-shadow-xl">
+                <div class="bg-white rounded-[1.5rem] product-card p-3 flex flex-col border border-gray-50 shadow-sm">
+                    <div class="w-full h-32 sm:h-52 bg-gray-50 rounded-[1.2rem] flex items-center justify-center p-2 mb-3 overflow-hidden">
+                        <img :src="food.image" :id="'img-' + food.id" class="w-full h-full object-contain drop-shadow-lg transition-transform duration-500 hover:scale-110">
                     </div>
-                    <div class="px-1 flex flex-col flex-1">
-                        <h4 class="font-bold text-base sm:text-lg text-gray-900 leading-tight mb-4" x-text="food.name"></h4>
+
+                    <div class="px-0.5 flex flex-col flex-1">
+                        <h4 class="font-bold text-[11px] sm:text-lg text-gray-900 leading-tight mb-2 h-7 sm:h-auto line-clamp-2 uppercase" x-text="food.name"></h4>
+                        
                         <div class="mt-auto">
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-lg sm:text-xl font-black text-gray-900">₱<span x-text="food.price"></span></span>
-                                <div x-show="food.stock > 0" class="flex items-center bg-gray-100 rounded-xl p-1">
-                                    <button type="button" @click="food.tempQty > 1 ? food.tempQty-- : null" class="w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center bg-white rounded-lg shadow-sm hover:bg-maroon hover:text-white transition-colors">
-                                        <svg class="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M20 12H4"/></svg>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm sm:text-xl font-black text-gray-900">₱<span x-text="food.price"></span></span>
+                                <div x-show="food.stock > 0" class="flex items-center bg-gray-100 rounded-lg p-0.5">
+                                    <button type="button" @click="food.tempQty > 1 ? food.tempQty-- : null" class="w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center bg-white rounded-md shadow-sm">
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="4" d="M20 12H4"/></svg>
                                     </button>
-                                    <span class="w-10 sm:w-8 text-center font-bold text-sm sm:text-xs" x-text="food.tempQty"></span>
-                                    <button type="button" @click="food.tempQty < food.stock ? food.tempQty++ : null" class="w-8 h-8 sm:w-7 sm:h-7 flex items-center justify-center bg-white rounded-lg shadow-sm hover:bg-maroon hover:text-white transition-colors">
-                                        <svg class="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+                                    <span class="w-5 sm:w-8 text-center font-bold text-[10px] sm:text-xs" x-text="food.tempQty"></span>
+                                    <button type="button" @click="food.tempQty < food.stock ? food.tempQty++ : null" class="w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center bg-white rounded-md shadow-sm">
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="4" d="M12 4v16m8-8H4"/></svg>
                                     </button>
                                 </div>
                             </div>
-                            <div x-show="food.addOns && food.addOns.length > 0" class="mb-4">
-                                <button type="button" @click="openCustomizeModal(food)" class="flex items-center justify-between w-full bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-                                    <span class="text-sm font-bold text-maroon">Customize Order</span>
-                                    <svg class="w-4 h-4 text-maroon transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
+
+                            <div x-show="food.addOns && food.addOns.length > 0" class="mb-3">
+                                <button type="button" @click="openCustomizeModal(food)" class="flex items-center justify-between w-full bg-gray-50 border border-gray-100 rounded-lg p-2 hover:bg-gray-100 transition-colors">
+                                    <span class="text-[9px] sm:text-sm font-bold text-maroon uppercase">Add-ons</span>
+                                    <svg class="w-3 h-3 text-maroon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
-                                <div x-show="food.selectedAddOns && food.selectedAddOns.length > 0" class="mt-2 bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-400 rounded-lg p-3 space-y-1">
-                                    <p class="text-xs font-bold text-blue-800">Selected Add-ons:</p>
+                                
+                                <div x-show="food.selectedAddOns && food.selectedAddOns.length > 0" class="mt-1.5 bg-blue-50/80 border-l-2 border-blue-400 rounded-r-lg p-2 space-y-0.5">
                                     <template x-for="addon in food.selectedAddOns" :key="addon.name">
-                                        <div class="text-xs text-blue-700 flex items-center">
-                                            <span class="text-blue-400 mr-2">✓</span>
-                                            <span x-text="addon.name"></span>
-                                            <span class="text-blue-600 font-bold ml-auto">+₱<span x-text="addon.price"></span></span>
+                                        <div class="text-[8px] sm:text-[10px] text-blue-700 flex justify-between">
+                                            <span class="truncate pr-1" x-text="'• ' + addon.name"></span>
+                                            <span class="font-bold" x-text="'+' + addon.price"></span>
                                         </div>
                                     </template>
                                 </div>
                             </div>
+
                             <button type="button" @click="addToCart(food)" 
-                                    class="w-full btn-maroon text-white py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-xs uppercase tracking-widest shadow-md">
+                                    class="w-full btn-maroon text-white py-2 sm:py-3.5 rounded-xl font-bold text-[9px] sm:text-xs uppercase tracking-widest shadow-md">
                                 Add to Order
                             </button>
                         </div>
@@ -160,7 +163,6 @@
             </template>
         </div>
     </main>
-
     <!-- Add-ons Modal -->
     <div x-show="showModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4" @click.self="closeCustomizeModal()">
         <div class="absolute inset-0 bg-maroon/50 backdrop-blur-sm"></div>
@@ -170,7 +172,7 @@
                 <p class="text-xs text-gray-500 mt-1">Select add-ons for this item</p>
             </div>
             <div x-show="selectedFood && selectedFood.addOns && selectedFood.addOns.length > 0" class="space-y-3 max-h-60 overflow-y-auto mb-6">
-                <template x-for="addon in selectedFood.addOns" :key="addon.name">
+                 <template x-for="addon in selectedFood?.addOns" :key="addon.name">
                     <label class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-100">
                         <input type="checkbox" :checked="selectedFood.selectedAddOns.some(a => a.name === addon.name)" 
                                @change="event => {
@@ -221,29 +223,43 @@
                 { id: 6, name: 'Leche Flan', category: 'Desserts', price: 55, tempQty: 1, stock: 8, image: "{{ asset('img/lecheflan.png') }}", selectedAddOns: [], addOns: [{name: 'Extra Caramel', price: 15}] },
             ],
 
-            initCart() {
-                // 1. Handle Table Number
-                const urlParams = new URLSearchParams(window.location.search);
-                this.tableNumber = urlParams.get('table') || localStorage.getItem('ub_current_table') || '1';
-                localStorage.setItem('ub_current_table', this.tableNumber);
-                
-                // 2. Handle Customer Name
-                const savedName = localStorage.getItem('ub_customer_name');
-                if (savedName) this.customerName = savedName;
+           initCart() {
+    // 1. Handle Table Number
+    const urlParams = new URLSearchParams(window.location.search);
+    this.tableNumber = urlParams.get('table') || localStorage.getItem('ub_current_table') || '1';
+    localStorage.setItem('ub_current_table', this.tableNumber);
+    
+    // 2. Handle Customer Name from URL (Bago ito)
+    const fname = urlParams.get('fname');
+    const lname = urlParams.get('lname');
 
-                // 3. Handle Cart
-                const savedCart = localStorage.getItem('ub_cart');
-                this.cart = savedCart ? JSON.parse(savedCart) : [];
-            },
+    if (fname && lname) {
+        // Kung galing sa QR page at may name sa URL, ito ang gamitin
+        this.customerName = `${decodeURIComponent(fname)} ${decodeURIComponent(lname)}`;
+        localStorage.setItem('ub_customer_name', this.customerName);
+    } else {
+        // Kung wala sa URL, tingnan kung may naka-save na sa LocalStorage
+        const savedName = localStorage.getItem('ub_customer_name');
+        if (savedName) this.customerName = savedName;
+    }
 
-            saveIdentity() {
-                if(this.tempFirstName.trim() && this.tempLastName.trim()) {
-                    this.customerName = this.tempFirstName.trim() + ' ' + this.tempLastName.trim();
-                    localStorage.setItem('ub_customer_name', this.customerName);
-                } else { 
-                    alert('Please enter your full name.'); 
-                }
-            },
+    // 3. Handle Cart
+    const savedCart = localStorage.getItem('ub_cart');
+    this.cart = savedCart ? JSON.parse(savedCart) : [];
+},
+
+
+
+             saveIdentity() {
+    if(this.tempFirstName.trim() && this.tempLastName.trim()) {
+        this.customerName = this.tempFirstName.trim() + ' ' + this.tempLastName.trim();
+        localStorage.setItem('ub_customer_name', this.customerName);
+        // Optional: Linisin ang URL params pagkatapos ma-save
+        window.history.replaceState({}, document.title, window.location.pathname + "?table=" + this.tableNumber);
+    } else { 
+        alert('Please enter your full name.'); 
+    }
+},
 
             get filteredFoods() {
                 let filtered = this.selectedCategory === 'All' ? this.foods : this.foods.filter(f => f.category === this.selectedCategory);
@@ -280,46 +296,54 @@
                 this.selectedFood = null;
             },
 
-            addToCart(food) {
-                // Calculation of Add-ons
-                const addOnPrice = food.selectedAddOns ? food.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0) : 0;
-                const unitPriceWithAddOns = food.price + addOnPrice;
-                const totalPriceForThisEntry = unitPriceWithAddOns * food.tempQty;
-                
-                const itemToCart = {
-                    id: food.id,
-                    name: food.name,
-                    price: food.price, // Base Price
-                    image: food.image,
-                    qty: food.tempQty,
-                    selectedAddOns: [...food.selectedAddOns],
-                    totalPrice: totalPriceForThisEntry, // Ito ang gagamitin sa Cart page
-                    addOns: food.addOns
-                };
-                
-                // Smart Check: Dapat pareho ang ID AT pareho ang napiling Add-ons para mag-merge
-                const existingIndex = this.cart.findIndex(i => 
-                    i.id === itemToCart.id && 
-                    JSON.stringify(i.selectedAddOns) === JSON.stringify(itemToCart.selectedAddOns)
-                );
+   addToCart(food) {
+    // 1. Calculate prices
+    const addOnPrice = food.selectedAddOns ? food.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0) : 0;
+    const unitPriceWithAddOns = food.price + addOnPrice;
+    const totalPriceForThisEntry = unitPriceWithAddOns * food.tempQty;
+    
+    // 2. Create the item object
+    const itemToCart = {
+        id: food.id,
+        name: food.name,
+        price: food.price,
+        image: food.image,
+        qty: food.tempQty,
+        
+        // --- ITO ANG DAGDAG/AYOS ---
+        // Sinasama natin ang BUONG listahan ng add-ons para may choices ka sa Cart Page Edit Modal
+        addOns: food.addOns ? [...food.addOns] : [], 
+        // ---------------------------
 
-                if (existingIndex !== -1) {
-                    this.cart[existingIndex].qty += itemToCart.qty;
-                    this.cart[existingIndex].totalPrice += itemToCart.totalPrice;
-                } else {
-                    this.cart.push(itemToCart);
-                }
-                
-                // Save and Cleanup
-                localStorage.setItem('ub_cart', JSON.stringify(this.cart));
-                
-                food.tempQty = 1;
-                food.selectedAddOns = []; // Reset add-ons sa menu card pagkatapos i-add
+        selectedAddOns: [...food.selectedAddOns].sort((a, b) => a.name.localeCompare(b.name)),
+        totalPrice: totalPriceForThisEntry
+    };
+    
+    // 3. Smart Merge Logic
+    const existingIndex = this.cart.findIndex(i => 
+        i.id === itemToCart.id && 
+        JSON.stringify(i.selectedAddOns) === JSON.stringify(itemToCart.selectedAddOns)
+    );
+
+    if (existingIndex !== -1) {
+        this.cart[existingIndex].qty += itemToCart.qty;
+        this.cart[existingIndex].totalPrice += itemToCart.totalPrice;
+    } else {
+        this.cart.push(itemToCart);
+    }
+    
+    // 4. Cleanup & Save
+    localStorage.setItem('ub_cart', JSON.stringify(this.cart));
+    
+    // Reset the specific food card para malinis ulit ang UI
+    food.tempQty = 1;
+    food.selectedAddOns = []; 
+}
                 
                 
             }
         }
-    }
+    
 </script>
 </body>
 </html>

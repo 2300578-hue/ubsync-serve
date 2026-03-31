@@ -25,9 +25,9 @@
         a { text-decoration: none !important; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
 
-    <div class="bg-white/95 backdrop-blur-md px-8 pb-10 pt-6 rounded-[2rem] shadow-2xl w-full max-w-md border border-white/20 text-center">
+    <div class="bg-white/95 backdrop-blur-md px-6 sm:px-8 pb-10 pt-6 rounded-[2rem] shadow-2xl w-full max-w-md border border-white/20 text-center">
         
         <div class="flex justify-start mb-4">
             <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 text-gray-400 hover:text-red-800 transition-all font-bold text-xs uppercase tracking-widest group">
@@ -38,8 +38,8 @@
             </a>
         </div>
 
-        <div class="mb-2">
-            <h1 class="text-5xl font-extrabold ub-text-maroon tracking-tighter">UB Sync</h1>
+        <div class="mb-4 sm:mb-2">
+            <h1 class="text-4xl sm:text-5xl font-extrabold ub-text-maroon tracking-tighter">UB Sync</h1>
             <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Welcome to UB-SYNCSERVE</p>
         </div>
 
@@ -47,10 +47,10 @@
             {{-- Success Message from Registration --}}
             @if (session('success'))
                 <div id="alert-success" class="animate__animated animate__fadeInDown w-full bg-green-50 text-green-700 p-3 rounded-xl text-sm font-bold border border-green-200 text-center flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
-                    {{ session('success') }}
+                    <span>{{ session('success') }}</span>
                 </div>
             @endif
 
@@ -67,25 +67,25 @@
             <div>
                 <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-1 tracking-widest">Email Address</label>
                 <input type="email" name="email" id="email" required placeholder="" autocomplete="off"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-800 outline-none transition shadow-sm">
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-800 outline-none transition shadow-sm text-sm sm:text-base">
             </div>
 
             <div>
                 <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-1 tracking-widest">Password</label>
                 <input type="password" name="password" id="password" required placeholder="" autocomplete="current-password"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-800 outline-none transition shadow-sm">
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-800 outline-none transition shadow-sm text-sm sm:text-base">
             </div>
 
-            <button type="submit" class="w-full ub-maroon hover:bg-red-900 text-white font-bold py-4 rounded-xl transition shadow-lg mt-4 uppercase tracking-widest text-lg focus:outline-none active:scale-95">
+            <button type="submit" class="w-full ub-maroon hover:bg-red-900 text-white font-bold py-4 rounded-xl transition shadow-lg mt-4 uppercase tracking-widest text-base sm:text-lg focus:outline-none active:scale-95">
                 Sign In
             </button>
 
             <div class="text-center mt-8 space-y-4">
-                <a href="{{ route('password.request') }}" class="ub-text-maroon font-bold text-sm hover:opacity-80 transition-opacity inline-block">
+                <a href="{{ route('password.request') }}" class="ub-text-maroon font-bold text-xs sm:text-sm hover:opacity-80 transition-opacity inline-block">
                     Forgot Password?
                 </a>
                 
-                <div class="border-t border-gray-100 pt-6 text-sm text-gray-500">
+                <div class="border-t border-gray-100 pt-6 text-xs sm:text-sm text-gray-500">
                     New to UB Sync? 
                     <a href="{{ route('register') }}" class="ub-text-maroon font-black hover:opacity-80 transition-opacity">
                         Create Account
@@ -94,19 +94,15 @@
             </div>
         </form>
         
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Timer para sa lahat ng alerts (Success o Error)
             const alertIds = ['alert-success', 'alert-error-login'];
-            
             alertIds.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
-                    // Mas matagal nang konti ang success message (4 seconds) 
-                    // kaysa sa error (2 seconds) para mabasa ng user
                  const displayTime = id === 'alert-success' ? 2000 : 2500;
-
                     setTimeout(() => {
                         element.classList.add('fade-out');
                         setTimeout(() => { 

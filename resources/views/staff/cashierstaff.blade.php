@@ -17,12 +17,18 @@
         .gold-accent { background-color: #D4AF37; height: 4px; position: fixed; top: 65px; width: 100%; z-index: 999; }
         
         /* Sidebar Navigation */
-        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 998; }
+        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; }
         .sidebar-collapsed { left: -260px; }
         
         /* Main Content Area */
         .main-content { margin-left: 260px; margin-top: 69px; padding: 25px; transition: all 0.3s ease; min-height: calc(100vh - 69px); }
         .content-wide { margin-left: 0; width: 100%; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0 !important; padding: 15px; width: 100%; }
+            .aws-sidebar { box-shadow: 10px 0 15px rgba(0,0,0,0.1); z-index: 1001; }
+        }
 
         .clay-card {
             background: white;
@@ -32,7 +38,7 @@
             transition: all 0.3s ease;
         }
 
-        /* Sign Out Button Style (Based on Screenshot) */
+        /* Sign Out Button Style */
         .sign-out-btn {
             background: transparent;
             border: 1px solid rgba(255,255,255,0.3);
@@ -58,7 +64,7 @@
 
 <body x-data="{ 
     tab: 'home',
-    sidebarOpen: true,
+    sidebarOpen: window.innerWidth >= 768,
     showTableDetail: null,
     showVacantModal: false,
     salesSummary: { total: 24500 },
@@ -212,8 +218,7 @@
                 <i class="fas fa-bars-staggered"></i>
             </button>
             <div class="flex items-center gap-2">
-                
-                <span class="font-bold tracking-tighter text-lg uppercase">UB SYNC CONTROL</span>
+                <span class="font-bold tracking-tighter text-sm sm:text-lg uppercase truncate">UB SYNC CONTROL</span>
             </div>
         </div>
 
@@ -269,18 +274,23 @@
     </header>
     <div class="gold-accent"></div>
 
+    <div x-show="sidebarOpen && window.innerWidth < 768" 
+         @click="sidebarOpen = false" 
+         x-transition.opacity 
+         class="fixed inset-0 bg-black/60 z-[999] md:hidden" style="top: 69px;">
+    </div>
     <aside class="aws-sidebar shadow-sm" :class="!sidebarOpen ? 'sidebar-collapsed' : ''">
         <div class="p-6 space-y-8">
             <div>
                 <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Main Navigation</p>
                 <nav class="space-y-1">
-                    <button @click="tab = 'home'" :class="tab === 'home' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
+                    <button @click="tab = 'home'; if(window.innerWidth < 768) sidebarOpen = false;" :class="tab === 'home' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
                         <i class="fa-solid fa-table-cells-large w-5"></i> Control Center
                     </button>
-                    <button @click="tab = 'pos'" :class="tab === 'pos' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
+                    <button @click="tab = 'pos'; if(window.innerWidth < 768) sidebarOpen = false;" :class="tab === 'pos' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
                         <i class="fa-solid fa-cash-register w-5"></i> Service Hub
                     </button>
-                    <button @click="tab = 'inventory'" :class="tab === 'inventory' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
+                    <button @click="tab = 'inventory'; if(window.innerWidth < 768) sidebarOpen = false;" :class="tab === 'inventory' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
                         <i class="fa-solid fa-boxes-stacked w-5"></i> Stock Vault
                     </button>
                 </nav>
@@ -291,17 +301,15 @@
     <main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
         
         <div x-show="tab === 'home'" x-cloak class="space-y-8">
-            <div class="flex justify-between items-end mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
                 <div>
-                    <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">System Overview</h1>
-                    <p class="text-sm text-slate-500 font-bold tracking-widest uppercase">Admin Command Console</p>
+                    <h1 class="text-2xl sm:text-3xl font-black text-slate-800 uppercase tracking-tighter">System Overview</h1>
+                    <p class="text-[10px] sm:text-sm text-slate-500 font-bold tracking-widest uppercase">Admin Command Console</p>
                 </div>
-                <button x-on:click="showVacantModal = true" class="bg-slate-800 text-white px-6 py-2.5 text-sm font-black hover:bg-slate-700 transition rounded flex items-center gap-2">
+                <button x-on:click="showVacantModal = true" class="bg-slate-800 text-white px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-black hover:bg-slate-700 transition rounded flex items-center justify-center gap-2 w-full sm:w-auto shadow-md">
                     <i class="fa-solid fa-eye"></i> View Vacant Tables
                 </button>
             </div>
-
-            
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="clay-card p-6 border-t-4 border-t-emerald-500">
