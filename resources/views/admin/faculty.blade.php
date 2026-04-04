@@ -63,33 +63,37 @@
                     <i class="fa-solid fa-chevron-down text-[9px] text-white/30 transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                 </button>
 
+              
                 <div x-show="open" 
-                     x-cloak
-                     x-transition:enter="transition ease-out duration-100"
-                     x-transition:enter-start="transform opacity-0 scale-95"
-                     x-transition:enter-end="transform opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-75"
-                     x-transition:leave-start="transform opacity-100 scale-100"
-                     x-transition:leave-end="transform opacity-0 scale-95"
-                     class="absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-2xl py-2 z-[1100] border border-slate-200 overflow-hidden">
-                    
-                    <div class="px-4 py-2 bg-slate-50/50 border-b border-slate-100 mb-1 md:hidden">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Signed in as</p>
-                        <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'Guest User' }}</p>
-                    </div>
+             x-cloak
+             x-transition:enter="transition ease-out duration-150"
+             x-transition:enter-start="transform opacity-0 scale-95 -translate-y-2"
+             x-transition:enter-end="transform opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="transform opacity-100 scale-100"
+             x-transition:leave-end="transform opacity-0 scale-95"
+             class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] py-2 z-[1100] border border-slate-200 overflow-hidden">
+            
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 mb-1">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Signed in as</p>
+                <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'Guest User' }}</p>
+            </div>
 
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 hover:bg-red-50 rounded-lg uppercase tracking-widest flex items-center gap-3 transition-all group">
-                                <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                                    <i class="fa-solid fa-power-off text-sm"></i> 
-                                </div>
-                                Sign Out
-                        </button>
-                    </form>
-                </div>
+            <div class="px-2">
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 hover:bg-red-50 rounded-lg uppercase tracking-widest flex items-center gap-3 transition-all group">
+                        <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-power-off text-sm"></i> 
+                        </div>
+                        Sign Out
+                    </button>
+                </form>
             </div>
         </div>
+    </div>
+</div>
+
     </header>
     <div class="gold-accent"></div>
 
