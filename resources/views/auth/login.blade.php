@@ -38,7 +38,7 @@
             </a>
         </div>
 
-        <div class="mb-4 sm:mb-2">
+        <div class="mb-4 sm:-mb-10">
             <h1 class="text-4xl sm:text-5xl font-extrabold ub-text-maroon tracking-tighter">UB Sync</h1>
             <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Welcome to UB-SYNCSERVE</p>
         </div>

@@ -63,7 +63,7 @@
             </a>
         </div>
 
-        <div class="text-center mb-6">
+        <div class="text-center -mb-6">
             <h1 class="text-3xl sm:text-4xl font-extrabold ub-text-maroon tracking-tighter leading-none">UB Sync</h1>
             <p id="step-title" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Step 1: Account Details</p>
         </div>

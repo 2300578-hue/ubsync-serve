@@ -64,7 +64,7 @@
             </a>
         </div>
 
-        <div class="mb-2">
+        <div class="-mb-9">
             <h1 class="text-3xl sm:text-4xl font-extrabold ub-text-maroon tracking-tighter">Reset Password</h1>
             <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Verify identity to update password</p>
         </div>
