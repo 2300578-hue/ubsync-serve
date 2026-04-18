@@ -63,12 +63,12 @@
             </a>
         </div>
 
-        <div class="text-center -mb-6">
+        <div class="text-center -mb-6 relative z-10">
             <h1 class="text-3xl sm:text-4xl font-extrabold ub-text-maroon tracking-tighter leading-none">UB Sync</h1>
             <p id="step-title" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Step 1: Account Details</p>
         </div>
 
-        <div id="alert-container" class="min-h-[45px] mb-1">
+        <div id="alert-container" class="min-h-[45px] mb-1 pt-8">
             <div id="error-alert" class="hidden w-full bg-red-50 text-red-600 p-2.5 rounded-xl text-[11px] sm:text-xs font-bold border border-red-100 text-center animate__animated">
                 <span id="error-message"></span>
             </div>
@@ -101,6 +101,7 @@
                         <option value="admin">Faculty / Instructor</option>
                         <option value="cashier">Student Cashier</option>
                         <option value="chef">Student Chef</option>
+                        <option value="waiter">Student Waiter</option>
                     </select>
                 </div>
 

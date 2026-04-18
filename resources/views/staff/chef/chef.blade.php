@@ -54,7 +54,7 @@
         }
     </style>
 </head>
-<body x-data="kitchenHandler()">
+<body x-data="kitchenHandler()" x-init="init()">
 
     <header class="aws-header shadow-lg">
         <div class="flex items-center gap-4">
@@ -120,13 +120,22 @@
     <aside class="aws-sidebar shadow-sm" :class="!isSidebarOpen ? 'sidebar-collapsed' : ''">
         <div class="p-6 space-y-8">
             <div>
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Management</p>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Kitchen</p>
                 <nav class="space-y-1">
                     <button @click="currentTab = 'orders'" :class="currentTab === 'orders' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                         <i class="fas fa-utensils w-5"></i> Live Orders
                     </button>
+                    <button @click="currentTab = 'incoming'" :class="currentTab === 'incoming' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-box-open w-5"></i> Incoming Orders <span x-show="incomingOrders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="incomingOrders.length"></span>
+                    </button>
+                    <button @click="currentTab = 'alerts'" :class="currentTab === 'alerts' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-bell w-5"></i> Kitchen Alerts <span x-show="alerts.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="alerts.length"></span>
+                    </button>
                     <button @click="currentTab = 'inventory'" :class="currentTab === 'inventory' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                         <i class="fas fa-boxes w-5"></i> Inventory Stock
+                    </button>
+                    <button @click="currentTab = 'performance'" :class="currentTab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-chart-line w-5"></i> Performance
                     </button>
                     <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                         <i class="fas fa-clipboard-list w-5"></i> Fulfilled Logs
@@ -138,81 +147,34 @@
 
     <main class="main-content" :class="!isSidebarOpen ? 'content-wide' : ''">
         
+        <!-- ORDERS VIEW -->
         <div x-show="currentTab === 'orders'" x-cloak>
-            <div class="flex justify-between items-end mb-8">
-                <div>
-                    <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Production Dashboard</h1>
-                    <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">
-                        <span>Prep Station</span> <span class="mx-3 text-slate-300">|</span>
-                        <span class="text-red-800 font-bold">Kitchen Command</span>
-                    </nav>
-                </div>
-                <button @click="simulateNewOrder()" class="bg-white border border-slate-300 px-6 py-2.5 text-sm font-bold hover:bg-slate-50 transition shadow-sm rounded flex items-center gap-2">
-                    <i class="fas fa-plus text-slate-400"></i> New Simulation
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
-                <div class="aws-card border-t-4 border-t-red-800 p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Tickets</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="orders.length"></p>
-                </div>
-                <div class="aws-card p-5 border-t-4 border-t-blue-500">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Avg Prep Speed</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1">10.5 <span class="text-sm text-slate-500">mins</span></p>
-                </div>
-                <div class="aws-card p-5 border-t-4 border-t-emerald-500">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Served</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="fulfilledCount"></p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <template x-for="(order, index) in orders" :key="order.id">
-                    <div class="aws-card flex flex-col overflow-hidden transition-all duration-300" :class="order.minutes >= 10 ? 'border-t-4 border-t-red-600 shadow-md ring-1 ring-red-100' : ''">
-                        <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                            <span class="text-xl font-black text-slate-800" x-text="order.table"></span>
-                            <span class="font-mono font-bold px-2 py-1 rounded" 
-                                  :class="order.minutes >= 10 ? 'text-red-800 bg-red-100 animate-pulse' : 'text-slate-600 bg-slate-200'" 
-                                  x-text="(order.minutes < 10 ? '0' + order.minutes : order.minutes) + ':' + order.seconds">
-                            </span>
-                        </div>
-                        <div class="p-4 flex-1 space-y-3">
-                            <template x-for="item in order.items">
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" class="kitchen-checkbox">
-                                    <span class="text-sm font-bold text-slate-700 uppercase group-hover:text-red-800 transition-colors" x-text="item.qty + 'x ' + item.name"></span>
-                                </label>
-                            </template>
-                        </div>
-                        <div class="p-4 bg-slate-50 border-t border-slate-100">
-                            <button @click="serveOrder(index)" class="w-full py-3 bg-red-800 text-white font-black text-xs uppercase tracking-widest rounded hover:bg-red-900 transition active:scale-[0.98]">
-                                Order Ready <i class="fas fa-check ml-1"></i>
-                            </button>
-                        </div>
-                    </div>
-                </template>
-
-                <div x-show="orders.length === 0" class="col-span-full p-12 text-center border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                    <i class="fas fa-clipboard-check text-4xl text-slate-300 mb-3"></i>
-                    <h3 class="text-lg font-bold text-slate-600 uppercase">No Active Orders</h3>
-                    <p class="text-slate-400 text-sm">Kitchen is clear. Waiting for new tickets...</p>
-                </div>
-            </div>
+            @include('staff.chef.orders')
         </div>
 
+        <!-- INCOMING ORDERS VIEW -->
+        <div x-show="currentTab === 'incoming'" x-cloak>
+            @include('staff.chef.incoming_orders')
+        </div>
+
+        <!-- ALERTS VIEW -->
+        <div x-show="currentTab === 'alerts'" x-cloak>
+            @include('staff.chef.alerts')
+        </div>
+
+        <!-- INVENTORY VIEW -->
         <div x-show="currentTab === 'inventory'" x-cloak>
-            <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-8">Inventory Stock</h1>
-            <div class="aws-card p-6">
-                <p class="text-slate-500">Inventory management interface will be loaded here.</p>
-            </div>
+            @include('staff.chef.inventory')
         </div>
 
+        <!-- PERFORMANCE VIEW -->
+        <div x-show="currentTab === 'performance'" x-cloak>
+            @include('staff.chef.performance')
+        </div>
+
+        <!-- HISTORY VIEW -->
         <div x-show="currentTab === 'history'" x-cloak>
-            <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-8">Fulfilled Logs</h1>
-            <div class="aws-card p-6">
-                <p class="text-slate-500">History and fulfilled orders list will be displayed here.</p>
-            </div>
+            @include('staff.chef.history')
         </div>
 
     </main>
@@ -223,9 +185,41 @@
                 currentTab: 'orders',
                 isSidebarOpen: true,
                 fulfilledCount: 86,
+                avgPrepSpeed: 10.5,
+                chefPerformance: {
+                    satisfaction: 4.7,
+                    score: 92,
+                    responseTime: 87,
+                    hospitality: 93,
+                    knowledge: 88
+                },
                 orders: [
-                    { id: '1001', table: 'TABLE 04', minutes: 4, seconds: '20', items: [{ qty: 2, name: 'UB Burger' }, { qty: 1, name: 'Fries' }] },
-                    { id: '1002', table: 'TABLE 09', minutes: 11, seconds: '05', items: [{ qty: 1, name: 'Spicy Pasta' }] }
+                    { id: '1001', table: 'TABLE 04', minutes: 4, seconds: '20', items: [{ qty: 2, name: 'UB Burger', done: false }, { qty: 1, name: 'Fries', done: false }] },
+                    { id: '1002', table: 'TABLE 09', minutes: 11, seconds: '05', items: [{ qty: 1, name: 'Spicy Pasta', done: false }] }
+                ],
+                incomingOrders: [
+                    { id: 'I101', status: 'NEW', items: [{ qty: 1, name: 'Chicken Wings' }, { qty: 2, name: 'Iced Tea' }], note: 'No onions' },
+                    { id: 'I102', status: 'NEW', items: [{ qty: 1, name: 'Cheese Pizza' }], note: 'Extra cheese' }
+                ],
+                alerts: [
+                    { id: 'A01', table: '05', title: 'Special Request', message: 'Customer wants extra spicy sauce', priority: 'HIGH' },
+                    { id: 'A02', table: '02', title: 'Allergy Alert', message: 'No nuts for this order', priority: 'NORMAL' }
+                ],
+                inventory: [
+                    { id: 1, name: 'Beef Patty', stock: 18 },
+                    { id: 2, name: 'Potato Fries', stock: 8 },
+                    { id: 3, name: 'Tomato Sauce', stock: 24 },
+                    { id: 4, name: 'Cheddar Cheese', stock: 12 },
+                    { id: 5, name: 'Lettuce', stock: 10 }
+                ],
+                fulfilledLogs: [
+                    { id: 'F100', table: 'TABLE 01', completedAt: '3:05 PM', status: 'Done', items: [{ qty: 2, name: 'Burger Steak' }, { qty: 1, name: 'Ice Tea' }] },
+                    { id: 'F101', table: 'TABLE 07', completedAt: '3:18 PM', status: 'Done', items: [{ qty: 3, name: 'Carbonara' }] }
+                ],
+                recentActivity: [
+                    { id: 1, action: 'Marked Table 04 order ready', time: '3:22 PM', status: 'Done' },
+                    { id: 2, action: 'Accepted new incoming order I101', time: '3:18 PM', status: 'Done' },
+                    { id: 3, action: 'Resolved allergy alert for Table 02', time: '3:10 PM', status: 'Done' }
                 ],
                 init() {
                     // Start the timer when the component initializes
@@ -241,27 +235,46 @@
                     }, 1000);
                 },
                 serveOrder(index) {
-                    this.orders.splice(index, 1);
+                    const order = this.orders.splice(index, 1)[0];
+                    this.fulfilledLogs.unshift({ id: 'F' + Date.now(), table: order.table, completedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: 'Done', items: order.items.map(i => ({ qty: i.qty, name: i.name })) });
                     this.fulfilledCount++;
+                    this.recentActivity.unshift({ id: Date.now(), action: 'Marked ' + order.table + ' ready', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: 'Done' });
                 },
-                simulateNewOrder() {
-                    const sampleItems = ['UB Burger', 'Spicy Pasta', 'Fries', 'Iced Tea', 'Chicken Wings'];
-                    const randomItem = sampleItems[Math.floor(Math.random() * sampleItems.length)];
-                    
-                    this.orders.push({ 
-                        id: Date.now(), 
-                        table: 'TABLE ' + (Math.floor(Math.random() * 20) + 1).toString().padStart(2, '0'), 
-                        minutes: 0, 
-                        seconds: '00', 
-                        items: [{ qty: Math.floor(Math.random() * 3) + 1, name: randomItem }] 
+                acceptIncomingOrder(index) {
+                    const order = this.incomingOrders.splice(index, 1)[0];
+                    this.orders.push({ id: order.id, table: 'TABLE ' + (Math.floor(Math.random() * 20) + 1).toString().padStart(2, '0'), minutes: 0, seconds: '00', items: order.items.map(i => ({ ...i, done: false })) });
+                    this.recentActivity.unshift({ id: Date.now(), action: 'Accepted incoming order ' + order.id, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), status: 'Done' });
+                },
+                resolveAlert(index) {
+                    this.alerts.splice(index, 1);
+                },
+                decrementStock(index) {
+                    if (this.inventory[index].stock > 0) {
+                        this.inventory[index].stock -= 1;
+                    }
+                },
+                reorderStock(index) {
+                    this.inventory[index].stock += 20;
+                },
+                simulateIncomingOrder() {
+                    const sampleItems = [
+                        [{ qty: 1, name: 'Spicy Pasta' }],
+                        [{ qty: 2, name: 'Burger Steak' }, { qty: 1, name: 'Iced Tea' }],
+                        [{ qty: 1, name: 'Mozzarella Sticks' }, { qty: 1, name: 'Lemonade' }]
+                    ];
+                    const randomItems = sampleItems[Math.floor(Math.random() * sampleItems.length)];
+                    this.incomingOrders.push({
+                        id: 'I' + Date.now(),
+                        status: 'NEW',
+                        items: randomItems,
+                        note: 'Chef note: prepare quickly'
                     });
                 },
                 confirmLogout() {
-                    
-                        document.getElementById('logout-form').submit();
-                    }
+                    document.getElementById('logout-form').submit();
                 }
             }
+        }
         
     </script>
 </body>

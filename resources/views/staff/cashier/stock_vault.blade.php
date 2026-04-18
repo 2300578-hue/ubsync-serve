@@ -240,7 +240,7 @@
     <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" x-show="showAddModal" x-transition.opacity></div>
         
-        <div @click.away="showAddModal = false" class="bg-white w-full max-w-sm sm:max-w-md p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] relative z-10 text-left shadow-2xl max-h-[90vh] overflow-y-auto" x-show="showAddModal" x-transition.scale.90>
+        <div class="bg-white w-full max-w-sm sm:max-w-md p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] relative z-10 text-left shadow-2xl max-h-[90vh] overflow-y-auto" x-show="showAddModal" x-transition.scale.90>
             <div class="flex justify-end items-center mb-2">
                 <button @click="showAddModal = false" class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
@@ -303,7 +303,7 @@
     <div x-show="showLogModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" x-show="showLogModal" x-transition.opacity></div>
         
-        <div @click.away="showLogModal = false" class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-[2rem] shadow-2xl flex flex-col max-h-[85vh] text-left relative z-10" x-show="showLogModal" x-transition.scale.90>
+        <div class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-[2rem] shadow-2xl flex flex-col max-h-[85vh] text-left relative z-10" x-show="showLogModal" x-transition.scale.90>
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-black text-gray-800 uppercase text-xs tracking-widest flex items-center gap-2">
                     <i class="fa-solid fa-clipboard-list text-gray-400"></i> Audit Logs

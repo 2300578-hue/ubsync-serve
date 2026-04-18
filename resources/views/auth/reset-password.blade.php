@@ -63,13 +63,13 @@
                 Back to Login
             </a>
         </div>
-
-        <div class="-mb-9">
+          
+          <div class="-mb-9 relative z-10">
             <h1 class="text-3xl sm:text-4xl font-extrabold ub-text-maroon tracking-tighter">Reset Password</h1>
             <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Verify identity to update password</p>
         </div>
 
-        <div class="alert-container">
+        <div class="alert-container pt-10 relative z-0">
             <div id="dynamic-alert" class="hidden w-full p-3 rounded-xl text-xs sm:text-sm font-bold border text-center transition-all duration-300">
                 <span id="alert-message"></span>
             </div>

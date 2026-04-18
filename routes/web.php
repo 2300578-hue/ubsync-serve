@@ -13,43 +13,43 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 | Bukas para sa lahat (Customer side).
 */
 
-
-
-// resources/routes/web.php
-
+// Payment gateway route
 Route::get('/payment/gateway/{method}', function ($method) {
-    // Pansinin ang 'customer.paymentgateway' (folder.filename)
     return view('customer.paymentgateway', ['method' => $method]);
 })->name('payment.gateway');
 
-
-
-// Line 38: Idagdag itong payment route
+// Customer payment route
 Route::get('/customer/payment', function () {
     return view('customer.payment'); 
 })->name('customer.payment');
 
-
+// Table Route (Nakabase sa folder structure mong tables/customer.blade.php)
 Route::get('/table/{number}', function ($number) {
-    // Kung lumampas sa 20 o mababa sa 1, i-abort (404)
     if ($number < 1 || $number > 20) {
         abort(404, 'Table not found.');
     }
-
-    return view('tables.show', ['tableNumber' => $number]);
+    return view('tables.customer', ['tableNumber' => $number]);
 });
 
-
+// Landing page
 Route::get('/', function () {
     return view('welcome'); 
 })->name('landing');
 
-Route::get('/menu', function () {
-    return view('customer.menu'); 
+// Menu Route
+Route::get('/menu', function (Request $request) {
+    $table = $request->query('table');
+    $fname = $request->query('fname');
+    $lname = $request->query('lname');
+
+    return view('customer.menu', [
+        'table' => $table,
+        'fname' => $fname,
+        'lname' => $lname
+    ]); 
 })->name('customer.menu');
 
-
-
+// Cart route
 Route::get('/cart', function () {
     return view('customer.cart'); 
 })->name('customer.cart');
@@ -59,8 +59,6 @@ Route::get('/cart', function () {
 |--------------------------------------------------------------------------
 | 2. GUEST ROUTES
 |--------------------------------------------------------------------------
-| Para lamang sa mga HINDI pa naka-login. 
-| Kung naka-login na, i-re-redirect sila ng Laravel pabalik sa home.
 */
 
 Route::middleware(['guest'])->group(function () {
@@ -103,51 +101,53 @@ Route::middleware(['guest'])->group(function () {
 |--------------------------------------------------------------------------
 | 3. PROTECTED ROUTES (Kailangan NAKA-LOGIN)
 |--------------------------------------------------------------------------
-| Dito nakalagay ang lahat ng kailangan ng authentication.
 */
 
 Route::middleware(['auth'])->group(function () {
     
     // --- Dashboard Smart Redirector ---
-    // Ito ang central hub pagka-login para malaman kung saan itatapon ang user
     Route::get('/dashboard-redirect', function() {
         $user = Auth::user();
         
-        // Ginamitan ng strtolower para kahit "Admin" o "admin" ang nasa DB, gagana.
         return match (strtolower($user->role)) {
             'faculty', 'admin'     => redirect()->route('faculty.dashboard'),
             'cashier'              => redirect()->route('cashier.monitor'),
             'student_chef', 'chef' => redirect()->route('chef.display'),
-            default => (function() { Auth::logout();  return redirect()->route('login')->withErrors(['email' => 'Unauthorized Role.']);
-})(),  
-
+            'waiter'               => redirect()->route('waiter.dashboard'), 
+            default => (function() { Auth::logout();  return redirect()->route('login')->withErrors(['email' => 'Unauthorized Role.']); })(),  
         };
     })->name('dashboard.redirect');
 
+
     // --- Role-Based Dashboards ---
+
+    // Waiter Dashboard (Inayos ang path papuntang staff/waiter/waiter.blade.php)
+    Route::get('/waiter-dashboard', function () {
+        return view('staff.waiter.waiter'); 
+    })->name('waiter.dashboard');
 
     // Faculty/Admin
     Route::get('/faculty', function () {
         return view('admin.faculty'); 
     })->name('faculty.dashboard');
 
-    // Staff (Cashier)
-    Route::get('/cashierstaff', function () {
-        return view('staff.cashierstaff'); 
+    // Staff (Cashier) (Inayos ang path papuntang staff/cashier/cashier.blade.php)
+    Route::get('/cashier',function () {
+        return view('staff.cashier.cashier'); 
     })->name('cashier.monitor');
 
     // Staff (Chef)
     Route::get('/chef', function () {
-        return view('staff.chef'); 
+        return view('staff.chef.chef'); 
     })->name('chef.display');
 
-    // POS & Inventory Sections
+    // POS & Inventory Sections (Nasa loob rin ng cashier folder base sa screenshot)
     Route::get('/service-hub', function () {
-        return view('pos.service_hub');
+        return view('staff.cashier.service_hub');
     })->name('pos.hub');
 
     Route::get('/stock-vault', function () {
-        return view('pos.stock_vault');
+        return view('staff.cashier.stock_vault');
     })->name('pos.vault');
 
     // --- Logout Logic ---

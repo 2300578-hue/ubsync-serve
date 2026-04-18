@@ -59,7 +59,7 @@ class RegisterController extends Controller
             'last_name'  => 'required|string|max:100',
             'email'      => 'required|email|unique:users,email',
             'password'   => 'required|min:8|confirmed',
-            'role'       => 'required|in:admin,cashier,chef',
+            'role'       => 'required|in:admin,cashier,chef,waiter',
             'otp_code'   => 'required|digits:6'
         ]);
 

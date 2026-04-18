@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,7 +68,41 @@
     sidebarOpen: window.innerWidth >= 768,
     showTableDetail: null,
     showVacantModal: false,
-    salesSummary: { total: 24500 },
+    
+  
+salesSummary: { total: 24500 },
+
+
+get totalSalesToday() {
+   
+    return this.tables
+        .filter(t => t.payment === 'Paid' && t.bill > 0)
+        .reduce((sum, t) => sum + t.bill, 0) + this.salesSummary.total;
+},
+
+    
+    transactions: [
+        { id: 1, description: 'Table 1 payment', amount: 390, time: '3:15 PM', type: 'sale' },
+        { id: 2, description: 'Table 5 payment', amount: 350, time: '3:09 PM', type: 'sale' },
+        { id: 3, description: 'Refund issued', amount: 45, time: '2:55 PM', type: 'refund' },
+        { id: 4, description: 'Table 2 payment', amount: 225, time: '2:42 PM', type: 'sale' }
+    ],
+    cashierPerformance: {
+        tablesAttended: 28,
+        satisfactionRate: 4.8,
+        performanceScore: 93,
+        skills: [
+            { label: 'Response Time', value: 92, color: 'bg-violet-500' },
+            { label: 'Hospitality', value: 96, color: 'bg-pink-500' },
+            { label: 'Product Knowledge', value: 88, color: 'bg-blue-500' }
+        ]
+    },
+    cashierActivity: [
+        { id: 1, action: 'Table 2 - Order Taken', time: '3:15 PM', status: 'Done' },
+        { id: 2, action: 'Table 5 - Water Refill', time: '3:12 PM', status: 'Done' },
+        { id: 3, action: 'Table 8 - Complaint Resolved', time: '3:08 PM', status: 'Done' },
+        { id: 4, action: 'Table 1 - Upsell Successful', time: '3:00 PM', status: 'Done' }
+    ],
     selectedTableForOrder: '',
     cart: [],
     products: [
@@ -184,6 +219,10 @@
         this.cart.splice(index, 1);
     },
     get cartTotal() { return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0); },
+    get averageTicket() {
+        let sales = this.transactions.filter(txn => txn.type === 'sale');
+        return sales.length ? sales.reduce((sum, txn) => sum + txn.amount, 0) / sales.length : 0;
+    },
     placeOrder() {
         if(!this.selectedTableForOrder) return alert('Select Table First');
         let t = this.tables.find(x => x.id == this.selectedTableForOrder);
@@ -293,6 +332,9 @@
                     <button @click="tab = 'inventory'; if(window.innerWidth < 768) sidebarOpen = false;" :class="tab === 'inventory' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
                         <i class="fa-solid fa-boxes-stacked w-5"></i> Stock Vault
                     </button>
+                    <button @click="tab = 'performance'; if(window.innerWidth < 768) sidebarOpen = false;" :class="tab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
+                        <i class="fa-solid fa-chart-line w-5"></i> Performance
+                    </button>
                 </nav>
             </div>
         </div>
@@ -311,7 +353,8 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+         
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="clay-card p-6 border-t-4 border-t-emerald-500">
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sales Today</p>
                     <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="'₱' + salesSummary.total.toLocaleString()"></h3>
@@ -376,12 +419,16 @@
             </div>
         </div>
 
-        <div x-show="tab === 'pos'" x-cloak>
-            @include('pos.service_hub')
+       <div x-show="tab === 'pos'" x-cloak>
+            @include('staff.cashier.service_hub')
         </div>
 
         <div x-show="tab === 'inventory'" x-cloak>
-            @include('pos.stock_vault')
+            @include('staff.cashier.stock_vault')
+        </div>
+
+        <div x-show="tab === 'performance'" x-cloak>
+            @include('staff.cashier.performance')
         </div>
     </main>
 

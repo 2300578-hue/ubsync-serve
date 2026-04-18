@@ -73,4 +73,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === 'chef';
     }
+
+    /**
+     * OPTIONAL: Helper function para i-check kung Waiter
+     */
+    public function isWaiter(): bool
+    {
+        return $this->role === 'waiter';
+    }
 }

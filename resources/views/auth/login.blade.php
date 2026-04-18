@@ -38,12 +38,12 @@
             </a>
         </div>
 
-        <div class="mb-4 sm:-mb-10">
+      <div class="mb-4 sm:-mb-10 relative z-10">
             <h1 class="text-4xl sm:text-5xl font-extrabold ub-text-maroon tracking-tighter">UB Sync</h1>
             <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Welcome to UB-SYNCSERVE</p>
         </div>
 
-        <div class="alert-wrapper mb-4">
+        <div class="alert-wrapper mb-4 sm:pt-12 relative z-0">
             {{-- Success Message from Registration --}}
             @if (session('success'))
                 <div id="alert-success" class="animate__animated animate__fadeInDown w-full bg-green-50 text-green-700 p-3 rounded-xl text-sm font-bold border border-green-200 text-center flex items-center justify-center gap-2">
