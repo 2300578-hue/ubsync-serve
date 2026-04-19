@@ -255,6 +255,9 @@
                     </button>
                     <button @click="currentTab = 'orders'" :class="currentTab === 'orders' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                         <i class="fas fa-list w-5"></i> Orders
+                        <button @click="currentTab = 'cleanup'" :class="currentTab === 'cleanup' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+    <i class="fas fa-broom w-5"></i> Table Cleaning
+</button>
                     </button>
                     <button @click="currentTab = 'incoming'" :class="currentTab === 'incoming' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                         <i class="fas fa-box-open w-5"></i> Incoming Orders <span x-show="incomingOrders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="incomingOrders.length"></span>
@@ -330,6 +333,10 @@
                 <button @click="updateTable()" class="w-full mt-4 bg-red-800 hover:bg-red-900 text-white font-bold py-3 rounded-xl uppercase tracking-widest">Update Table</button>
             </div>
         </div>
+            
+      <div x-show="currentTab === 'cleanup'" x-cloak>
+    @include('staff.waiter.table_cleanup')
+     </div>
 
         <!-- ORDERS VIEW -->
         <div x-show="currentTab === 'orders'" x-cloak>
