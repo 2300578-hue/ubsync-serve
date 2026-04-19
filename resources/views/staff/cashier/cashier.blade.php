@@ -33,7 +33,7 @@
 
         .clay-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 4px; 
             border: 1px solid #eaeded;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
@@ -254,10 +254,10 @@ get totalSalesToday() {
     <header class="aws-header shadow-lg">
         <div class="flex items-center gap-4">
             <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
-                <i class="fas fa-bars-staggered"></i>
+                     <i class="fas fa-bars"></i>
             </button>
             <div class="flex items-center gap-2">
-                <span class="font-bold tracking-tighter text-sm sm:text-lg uppercase truncate">UB SYNC CONTROL</span>
+              
             </div>
         </div>
 
@@ -353,21 +353,22 @@ get totalSalesToday() {
                 </button>
             </div>
 
-         
-             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="clay-card p-6 border-t-4 border-t-emerald-500">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sales Today</p>
-                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="'₱' + salesSummary.total.toLocaleString()"></h3>
-                </div>
-                <div class="clay-card p-6 border-t-4 border-t-blue-500">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Sessions</p>
-                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></h3>
-                </div>
-                <div class="clay-card p-6 border-t-4 border-t-orange-500">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Settlements</p>
-                    <h3 class="text-2xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive && t.payment === 'Unpaid').length"></h3>
-                </div>
-            </div>
+         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
+    <div class="clay-card border-t-4 border-t-emerald-500 p-5">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sales Today</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="'₱' + salesSummary.total.toLocaleString()"></p>
+    </div>
+
+    <div class="clay-card p-5 border-t-4 border-t-blue-500">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Sessions</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
+    </div>
+
+    <div class="clay-card p-5 border-t-4 border-t-orange-500">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pending Settlements</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive && t.payment === 'Unpaid').length"></p>
+    </div>
+</div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="table in tables" :key="table.id">

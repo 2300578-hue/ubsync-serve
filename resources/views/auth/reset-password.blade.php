@@ -36,7 +36,7 @@
         }
         
         .otp-square:focus { border-color: #800000; outline: none; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
-        .otp-error { border-color: #dc2626 !important; background-color: #fef2f2 !important; color: #dc2626 !important; }
+       
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
@@ -187,16 +187,19 @@
             }, 1000);
         }
 
-        function triggerOTPSemanticError() {
-            inputs.forEach(i => { i.classList.add('otp-error', 'animate__animated', 'animate__shakeX'); i.value = ""; });
-            hiddenInput.value = "";
-            setTimeout(() => inputs.forEach(i => i.classList.remove('animate__shakeX')), 600);
-            inputs[0].focus();
-        }
+     function triggerOTPSemanticError() {
+    // Inalis ang 'otp-error' sa classList.add
+    inputs.forEach(i => { 
+        i.classList.add('animate__animated', 'animate__shakeX'); 
+        i.value = ""; 
+    });
+    hiddenInput.value = "";
+    setTimeout(() => inputs.forEach(i => i.classList.remove('animate__shakeX')), 600);
+    inputs[0].focus();
+}
 
         inputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                input.classList.remove('otp-error');
+            input.addEventListener('input', (e) => {             
                 if (e.target.value.length > 1) e.target.value = e.target.value.slice(0, 1);
                 if (e.target.value && index < inputs.length - 1) inputs[index + 1].focus();
                 let code = ""; inputs.forEach(i => code += i.value); hiddenInput.value = code;

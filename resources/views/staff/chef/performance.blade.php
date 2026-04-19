@@ -19,17 +19,17 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="aws-card border-t-4 border-t-purple-500 p-5 shadow-sm bg-white rounded-lg">
+        <div class="aws-card border-t-4 border-t-purple-500 p-5 bg-white shadow-sm border-x border-b border-slate-200">
             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Completed Orders</p>
             <h3 class="text-3xl font-black text-slate-800 mt-1" x-text="chefPerformance.fulfilledCount"></h3>
             <p class="text-xs text-slate-500 mt-2">orders finished today</p>
         </div>
-        <div class="aws-card p-5 border-t-4 border-t-pink-500 shadow-sm bg-white rounded-lg">
+       <div class="aws-card p-5 border-t-4 border-t-pink-500 bg-white shadow-sm border-x border-b border-slate-200">
             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Satisfaction Rate</p>
             <h3 class="text-3xl font-black text-slate-800 mt-1" x-text="chefPerformance.satisfaction + '/5.0'"></h3>
             <p class="text-xs text-slate-500 mt-2">average kitchen rating</p>
         </div>
-        <div class="aws-card p-5 border-t-4 border-t-blue-500 shadow-sm bg-white rounded-lg">
+        <div class="aws-card p-5 border-t-4 border-t-blue-500 bg-white shadow-sm border-x border-b border-slate-200">
             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Performance Score</p>
             <h3 class="text-3xl font-black text-slate-800 mt-1" x-text="chefPerformance.score + '%'"></h3>
             <p class="text-xs text-slate-500 mt-2">efficiency score</p>
