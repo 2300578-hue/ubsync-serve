@@ -63,7 +63,7 @@
             </button>
             <div class="flex items-center gap-2">
                 <i class="fas fa-fire-burner text-yellow-500 text-xl"></i>
-                <span class="font-bold tracking-tighter text-lg uppercase">UB SYNC KITCHEN</span>
+              
             </div>
         </div>
 

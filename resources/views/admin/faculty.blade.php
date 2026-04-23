@@ -41,8 +41,8 @@
                 <i class="fas fa-bars"></i>
             </button>
             <div class="flex items-center gap-2">
-                <i class="fas fa-layer-group text-yellow-500 text-xl"></i>
-                <span class="font-bold tracking-tighter text-lg uppercase hidden sm:inline">UB SYNC</span>
+                
+              
             </div>
         </div>
 
