@@ -54,8 +54,16 @@
                 currentTab: 'tables',
                 isSidebarOpen: true,
                 selectedTable: null,
-                billedCount: 12,
-                totalRevenue: 3450,
+                billedCount: 0,
+                totalRevenue: 0,
+                    
+                  
+
+                get averageBill() {
+                    if (this.billedCount === 0) return 0;
+                    return (this.totalRevenue / this.billedCount).toFixed(2);
+                },
+
                 tables: [
                     { id: 1, number: '01', status: 'available', guests: 0 },
                     { id: 2, number: '02', status: 'occupied', guests: 4 },
@@ -65,19 +73,108 @@
                     { id: 6, number: '06', status: 'available', guests: 0 },
                 ],
                 orders: [
-                    { id: '1001', table: '02', status: 'pending', items: [{ qty: 2, name: 'UB Burger' }, { qty: 1, name: 'Fries' }] },
-                    { id: '1002', table: '04', status: 'completed', items: [{ qty: 1, name: 'Spicy Pasta' }] }
+                   
                 ],
                 requests: [
                     { id: 1, table: '02', type: 'Water Refill', message: 'Customer needs water refill', priority: 'HIGH' },
                 ],
-                incomingOrders: [],
-                recentBills: [
-                    { id: 1, table: '01', amount: 850, method: 'Cash', time: '12:30 PM' },
-                    { id: 2, table: '03', amount: 1200, method: 'Card', time: '12:15 PM' },
-                    { id: 3, table: '05', amount: 750, method: 'GCash', time: '11:50 AM' },
-                    { id: 4, table: '06', amount: 650, method: 'Cash', time: '11:30 AM' },
+                recentBills: [],
+                
+                // Incoming Orders Data
+                incomingOrders: [
+                    { 
+                        id: 'ORD-101', 
+                        table: '03', 
+                        customer: 'Juan Dela Cruz', 
+                        total: 450.00, 
+                        cooking: false, // PENDING STATUS
+                        ready: false, 
+                        items: [{ qty: 2, name: 'UB Burger' }, { qty: 1, name: 'Iced Tea' }] 
+                    },
+                    { 
+                        id: 'ORD-102', 
+                        table: '05', 
+                        customer: 'Maria Clara', 
+                        total: 320.00, 
+                        cooking: true,  // COOKING STATUS
+                        ready: false, 
+                        items: [{ qty: 1, name: 'Spicy Pasta' }, { qty: 1, name: 'Fries' }] 
+                    },
+                    { 
+                        id: 'ORD-103', 
+                        table: '08', 
+                        customer: 'Pedro Penduko', 
+                        total: 890.00, 
+                        cooking: true, 
+                        ready: true,    // READY STATUS
+                        items: [{ qty: 2, name: 'Chicken Wings' }, { qty: 2, name: 'Caesar Salad' }] 
+                    }
                 ],
+
+                // Mark Served Function - Inaalis na sa array/screen kapag tapos na
+               // Mark Served Function - Ililipat ang order sa Orders Tab
+                markTableServed(orderId) {
+                    const index = this.incomingOrders.findIndex(o => o.id === orderId);
+                    if(index !== -1) {
+                        // 1. Kunin ang order data bago ito tanggalin
+                        const orderToTransfer = this.incomingOrders[index];
+
+                        // 2. Ipasok ang order sa "orders" array para lumabas sa Orders tab
+                        // Gagamit tayo ng unshift para mapunta sa pinakauna ang bagong order
+                              this.orders.unshift({
+    id: orderToTransfer.id,
+    table: orderToTransfer.table,
+    status: 'pending',
+    items: orderToTransfer.items,
+    total: orderToTransfer.total // <-- Siguraduhing naidagdag itong linya para mapasa ang presyo
+});
+
+                        // 3. Idagdag sa performance metrics
+                        this.waiterPerformance.tablesAttended++;
+
+                        this.logActivity(`Table ${orderToTransfer.table} - Order Served`, 'Done');
+                        
+                        // 4. Tanggalin ang order sa Incoming Orders screen
+                        this.incomingOrders.splice(index, 1);
+                        
+                        // 5. I-update ang local storage
+                        localStorage.setItem('ub_orders', JSON.stringify(this.incomingOrders));
+                        
+                        // (Optional) Pwede mag-alert para alam ng user na lumipat ang order
+                        // alert('Order successfully transferred to Orders Management!');
+                    }
+                },
+
+                logActivity(actionText, statusText) {
+                const timeNow = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+                this.recentActivities.unshift({
+                    id: Date.now(),
+                    action: actionText,
+                    time: timeNow,
+                    status: statusText
+                });
+                
+                // Panatilihin lang ang top 10 na pinakabagong activity para hindi humaba nang sobra
+                if (this.recentActivities.length > 10) {
+                    this.recentActivities.pop();
+                }
+            }, // <-- WAG KAKALIMUTAN ITONG COMMA (,) SA DULO
+
+                // Automatic na gumagalaw ang kitchen status
+                simulateKitchenProgress() {
+                    setInterval(() => {
+                        this.incomingOrders.forEach(order => {
+                            if (!order.cooking && !order.ready) {
+                                // PENDING -> COOKING
+                                order.cooking = true; 
+                            } else if (order.cooking && !order.ready) {
+                                // COOKING -> READY (Randomized for realism)
+                                if(Math.random() > 0.5) order.ready = true; 
+                            }
+                        });
+                    }, 8000); // Mag-uupdate ang kusina kada 8 segundo
+                },
+
                 selectTable(index) {
                     this.selectedTable = index;
                 },
@@ -119,45 +216,48 @@
                         priority: priorities[Math.floor(Math.random() * priorities.length)]
                     });
                 },
-                updateOrderStatus(index, status) {
+                 updateOrderStatus(index, status) {
                     this.orders[index].status = status;
                     if(status === 'completed') {
-                        const randomAmount = Math.floor(Math.random() * 500) + 300;
+                        // Kukunin na ang totoong total amount mula sa order imbes na random number
+                        const actualTotal = parseFloat(this.orders[index].total) || 0;
+                        
                         this.recentBills.unshift({
                             id: Date.now(),
                             table: this.orders[index].table,
-                            amount: randomAmount,
+                            amount: actualTotal, // Gagamitin ang totoong presyo dito
                             method: ['Cash', 'Card', 'GCash'][Math.floor(Math.random() * 3)],
-                            time: new Date().toLocaleTimeString()
+                            time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
                         });
-                        this.totalRevenue += randomAmount;
+                        
+                        // Idadagdag ang totoong amount sa overall Total Revenue
+                        this.totalRevenue += actualTotal; 
                         this.billedCount++;
+                        this.logActivity(`Table ${this.orders[index].table} - Bill Processed`, 'Completed');
                     }
                 },
                 removeOrder(index) {
                     this.orders.splice(index, 1);
                 },
                 completeRequest(index) {
+                   const requestDone = this.requests[index];
+                    
+                    // Idagdag sa Recent Activities
+                    this.logActivity(`Table ${requestDone.table} - ${requestDone.type} Resolved`, 'Done');
+                    
                     this.requests.splice(index, 1);
                 },
                 loadIncomingOrders() {
                     const orders = JSON.parse(localStorage.getItem('ub_orders') || '[]');
                     this.incomingOrders = orders.filter(o => o.forWaiter && o.status !== 'served');
                 },
-                markTableServed(orderId) {
-                    const order = this.incomingOrders.find(o => o.id === orderId);
-                    if(order) {
-                        order.status = 'served';
-                        this.waiterPerformance.tablesAttended++;
-                        localStorage.setItem('ub_orders', JSON.stringify(this.incomingOrders));
-                    }
-                },
                 initializeOrderListener() {
                     window.addEventListener('orderPlaced', (event) => {
                         this.loadIncomingOrders();
                     });
-                    setInterval(() => this.loadIncomingOrders(), 2000);
-                    this.loadIncomingOrders();
+                    
+                    // Tinawag ang bagong function dito:
+                    this.simulateKitchenProgress(); 
                 },
                 confirmLogout() {
                     document.getElementById('logout-form').submit();
@@ -177,8 +277,13 @@
                     { id: 4, action: 'Table 1 - Upsell Successful', time: '3:00 PM', status: 'Done' },
                     { id: 5, action: 'Table 3 - Customer Feedback', time: '2:55 PM', status: 'Positive' }
                 ]
+
+                
             }
+            
         }
+
+        
     </script>
 
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -255,9 +360,10 @@
                     </button>
                     <button @click="currentTab = 'orders'" :class="currentTab === 'orders' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                         <i class="fas fa-list w-5"></i> Orders
-                        <button @click="currentTab = 'cleanup'" :class="currentTab === 'cleanup' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-    <i class="fas fa-broom w-5"></i> Table Cleaning
-</button>
+                        <span x-show="orders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm" x-text="orders.length"></span>
+                    </button>
+                    <button @click="currentTab = 'cleanup'" :class="currentTab === 'cleanup' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-broom w-5"></i> Table Cleaning
                     </button>
                     <button @click="currentTab = 'incoming'" :class="currentTab === 'incoming' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                         <i class="fas fa-box-open w-5"></i> Incoming Orders <span x-show="incomingOrders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="incomingOrders.length"></span>
@@ -278,7 +384,6 @@
 
     <main class="main-content" :class="!isSidebarOpen ? 'content-wide' : ''">
         
-        <!-- TABLE MANAGEMENT VIEW -->
         <div x-show="currentTab === 'tables'" x-cloak>
             <div class="flex justify-between items-end mb-8">
                 <div>
@@ -334,37 +439,31 @@
             </div>
         </div>
             
-      <div x-show="currentTab === 'cleanup'" x-cloak>
-    @include('staff.waiter.table_cleanup')
-     </div>
+        <div x-show="currentTab === 'cleanup'" x-cloak>
+            @include('staff.waiter.table_cleanup')
+        </div>
 
-        <!-- ORDERS VIEW -->
         <div x-show="currentTab === 'orders'" x-cloak>
             @include('staff.waiter.orders')
         </div>
 
-        <!-- INCOMING ORDERS VIEW -->
         <div x-show="currentTab === 'incoming'" x-cloak>
             @include('staff.waiter.incoming_orders')
         </div>
 
-        <!-- CUSTOMER REQUESTS VIEW -->
         <div x-show="currentTab === 'requests'" x-cloak>
             @include('staff.waiter.customer_request')
         </div>
 
-        <!-- BILLING VIEW -->
         <div x-show="currentTab === 'billing'" x-cloak>
             @include('staff.waiter.billing')
         </div>
 
-        <!-- PERFORMANCE VIEW -->
         <div x-show="currentTab === 'performance'" x-cloak>
             @include('staff.waiter.performance')
         </div>
 
     </main>
 
-   
 </body>
 </html>

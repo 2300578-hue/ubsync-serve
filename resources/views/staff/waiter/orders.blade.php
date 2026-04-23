@@ -28,18 +28,28 @@
                         <span class="font-black text-slate-900 bg-white px-2 py-0.5 rounded shadow-sm border border-slate-100" x-text="item.qty + 'x'"></span>
                     </div>
                 </template>
+                
+                <div class="mt-3 pt-3 border-t border-slate-200 text-right">
+                    <p class="text-sm font-bold text-slate-500 uppercase tracking-wide">Total Amount</p>
+                    <p class="text-lg font-black text-slate-800">₱<span x-text="order.total"></span></p>
+                </div>
             </div>
 
             <div class="p-4 bg-slate-50 border-t border-slate-100 space-y-2">
+                
                 <button @click="updateOrderStatus(index, 'completed')" 
-                        class="w-full py-3 bg-green-600 text-white font-black text-xs uppercase rounded-lg hover:bg-green-700 transition active:scale-95 shadow-sm">
-                    Mark Ready
+                        :disabled="order.status === 'completed'"
+                        :class="order.status === 'completed' ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white active:scale-95 shadow-sm'"
+                        class="w-full py-3 font-black text-xs uppercase rounded-lg transition">
+                    <span x-text="order.status === 'completed' ? 'Completed' : 'Mark Ready'"></span>
                 </button>
                 
-                <button @click="removeOrder(index)" 
-                        class="w-full py-2 bg-slate-200 text-slate-600 font-bold text-[10px] uppercase rounded-lg hover:bg-slate-300 transition active:scale-95">
+                <button x-show="order.status === 'completed'"
+                        @click="removeOrder(index)" 
+                        class="w-full py-2 bg-red-100 text-red-600 hover:bg-red-200 font-bold text-[10px] uppercase rounded-lg transition active:scale-95">
                     Remove
                 </button>
+
             </div>
         </div>
     </template>
