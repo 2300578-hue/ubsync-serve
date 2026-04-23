@@ -182,6 +182,26 @@
                     alert('Table updated successfully!');
                     this.selectedTable = null;
                 },
+
+                  cleanTable(tableId) {
+                    // 1. Hanapin ang table gamit ang ID na ipinasa mula sa HTML
+                    const index = this.tables.findIndex(t => t.id === tableId);
+                    
+                    if(index !== -1) {
+                        const tableNumber = this.tables[index].number;
+                        
+                        // 2. Palitan ang status para mawala sa Cleaning Dashboard
+                        this.tables[index].status = 'available';
+                        this.tables[index].guests = 0; // i-reset ang bilang ng tao
+
+                        // 3. I-log sa Recent Activities!
+                        this.logActivity(`Table ${tableNumber} - Table Cleaned`, 'Done');
+                    }
+                },
+
+
+
+
                 assignNewTable() {
                     const nextTable = this.tables.length + 1;
                     this.tables.push({

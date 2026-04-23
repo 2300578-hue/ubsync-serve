@@ -24,10 +24,9 @@
                             </p>
                         </div>
 
-                        <button @click="table.status = 'available'" 
-                                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-lg text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2">
-                          
-                            Mark as Available
+                         <button @click="cleanTable(table.id)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-lg text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2">
+    Mark as Available
+</button>
                         </button>
                     </div>
                 </div>
