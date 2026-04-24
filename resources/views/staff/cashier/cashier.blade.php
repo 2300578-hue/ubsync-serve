@@ -111,7 +111,7 @@
                         <i class="fas fa-calendar-check w-5"></i> Reservations
                     </button>
                     <button @click="switchTab('performance')" :class="tab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
-                        <i class="fa-solid fa-chart-line w-5"></i> Performance
+                        <i class="fa-solid fa-chart-line w-5"   ></i> Performance
                     </button>
                 </nav>
             </div>
@@ -132,68 +132,78 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
-                <div class="clay-card border-t-4 border-t-emerald-500 p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sales Today</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="formatCurrency(salesSummary.total)"></p>
+    <div class="clay-card border-t-4 border-t-emerald-500 p-5">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sales Today</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="formatCurrency(salesSummary.total)"></p>
+    </div>
+
+    <div class="clay-card p-5 border-t-4 border-t-blue-500">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Sessions</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
+    </div>
+
+    <div class="clay-card p-5 border-t-4 border-t-orange-500">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Reservations</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <template x-for="table in tables" :key="table.id">
+        <div x-show="table.isSessionActive && table.payment === 'Paid' && !table.isMarkedPaid" 
+             x-transition 
+             class="clay-card flex flex-col overflow-hidden">
+            
+            <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded bg-white border font-black text-red-800 flex items-center justify-center shadow-sm" x-text="table.id"></span>
+                    <span class="font-bold text-slate-700 text-xs uppercase tracking-tight">Occupied</span>
                 </div>
-                <div class="clay-card p-5 border-t-4 border-t-blue-500">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Sessions</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
-                </div>
-                <div class="clay-card p-5 border-t-4 border-t-orange-500">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pending Settlements</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive && t.payment === 'Unpaid').length"></p>
-                </div>
+                <span class="status-badge bg-red-800 text-white">Active</span>
             </div>
+            
+            <div class="p-5 flex-1">
+                <div class="mb-4">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Bill</p>
+                    <h2 class="text-2xl font-black text-slate-800" x-text="formatCurrency(table.bill)"></h2>
+                </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <template x-for="table in tables" :key="table.id">
-                    <div x-show="table.isSessionActive" x-transition class="clay-card flex flex-col overflow-hidden">
-                        <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded bg-white border font-black text-red-800 flex items-center justify-center shadow-sm" x-text="table.id"></span>
-                                <span class="font-bold text-slate-700 text-xs uppercase">Occupied</span>
-                            </div>
-                            <span class="status-badge bg-red-800 text-white">Active</span>
-                        </div>
-                        
-                        <div class="p-5 flex-1">
-                            <div class="mb-4">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase">Current Bill</p>
-                                <h2 class="text-2xl font-black text-slate-800" x-text="table.payment === 'Paid' ? formatCurrency(table.bill) : '---'"></h2>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2 mb-4">
-                                <div class="p-2 rounded border border-dashed text-center" :class="table.payment === 'Unpaid' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'">
-                                    <p class="text-[9px] font-black uppercase" x-text="table.payment === 'Unpaid' ? 'Ordering' : 'Order Ready'"></p>
-                                </div>
-                                <div class="p-2 rounded border border-dashed text-center" :class="table.payment === 'Unpaid' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'">
-                                    <p class="text-[9px] font-black uppercase" x-text="table.payment === 'Unpaid' ? 'Unpaid' : 'Settled'"></p>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2">
-                                <button @click="table.payment === 'Paid' || table.orders.length > 0 ? showTableDetail = table : alert('Wait for order settlement.')" 
-                                        class="w-full py-2.5 rounded text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 border border-slate-200 hover:bg-slate-50">
-                                    <i class="fa-solid fa-eye"></i> View Orders
-                                </button>
-
-                                <template x-if="table.payment === 'Paid' && !table.isMarkedPaid">
-                                    <button @click="markAsPaid(table.id)" class="w-full py-2.5 bg-red-800 text-white rounded text-[10px] font-black uppercase shadow-sm">
-                                        Settle Payment
-                                    </button>
-                                </template>
-
-                                <template x-if="table.payment === 'Paid' && table.isMarkedPaid">
-                                    <button @click="resetTable(table.id)" class="w-full py-2.5 bg-emerald-600 text-white rounded text-[10px] font-black uppercase shadow-sm">
-                                        Clear & Close Table
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="p-2 rounded border border-dashed text-center bg-green-50 text-green-600">
+                        <p class="text-[9px] font-black uppercase">Order Ready</p>
                     </div>
-                </template>
+                    <div class="p-2 rounded border border-dashed text-center bg-green-50 text-green-600">
+                        <p class="text-[9px] font-black uppercase">Settled</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <button @click="showTableDetail = table" 
+                            class="w-full py-2.5 rounded text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 border border-slate-200 hover:bg-slate-50">
+                        <i class="fa-solid fa-eye"></i> View Orders
+                    </button>
+
+                    <button @click="markAsPaid(table.id)" 
+                            class="w-full py-2.5 bg-red-800 text-white rounded text-[10px] font-black uppercase shadow-sm hover:bg-red-900 transition-all">
+                        Settle Payment
+                    </button>
+                </div>
             </div>
+        </div>
+    </template>
+</div>
+
+<template x-if="tables.filter(t => t.isSessionActive && t.payment === 'Paid' && !t.isMarkedPaid).length === 0">
+    <div class="w-full py-20 flex flex-col items-center justify-center bg-white border border-dashed rounded-xl">
+        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-calendar-check text-slate-300 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-black text-slate-700 uppercase tracking-tight">No Pending Settlements</h3>
+        <p class="text-sm text-slate-400">Updates will appear here when tables are ready for payment.</p>
+    </div>
+</template>
+</div>
+
         </div>
 
         <div x-show="tab === 'reservations'" x-cloak>
@@ -270,7 +280,7 @@
                 showVacantModal: false,
                 showSuccessAlert: false,
                 reservations: [],
-                salesSummary: { total: 24500 },
+                salesSummary: { total: 0},
                 cart: [],
                 selectedTableForOrder: '',
 
@@ -284,16 +294,19 @@
                 ],
 
                 tables: [
-                    { id: 1, isSessionActive: true, payment: 'Unpaid', isMarkedPaid: false, orders: [{ name: 'Burger Steak', qty: 2, img: 'burgersteak.png' }, { name: 'Ice Tea', qty: 2, img: 'icetea.png' }], bill: 390 },
-                    { id: 2, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: [{ name: 'Carbonara', qty: 1, img: 'carbonara.png' }, { name: 'Ice Tea', qty: 1, img: 'icetea.png' }], bill: 225 },
-                    { id: 3, isSessionActive: true, payment: 'Unpaid', isMarkedPaid: false, orders: [{ name: 'Burger Steak', qty: 3, img: 'burgersteak.png' }, { name: 'Leche Flan', qty: 1, img: 'lecheflan.png' }], bill: 525 },
-                    { id: 4, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
-                    { id: 5, isSessionActive: true, payment: 'Paid', isMarkedPaid: true, orders: [{ name: 'Mozarella Sticks', qty: 2, img: 'mozarella.png' }, { name: 'Ice Tea', qty: 2, img: 'icetea.png' }], bill: 350 },
-                    { id: 6, isSessionActive: true, payment: 'Unpaid', isMarkedPaid: false, orders: [{ name: 'Carbonara', qty: 2, img: 'carbonara.png' }], bill: 360 },
-                    { id: 7, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
-                    { id: 8, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: [{ name: 'Leche Flan', qty: 3, img: 'lecheflan.png' }, { name: 'Ice Tea', qty: 1, img: 'icetea.png' }], bill: 270 },
-                    { id: 9, isSessionActive: true, payment: 'Unpaid', isMarkedPaid: false, orders: [{ name: 'Burger Steak', qty: 1, img: 'burgersteak.png' }, { name: 'Mozarella Sticks', qty: 1, img: 'mozarella.png' }], bill: 280 }
-                ],
+    // Table 1 at 2 lang ang gagawin nating Active
+    { id: 1, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: [{ name: 'Burger Steak', qty: 2, img: 'burgersteak.png' }], bill: 390 },
+    { id: 2, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: [{ name: 'Carbonara', qty: 1, img: 'carbonara.png' }], bill: 225 },
+    
+    // Ang lahat ng iba pang tables ay dapat false ang isSessionActive
+    { id: 3, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+    { id: 4, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
+    { id: 5, isSessionActive: false, payment: 'Paid', isMarkedPaid: true, orders: [], bill: 0 },
+    { id: 6, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+    { id: 7, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
+    { id: 8, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
+    { id: 9, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 }
+],
 
                 init() {
                     this.loadReservations();
