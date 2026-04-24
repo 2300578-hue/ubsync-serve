@@ -31,6 +31,10 @@ Route::get('/table/{number}', function ($number) {
     return view('tables.customer', ['tableNumber' => $number]);
 });
 
+Route::get('/reservation', function () {
+    return view('reservation.book');
+});
+
 // Landing page
 Route::get('/', function () {
     return view('welcome'); 
@@ -118,7 +122,7 @@ Route::middleware(['auth'])->group(function () {
         };
     })->name('dashboard.redirect');
 
-
+    
     // --- Role-Based Dashboards ---
 
     // Waiter Dashboard (Inayos ang path papuntang staff/waiter/waiter.blade.php)
