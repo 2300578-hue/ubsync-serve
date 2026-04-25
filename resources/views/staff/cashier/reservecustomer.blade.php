@@ -5,7 +5,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 text-left">
             <div>
                 <h2 class="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tight">Reservation Hub</h2>
-                <p class="text-[10px] md:text-xs font-bold text-red-600 uppercase tracking-widest">Active Bookings</p>
+                <p class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Active Bookings</p>
             </div>
             
             <div class="flex items-center gap-3 w-full md:w-auto justify-end">

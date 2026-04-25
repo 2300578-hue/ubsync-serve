@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         .ub-maroon { background-color: #800000; }
         .ub-text-maroon { color: #800000; }
@@ -89,12 +90,16 @@
             <a href="#objectives" class="nav-link transition-colors">Objectives</a>
         </div>
 
-        <div>
-            <a href="{{ route('login') }}" class="ub-maroon text-white px-6 py-2 md:px-8 md:py-2.5 rounded-full font-bold text-xs shadow-xl hover:shadow-red-900/20 transition-all inline-block active:scale-95">
+        <div class="flex items-center gap-2 md:gap-4">
+            <a href="{{ route('login') }}" class="text-gray-600 hover:ub-text-maroon font-bold text-xs px-2 transition-all">
                 Login
+            </a>
+            <a href="{{ route('register') }}" class="ub-maroon text-white px-5 py-2 md:px-8 md:py-2.5 rounded-full font-bold text-xs shadow-xl hover:shadow-red-900/20 transition-all inline-block active:scale-95">
+                Sign Up
             </a>
         </div>
     </nav>
+
 
     <section class="relative min-h-screen flex items-center justify-center pt-24 md:pt-28 px-4 md:px-6 overflow-hidden text-center">
         <div class="max-w-5xl relative z-10">
@@ -107,41 +112,64 @@
             </p>
 
             <div class="flex justify-center reveal-hidden delay-3">
-                <a href="{{ route('login') }}" class="ub-maroon text-white px-8 py-4 md:px-12 md:py-5 rounded-2xl font-bold text-base md:text-lg shadow-[0_20px_50px_rgba(128,0,0,0.3)] hover:bg-red-900 hover:-translate-y-1 transition-all flex items-center gap-3">
-                    Start Training
-                </a>
-            </div>
+    <a href="{{ route('register') }}" class="ub-maroon text-white px-8 py-4 md:px-12 md:py-5 rounded-2xl font-bold text-base md:text-lg shadow-[0_20px_50px_rgba(128,0,0,0.3)] hover:bg-red-900 hover:-translate-y-1 transition-all flex items-center gap-3">
+        Get Started
+    </a>
+</div>
         </div>
     </section>
 
+   
     <section id="features" class="py-16 md:py-32 bg-white px-4 md:px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12 md:mb-20 reveal-hidden">
-                <h2 class="text-3xl md:text-5xl font-black ub-text-maroon tracking-tight">Core Training Modules</h2>
-                <p class="text-slate-400 mt-3 md:mt-4 font-medium uppercase tracking-widest text-[10px] md:text-xs">Essential Tools for Hospitality Management</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                <div class="p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-slate-50 border border-slate-100 reveal-hidden delay-1 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
-                    <div class="w-14 h-14 md:w-16 md:h-16 bg-red-100 rounded-2xl flex items-center justify-center text-2xl md:text-3xl mb-4 md:mb-0">💳</div>
-                    <h3 class="text-xl md:text-2xl font-black ub-text-maroon mt-4 mb-3 md:mb-4">POS Operations</h3>
-                    <p class="text-slate-500 leading-relaxed text-base md:text-lg">Learn to handle ordering, billing, and payment processing systems effectively and accurately.</p>
-                </div>
-
-                <div class="p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-slate-50 border border-slate-100 reveal-hidden delay-2 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
-                    <div class="w-14 h-14 md:w-16 md:h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl md:text-3xl mb-4 md:mb-0">📦</div>
-                    <h3 class="text-xl md:text-2xl font-black text-blue-900 mt-4 mb-3 md:mb-4">Inventory Control</h3>
-                    <p class="text-slate-500 leading-relaxed text-base md:text-lg">Monitor ingredient stocks, manage wastage, and optimize kitchen supplies with automated tracking.</p>
-                </div>
-
-                <div class="p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-slate-50 border border-slate-100 reveal-hidden delay-3 hover:bg-white hover:shadow-2xl transition-all duration-500 group">
-                    <div class="w-14 h-14 md:w-16 md:h-16 bg-green-100 rounded-2xl flex items-center justify-center text-2xl md:text-3xl mb-4 md:mb-0">📊</div>
-                    <h3 class="text-xl md:text-2xl font-black text-green-900 mt-4 mb-3 md:mb-4">Performance Analytics</h3>
-                    <p class="text-slate-500 leading-relaxed text-base md:text-lg">Check daily sales, identify top menus, and manage profits for your hospitality training.</p>
-                </div>
-            </div>
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-12 md:mb-20 reveal-hidden">
+            <h2 class="text-3xl md:text-5xl font-black ub-text-maroon tracking-tight">Core Training Modules</h2>
+            <p class="text-slate-400 mt-3 md:mt-4 font-medium uppercase tracking-widest text-[10px] md:text-xs">Essential Tools for Hospitality Management</p>
         </div>
-    </section>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            
+            <div class="p-8 md:p-10 rounded-[2rem] bg-slate-50 border border-slate-100 reveal-hidden delay-1 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-2xl mb-4">💳</div>
+                <h3 class="text-xl md:text-2xl font-black ub-text-maroon mb-3">POS Operations</h3>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base flex-grow">Learn to handle ordering, billing, and payment processing systems effectively and accurately.</p>
+            </div>
+
+            <div class="p-8 md:p-10 rounded-[2rem] bg-slate-50 border border-slate-100 reveal-hidden delay-2 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl mb-4">📦</div>
+                <h3 class="text-xl md:text-2xl font-black text-blue-900 mb-3">Inventory Control</h3>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base flex-grow">Monitor ingredient stocks, manage wastage, and optimize kitchen supplies with automated tracking.</p>
+            </div>
+
+            <div class="p-8 md:p-10 rounded-[2rem] bg-slate-50 border border-slate-100 reveal-hidden delay-3 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-2xl mb-4">📊</div>
+                <h3 class="text-xl md:text-2xl font-black text-green-900 mb-3">Performance Analytics</h3>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base flex-grow">Check daily sales, identify top menus, and manage profits for your hospitality training.</p>
+            </div>
+
+            <div class="p-8 md:p-10 rounded-[2rem] bg-slate-50 border border-slate-100 reveal-hidden delay-1 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl mb-4">📅</div>
+                <h3 class="text-xl md:text-2xl font-black text-purple-900 mb-3">Reservation & Booking</h3>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base flex-grow">Manage advanced table bookings and event reservations to ensure organized dining sessions.</p>
+            </div>
+              <div class="p-8 md:p-10 rounded-[2rem] bg-slate-50 border border-slate-100 reveal-hidden delay-3 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <div class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl mb-4">📜</div>
+                <h3 class="text-xl md:text-2xl font-black text-orange-900 mb-3">Digital Menu</h3>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base flex-grow">Organize categories, update prices in real-time, and manage menu availability for seamless ordering.</p>
+            </div>
+
+            <div class="p-8 md:p-10 rounded-[2rem] bg-slate-50 border border-slate-100 reveal-hidden delay-2 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
+                <div class="w-14 h-14 bg-yellow-100 rounded-2xl flex items-center justify-center text-2xl mb-4">🏢</div>
+                <h3 class="text-xl md:text-2xl font-black text-yellow-900 mb-3">One-Stop-Shop Hub</h3>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base flex-grow">A centralized platform for all hospitality services, from ordering to inventory management.</p>
+            </div>
+
+            
+
+        </div>
+    </div>
+</section>
+
 
     <section id="workflow" class="py-16 md:py-32 bg-slate-50 px-4 md:px-6">
         <div class="max-w-[1600px] mx-auto text-center">
@@ -164,7 +192,7 @@
                 <div class="bg-white p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-3 min-h-[300px] md:min-h-[450px] flex flex-col justify-center relative overflow-hidden group sm:col-span-2 lg:col-span-1">
                     <div class="absolute -right-2 -top-4 text-[6rem] md:text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">3</div>
                     <h4 class="font-black text-xl md:text-2xl mb-4 md:mb-6 ub-text-maroon relative z-10">PAYMENT GATE</h4>
-                    <p class="text-base md:text-xl text-slate-600 leading-relaxed relative z-10">Verification of Cash or Mock E-Wallet to trigger system production.</p>
+                    <p class="text-base md:text-xl text-slate-600 leading-relaxed relative z-10">Verified payment triggers order authorization and production.</p>
                 </div>
                 <div class="bg-white p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-1 min-h-[300px] md:min-h-[450px] flex flex-col justify-center relative overflow-hidden group">
                     <div class="absolute -right-2 -top-4 text-[6rem] md:text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">4</div>
@@ -176,6 +204,8 @@
                     <h4 class="font-black text-xl md:text-2xl mb-4 md:mb-6 ub-text-maroon relative z-10">ANALYTICS</h4>
                     <p class="text-base md:text-xl text-slate-600 leading-relaxed relative z-10">Inventory auto-deduction and faculty-led performance monitoring.</p>
                 </div>
+
+                
             </div>
         </div>
     </section>
@@ -220,6 +250,8 @@
             </div>
         </div>
     </section>
+
+    
 
     <footer class="pt-12 md:pt-20 pb-4 md:pb-3 bg-slate-50 border-t border-slate-100 px-4 md:px-6">
         <div class="max-w-8xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">

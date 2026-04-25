@@ -94,37 +94,50 @@
     <div class="gold-accent"></div>
 
 
-    <div x-show="isSidebarOpen && window.innerWidth < 768" 
-         @click="isSidebarOpen = false" 
-         x-transition.opacity 
-         class="fixed inset-0 bg-black/60 z-[999] md:hidden" style="top: 55px;">
-    </div>
-    <aside class="aws-sidebar shadow-sm" :class="!isSidebarOpen ? 'sidebar-collapsed' : ''">
-        <div class="p-6 space-y-8">
-            <div>
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Monitoring</p>
-                <nav class="space-y-2">
-                    <button @click="currentTab = 'dashboard'; if(window.innerWidth < 768) isSidebarOpen = false;" :class="currentTab === 'dashboard' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-th-large w-5"></i> Dashboard
-                    </button>
-                    <button @click="currentTab = 'sessions'; if(window.innerWidth < 768) isSidebarOpen = false;" :class="currentTab === 'sessions' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-signal w-5 text-green-600"></i> Live Sessions
-                    </button>
-                </nav>
-            </div>
-            <div>
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Settings</p>
-                <nav class="space-y-2">
-                    <button @click="currentTab = 'management'; if(window.innerWidth < 768) isSidebarOpen = false;" :class="currentTab === 'management' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-users-cog w-5"></i> Class Management
-                    </button>
-                    <button @click="currentTab = 'audit'; if(window.innerWidth < 768) isSidebarOpen = false;" :class="currentTab === 'audit' ? 'bg-slate-100 border-l-4 border-l-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-l-transparent'" class="w-full flex items-center gap-4 text-[15px] p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-history w-5"></i> Audit Logs
-                    </button>
-                </nav>
-            </div>
+   <div x-show="isSidebarOpen && window.innerWidth < 768" 
+     @click="isSidebarOpen = false" 
+     x-transition.opacity 
+     class="fixed inset-0 bg-black/60 z-[999] md:hidden" style="top: 55px;">
+</div>
+
+<aside class="aws-sidebar shadow-sm" :class="!isSidebarOpen ? 'sidebar-collapsed' : ''">
+    <div class="p-6 space-y-8">
+        <div>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Monitoring</p>
+            <nav class="space-y-1">
+                <button @click="currentTab = 'dashboard'; if(window.innerWidth < 768) isSidebarOpen = false;" 
+                    :class="currentTab === 'dashboard' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fas fa-th-large w-5"></i> Dashboard
+                </button>
+                
+                <button @click="currentTab = 'sessions'; if(window.innerWidth < 768) isSidebarOpen = false;" 
+                    :class="currentTab === 'sessions' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fas fa-signal w-5 text-green-600"></i> Live Sessions
+                </button>
+            </nav>
         </div>
-    </aside>
+
+        <div>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Settings</p>
+            <nav class="space-y-1">
+                <button @click="currentTab = 'management'; if(window.innerWidth < 768) isSidebarOpen = false;" 
+                    :class="currentTab === 'management' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fas fa-users-cog w-5"></i> Class Management
+                </button>
+                
+                <button @click="currentTab = 'audit'; if(window.innerWidth < 768) isSidebarOpen = false;" 
+                    :class="currentTab === 'audit' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fas fa-history w-5"></i> Audit Logs
+                </button>
+            </nav>
+        </div>
+    </div>
+</aside>
+
 
     <main class="main-content" :class="!isSidebarOpen ? 'content-wide' : ''">
         <div x-show="currentTab === 'dashboard'" x-cloak>

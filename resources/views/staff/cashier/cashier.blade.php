@@ -20,6 +20,7 @@
         .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; }
         .sidebar-collapsed { left: -260px; }
         
+        
         /* Main Content Area */
         .main-content { margin-left: 260px; margin-top: 69px; padding: 25px; transition: all 0.3s ease; min-height: calc(100vh - 69px); }
         .content-wide { margin-left: 0; width: 100%; }
@@ -124,25 +125,23 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
                 <div>
                     <h1 class="text-2xl sm:text-3xl font-black text-slate-800 uppercase tracking-tighter">System Overview</h1>
-                    <p class="text-[10px] sm:text-sm text-slate-500 font-bold tracking-widest uppercase">Admin Command Console</p>
+                     <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">Admin Command Console</p>
                 </div>
-                <button @click="showVacantModal = true" class="bg-slate-800 text-white px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-black hover:bg-slate-700 transition rounded flex items-center justify-center gap-2 w-full sm:w-auto shadow-md">
-                    <i class="fa-solid fa-eye"></i> View Vacant Tables
-                </button>
+                
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
+         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
     <div class="clay-card border-t-4 border-t-emerald-500 p-5">
         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sales Today</p>
         <p class="text-3xl font-black text-slate-800 mt-1" x-text="formatCurrency(salesSummary.total)"></p>
     </div>
 
-    <div class="clay-card p-5 border-t-4 border-t-blue-500">
+    <div class="clay-card border-t-4 border-t-blue-500 p-5">
         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Sessions</p>
         <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
     </div>
 
-    <div class="clay-card p-5 border-t-4 border-t-orange-500">
+    <div class="clay-card border-t-4 border-t-orange-500 p-5">
         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Reservations</p>
         <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
     </div>
@@ -220,24 +219,7 @@
         </div>
     </main>
 
-    <div x-show="showVacantModal" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-        <div class="clay-card w-full max-w-2xl overflow-hidden shadow-2xl">
-            <div class="maroon-gradient p-5 text-white flex justify-between items-center">
-                <h3 class="font-black uppercase tracking-widest">Available Tables</h3>
-            </div>
-            <div class="p-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto custom-scroll">
-                <template x-for="table in tables" :key="table.id">
-                    <div x-show="!table.isSessionActive" class="p-6 rounded-xl border-2 border-slate-100 flex flex-col items-center justify-center bg-slate-50">
-                        <span class="text-3xl font-black text-red-800" x-text="table.id"></span>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">Vacant</span>
-                    </div>
-                </template>
-            </div>
-            <div class="p-4 bg-slate-50 text-right border-t">
-                <button @click="showVacantModal = false" class="px-6 py-2 bg-slate-800 text-white rounded text-[10px] font-black uppercase">Close</button>
-            </div>
-        </div>
-    </div>
+    
 
     <div x-show="showTableDetail" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
         <div class="clay-card w-full max-w-md overflow-hidden shadow-2xl">

@@ -63,6 +63,175 @@
         .table-badge:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     </style>
 
+
+   
+</head>
+<body x-data="waiterHandler()" x-init="initializeOrderListener()">
+
+    <header class="aws-header shadow-lg">
+        <div class="flex items-center gap-4">
+            <button @click="isSidebarOpen = !isSidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full text-right hover:bg-white/5 p-2 rounded transition-all cursor-pointer focus:outline-none">
+                    <div class="hidden md:block text-right">
+                        <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-bold">Account</span>
+                        <p class="font-bold text-white uppercase text-sm tracking-tight">
+                            {{ Auth::user()->name ?? 'Guest User' }}
+                        </p>
+                    </div>
+                    
+                    <div class="relative">
+                        <i class="fas fa-user-circle text-2xl text-white/80 transition-transform" :class="open ? 'scale-110' : ''"></i>
+                        <div class="absolute -bottom-0.5 -right-0.5 bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-[#800000]"></div>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-down text-[9px] text-white/40 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                </button>
+
+                
+                <div x-show="open" x-cloak class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl py-2 z-[1100] border border-slate-200 overflow-hidden">
+                    <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 mb-1">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Signed in as</p>
+                        <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'Guest User' }}</p>
+                    </div>
+                    <div class="px-2">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 hover:bg-red-50 rounded-lg uppercase tracking-widest flex items-center gap-3 transition-all group">
+                                <i class="fa-solid fa-power-off text-sm"></i> Sign Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="gold-accent"></div>
+
+    <aside class="aws-sidebar shadow-sm" :class="!isSidebarOpen ? 'sidebar-collapsed' : ''">
+        <div class="p-6 space-y-8">
+            <div>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Management</p>
+                <nav class="space-y-1">
+                    <button @click="currentTab = 'tables'" :class="currentTab === 'tables' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-chair w-5"></i> Table Management
+                    </button>
+                    <button @click="currentTab = 'orders'" :class="currentTab === 'orders' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-list w-5"></i> Orders
+                        <span x-show="orders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm" x-text="orders.length"></span>
+                    </button>
+                    <button @click="currentTab = 'cleanup'" :class="currentTab === 'cleanup' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-broom w-5"></i> Table Cleaning
+                    </button>
+                    <button @click="currentTab = 'incoming'" :class="currentTab === 'incoming' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-box-open w-5"></i> Incoming Orders <span x-show="incomingOrders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="incomingOrders.length"></span>
+                    </button>
+                    <button @click="currentTab = 'requests'" :class="currentTab === 'requests' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-bell w-5"></i> Customer Requests <span x-show="requests.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="requests.length"></span>
+                    </button>
+                    <button @click="currentTab = 'billing'" :class="currentTab === 'billing' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-receipt w-5"></i> Billing
+                    </button>
+                    <button @click="currentTab = 'performance'" :class="currentTab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                        <i class="fas fa-chart-line w-5"></i> Performance
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content" :class="!isSidebarOpen ? 'content-wide' : ''">
+        
+        <div x-show="currentTab === 'tables'" x-cloak>
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Table Management</h1>
+                    <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">
+                        <span>Dining Area</span> <span class="mx-3 text-slate-300">|</span>
+                        <span class="text-red-800 font-bold">Service Station</span>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
+                <div class="aws-card border-t-4 border-t-emerald-500 p-5">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Occupied Tables</p>
+                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.status === 'occupied').length"></p>
+                </div>
+                <div class="aws-card p-5 border-t-4 border-t-blue-500">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Tables</p>
+                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.status === 'available').length"></p>
+                </div>
+                <div class="aws-card p-5 border-t-4 border-t-yellow-500">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pending Orders</p>
+                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.status === 'pending').length"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <template x-for="(table, index) in tables" :key="table.id">
+                    <div class="table-badge" :class="'table-' + table.status" @click="selectTable(index)">
+                        <div class="text-lg font-black" x-text="table.number"></div>
+                        <div class="text-[10px]" x-text="table.status.toUpperCase()"></div>
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="selectedTable !== null" x-cloak class="mt-8 aws-card p-6">
+                <h2 class="text-2xl font-black text-slate-800 mb-4">Table <span x-text="tables[selectedTable]?.number"></span> Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-2 tracking-widest">Number of Guests</label>
+                        <input type="number" x-model="tables[selectedTable].guests" min="1" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-red-800">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-2 tracking-widest">Status</label>
+                        <select x-model="tables[selectedTable].status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-red-800">
+                            <option value="available">Available</option>
+                            <option value="occupied">Occupied</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+                <button @click="updateTable()" class="w-full mt-4 bg-red-800 hover:bg-red-900 text-white font-bold py-3 rounded-xl uppercase tracking-widest">Update Table</button>
+            </div>
+        </div>
+            
+        <div x-show="currentTab === 'cleanup'" x-cloak>
+            @include('staff.waiter.table_cleanup')
+        </div>
+
+        <div x-show="currentTab === 'orders'" x-cloak>
+            @include('staff.waiter.orders')
+        </div>
+
+        <div x-show="currentTab === 'incoming'" x-cloak>
+            @include('staff.waiter.incoming_orders')
+        </div>
+
+        <div x-show="currentTab === 'requests'" x-cloak>
+            @include('staff.waiter.customer_request')
+        </div>
+
+        <div x-show="currentTab === 'billing'" x-cloak>
+            @include('staff.waiter.billing')
+        </div>
+
+        <div x-show="currentTab === 'performance'" x-cloak>
+            @include('staff.waiter.performance')
+        </div>
+
+    </main>
+
+     
     <script>
         function waiterHandler() {
             return {
@@ -320,173 +489,6 @@
 
         
     </script>
-
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
-<body x-data="waiterHandler()" x-init="initializeOrderListener()">
-
-    <header class="aws-header shadow-lg">
-        <div class="flex items-center gap-4">
-            <button @click="isSidebarOpen = !isSidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="flex items-center gap-2">
-                
-            </div>
-        </div>
-
-        <div class="flex items-center gap-6">
-            <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full text-right hover:bg-white/5 p-2 rounded transition-all cursor-pointer focus:outline-none">
-                    <div class="hidden md:block text-right">
-                        <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-bold">Account</span>
-                        <p class="font-bold text-white uppercase text-sm tracking-tight">
-                            {{ Auth::user()->name ?? 'Guest User' }}
-                        </p>
-                    </div>
-                    
-                    <div class="relative">
-                        <i class="fas fa-user-circle text-2xl text-white/80 transition-transform" :class="open ? 'scale-110' : ''"></i>
-                        <div class="absolute -bottom-0.5 -right-0.5 bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-[#800000]"></div>
-                    </div>
-
-                    <i class="fa-solid fa-chevron-down text-[9px] text-white/40 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
-                </button>
-
-                
-                <div x-show="open" x-cloak class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl py-2 z-[1100] border border-slate-200 overflow-hidden">
-                    <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 mb-1">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Signed in as</p>
-                        <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'Guest User' }}</p>
-                    </div>
-                    <div class="px-2">
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 hover:bg-red-50 rounded-lg uppercase tracking-widest flex items-center gap-3 transition-all group">
-                                <i class="fa-solid fa-power-off text-sm"></i> Sign Out
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-    <div class="gold-accent"></div>
-
-    <aside class="aws-sidebar shadow-sm" :class="!isSidebarOpen ? 'sidebar-collapsed' : ''">
-        <div class="p-6 space-y-8">
-            <div>
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Management</p>
-                <nav class="space-y-1">
-                    <button @click="currentTab = 'tables'" :class="currentTab === 'tables' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-chair w-5"></i> Table Management
-                    </button>
-                    <button @click="currentTab = 'orders'" :class="currentTab === 'orders' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-list w-5"></i> Orders
-                        <span x-show="orders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm" x-text="orders.length"></span>
-                    </button>
-                    <button @click="currentTab = 'cleanup'" :class="currentTab === 'cleanup' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-broom w-5"></i> Table Cleaning
-                    </button>
-                    <button @click="currentTab = 'incoming'" :class="currentTab === 'incoming' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-box-open w-5"></i> Incoming Orders <span x-show="incomingOrders.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="incomingOrders.length"></span>
-                    </button>
-                    <button @click="currentTab = 'requests'" :class="currentTab === 'requests' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-bell w-5"></i> Customer Requests <span x-show="requests.length > 0" class="ml-auto bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold" x-text="requests.length"></span>
-                    </button>
-                    <button @click="currentTab = 'billing'" :class="currentTab === 'billing' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-receipt w-5"></i> Billing
-                    </button>
-                    <button @click="currentTab = 'performance'" :class="currentTab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                        <i class="fas fa-chart-line w-5"></i> Performance
-                    </button>
-                </nav>
-            </div>
-        </div>
-    </aside>
-
-    <main class="main-content" :class="!isSidebarOpen ? 'content-wide' : ''">
-        
-        <div x-show="currentTab === 'tables'" x-cloak>
-            <div class="flex justify-between items-end mb-8">
-                <div>
-                    <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Table Management</h1>
-                    <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">
-                        <span>Dining Area</span> <span class="mx-3 text-slate-300">|</span>
-                        <span class="text-red-800 font-bold">Service Station</span>
-                    </nav>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
-                <div class="aws-card border-t-4 border-t-emerald-500 p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Occupied Tables</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.status === 'occupied').length"></p>
-                </div>
-                <div class="aws-card p-5 border-t-4 border-t-blue-500">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Tables</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.status === 'available').length"></p>
-                </div>
-                <div class="aws-card p-5 border-t-4 border-t-yellow-500">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pending Orders</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.status === 'pending').length"></p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                <template x-for="(table, index) in tables" :key="table.id">
-                    <div class="table-badge" :class="'table-' + table.status" @click="selectTable(index)">
-                        <div class="text-lg font-black" x-text="table.number"></div>
-                        <div class="text-[10px]" x-text="table.status.toUpperCase()"></div>
-                    </div>
-                </template>
-            </div>
-
-            <div x-show="selectedTable !== null" x-cloak class="mt-8 aws-card p-6">
-                <h2 class="text-2xl font-black text-slate-800 mb-4">Table <span x-text="tables[selectedTable]?.number"></span> Details</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-2 tracking-widest">Number of Guests</label>
-                        <input type="number" x-model="tables[selectedTable].guests" min="1" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-red-800">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase ml-1 mb-2 tracking-widest">Status</label>
-                        <select x-model="tables[selectedTable].status" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none focus:ring-2 focus:ring-red-800">
-                            <option value="available">Available</option>
-                            <option value="occupied">Occupied</option>
-                            <option value="pending">Pending</option>
-                        </select>
-                    </div>
-                </div>
-                <button @click="updateTable()" class="w-full mt-4 bg-red-800 hover:bg-red-900 text-white font-bold py-3 rounded-xl uppercase tracking-widest">Update Table</button>
-            </div>
-        </div>
-            
-        <div x-show="currentTab === 'cleanup'" x-cloak>
-            @include('staff.waiter.table_cleanup')
-        </div>
-
-        <div x-show="currentTab === 'orders'" x-cloak>
-            @include('staff.waiter.orders')
-        </div>
-
-        <div x-show="currentTab === 'incoming'" x-cloak>
-            @include('staff.waiter.incoming_orders')
-        </div>
-
-        <div x-show="currentTab === 'requests'" x-cloak>
-            @include('staff.waiter.customer_request')
-        </div>
-
-        <div x-show="currentTab === 'billing'" x-cloak>
-            @include('staff.waiter.billing')
-        </div>
-
-        <div x-show="currentTab === 'performance'" x-cloak>
-            @include('staff.waiter.performance')
-        </div>
-
-    </main>
 
 </body>
 </html>
