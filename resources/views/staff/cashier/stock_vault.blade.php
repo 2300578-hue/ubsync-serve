@@ -58,21 +58,15 @@
                             <div class="flex items-center justify-between md:block">
                                 <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock</span>
                                 <div class="text-right md:text-center w-auto md:w-full">
-                                    <template x-if="editingId === p.id">
-                                        <input type="number" x-model="tempStock" 
-                                            class="w-16 border border-gray-200 rounded-lg py-1 text-center font-bold outline-none bg-yellow-50 focus:border-yellow-500">
-                                    </template>
-                                    <template x-if="editingId !== p.id">
-                                        <div class="flex flex-col items-end md:items-center">
-                                            <span class="text-sm font-black text-gray-800 leading-none" x-text="p.stock"></span>
-                                            <div class="mt-1 flex justify-center w-full" x-show="p.stock <= 9">
-                                                <span x-show="p.stock > 0" 
-                                                    class="text-[7px] text-orange-500 font-bold uppercase bg-orange-50 px-2 py-0.5 rounded-full whitespace-nowrap">Low Stock</span>
-                                                <span x-show="p.stock == 0" 
-                                                    class="text-[7px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded-full whitespace-nowrap">Out of Stock</span>
-                                            </div>
+                                    <div class="flex flex-col items-end md:items-center">
+                                        <span class="text-sm font-black text-gray-800 leading-none" x-text="p.stock"></span>
+                                        <div class="mt-1 flex justify-center w-full" x-show="p.stock <= 9">
+                                            <span x-show="p.stock > 0" 
+                                                class="text-[7px] text-orange-500 font-bold uppercase bg-orange-50 px-2 py-0.5 rounded-full whitespace-nowrap">Low Stock</span>
+                                            <span x-show="p.stock == 0" 
+                                                class="text-[7px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded-full whitespace-nowrap">Out of Stock</span>
                                         </div>
-                                    </template>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -80,20 +74,14 @@
                         <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none font-bold text-gray-500">
                             <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Cost</span>
                             <div class="text-right md:text-center">
-                                <template x-if="editingId === p.id">
-                                    <input type="number" step="0.01" x-model="tempCost" class="w-24 md:w-20 border border-gray-200 rounded-lg py-1 text-right md:text-center outline-none bg-yellow-50 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 transition-all">
-                                </template>
-                                <span x-show="editingId !== p.id" x-text="'₱' + parseFloat(p.cost).toFixed(2)"></span>
+                                <span x-text="'₱' + parseFloat(p.cost).toFixed(2)"></span>
                             </div>
                         </td>
 
                         <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none font-black text-[#800000]">
                             <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Price</span>
                             <div class="text-right md:text-center">
-                                <template x-if="editingId === p.id">
-                                    <input type="number" step="0.01" x-model="tempPrice" class="w-24 md:w-20 border border-gray-200 rounded-lg py-1 text-right md:text-center outline-none bg-yellow-50 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 transition-all">
-                                </template>
-                                <span x-show="editingId !== p.id" x-text="'₱' + parseFloat(p.price).toFixed(2)"></span>
+                                <span x-text="'₱' + parseFloat(p.price).toFixed(2)"></span>
                             </div>
                         </td>
 
@@ -107,8 +95,7 @@
                         <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-4 pt-4 md:pt-4 bg-gray-50/50 md:bg-transparent rounded-b-2xl md:rounded-none">
                             <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</span>
                             <div class="flex justify-end gap-2">
-                                <button x-show="editingId !== p.id" @click="editingId = p.id; tempStock = p.stock; tempPrice = p.price; tempCost = p.cost" class="w-8 h-8 flex items-center justify-center text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 active:scale-95 transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                <button x-show="editingId === p.id" @click="saveEdit(p)" class="w-8 h-8 flex items-center justify-center bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-md shadow-green-200 active:scale-95 transition-all"><i class="fa-solid fa-check text-xs"></i></button>
+                                <button @click="openEditModal(p)" class="w-8 h-8 flex items-center justify-center text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 active:scale-95 transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
                                 <button @click="if(confirm('Are you sure you want to delete this product?')) { addLog(p.name, '-' + p.stock, 'Deleted Item'); products = products.filter(i => i.id !== p.id); }" class="w-8 h-8 flex items-center justify-center text-red-500 bg-red-50 rounded-lg hover:bg-red-100 hover:text-red-600 active:scale-95 transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
                             </div>
                         </td>
@@ -187,6 +174,68 @@
         </div>
     </div>
 
+    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" x-show="showEditModal" x-transition.opacity></div>
+        
+        <div class="bg-white w-full max-w-sm sm:max-w-md p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] relative z-10 text-left shadow-2xl max-h-[90vh] overflow-y-auto" x-show="showEditModal" x-transition.scale.90>
+            <div class="flex justify-end items-center mb-2">
+                <button @click="showEditModal = false" class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <h3 class="text-[11px] font-black uppercase text-gray-800 mb-6 text-center tracking-widest">Edit Product Entry</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Product Name</label>
+                    <input type="text" x-model="editItem.name" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-gray-50 focus:bg-white focus:border-red-900 focus:ring-2 focus:ring-red-900/10 transition-all">
+                </div>
+                <div>
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Category</label>
+                    <select x-model="editItem.cat" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-gray-50 focus:bg-white focus:border-red-900 focus:ring-2 focus:ring-red-900/10 transition-all cursor-pointer">
+                        <option value="Main Course">Main Course</option>
+                        <option value="Appetizers">Appetizers</option>
+                        <option value="Dessert">Dessert</option>
+                        <option value="Beverages">Beverages</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Image Attachment (Optional)</label>
+                    <div class="flex gap-3 items-center mt-1">
+                        <input type="file" id="fEditIn" class="hidden" @change="handleEditFileUpload($event)" accept="image/*">
+                        <button type="button" @click="document.getElementById('fEditIn').click()" class="flex-1 border border-gray-200 bg-gray-50 rounded-xl px-4 py-2.5 text-[10px] font-bold text-gray-500 truncate hover:bg-gray-100 hover:text-gray-700 transition-colors text-left flex items-center">
+                            <i class="fa-solid fa-image mr-2 text-gray-400"></i>
+                            <span x-text="editItem.img ? editItem.img : 'Update image...'"></span>
+                        </button>
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-gray-200 bg-gray-50 flex-shrink-0 overflow-hidden shadow-inner">
+                            <img x-show="editItem.data || editItem.img" :src="getImageUrl(editItem)" class="w-full h-full object-cover">
+                            <div x-show="!editItem.data && (!editItem.img || editItem.img.trim() === '')" class="w-full h-full flex items-center justify-center text-gray-300">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                        <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Stock</label>
+                        <input type="number" x-model="editItem.stock" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-gray-50 focus:bg-white focus:border-red-900 focus:ring-2 focus:ring-red-900/10 transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Unit Cost (₱)</label>
+                        <input type="number" step="0.01" x-model="editItem.cost" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-gray-50 focus:bg-white focus:border-red-900 focus:ring-2 focus:ring-red-900/10 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Selling Price (₱) <span class="text-green-500 lowercase normal-case text-[9px]">(Must be > Cost)</span></label>
+                    <input type="number" step="0.01" x-model="editItem.price" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-gray-50 focus:bg-white focus:border-red-900 focus:ring-2 focus:ring-red-900/10 transition-all text-[#800000]">
+                </div>
+            </div>
+
+            <button @click="saveEdit()" class="w-full mt-8 py-3.5 sm:py-4 bg-[#800000] text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-red-900/20 active:scale-[0.98] transition-all hover:bg-red-900">
+                Save Changes
+            </button>
+        </div>
+    </div>
+
     <div x-show="showLogModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" x-show="showLogModal" x-transition.opacity></div>
         
@@ -241,14 +290,11 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('inventoryApp', () => ({
-            editingId: null, 
             showAddModal: false, 
+            showEditModal: false, 
             showLogModal: false,
             searchQuery: '',
             filterCat: 'All',
-            tempStock: 0, 
-            tempPrice: 0, 
-            tempCost: 0,
             stockLogs: [],
             products: [
                 { id: 1, name: 'BURGER STEAK', cat: 'Main Course', stock: 10, price: 150, cost: 100, img: 'burgersteak.png', data: null },
@@ -258,6 +304,8 @@
                 { id: 5, name: 'MOZARELLA STICKS', cat: 'Appetizers', stock: 12, price: 110, cost: 60, img: 'mozarella.png', data: null }
             ],
             newItem: { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
+            
+            editItem: { id: null, name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
 
             handleFileUpload(event) {
                 const file = event.target.files[0];
@@ -266,6 +314,18 @@
                     reader.onload = (e) => {
                         this.newItem.data = e.target.result;
                         this.newItem.img = file.name;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            handleEditFileUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.editItem.data = e.target.result;
+                        this.editItem.img = file.name;
                     };
                     reader.readAsDataURL(file);
                 }
@@ -304,7 +364,6 @@
 
                 this.products.push(product);
                 this.addLog(product.name, product.stock, 'Initial Entry');
-                alert('Success: Data validated and saved.');
                 this.newItem = { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null };
                 this.showAddModal = false;
             },
@@ -322,17 +381,37 @@
                 a.click();
             },
 
-            saveEdit(p) {
-                if (parseFloat(this.tempPrice) <= parseFloat(this.tempCost)) {
-                    return alert('Error: Price must be higher than Cost.');
-                }
-                let diff = parseInt(this.tempStock) - p.stock;
-                if(diff !== 0) this.addLog(p.name, diff > 0 ? '+' + diff : diff, 'Manual Update');
+            openEditModal(product) {
+                this.editItem = { ...product };
+                this.showEditModal = true;
+            },
+
+            saveEdit() {
+                let s = parseInt(this.editItem.stock);
+                let c = parseFloat(this.editItem.cost);
+                let p = parseFloat(this.editItem.price);
+
+                if (isNaN(s) || s < 0) return alert('Error: Stock must be 0 or higher.');
+                if (p <= c) return alert('Error: Price must be higher than Cost.');
+
+                const index = this.products.findIndex(prod => prod.id === this.editItem.id);
                 
-                p.stock = parseInt(this.tempStock) || 0;
-                p.price = parseFloat(this.tempPrice) || 0;
-                p.cost = parseFloat(this.tempCost) || 0;
-                this.editingId = null;
+                if (index !== -1) {
+                    let originalProduct = this.products[index];
+                    
+                    let diff = s - originalProduct.stock;
+                    if(diff !== 0) this.addLog(originalProduct.name, diff > 0 ? '+' + diff : diff, 'Manual Update');
+                    
+                    this.products[index] = { 
+                        ...this.editItem, 
+                        stock: s, 
+                        price: p, 
+                        cost: c,
+                        name: this.editItem.name.toUpperCase()
+                    };
+                }
+
+                this.showEditModal = false;
             },
 
             addLog(name, qty, action) {
