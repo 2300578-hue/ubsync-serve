@@ -52,7 +52,7 @@
     <header class="aws-header shadow-lg">
         <div class="flex items-center gap-4">
             <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
-                <i class="fas fa-bars"></i>
+                <i class="fas fa-bars"></i> 
             </button>
         </div>
 
@@ -132,50 +132,56 @@
     </div>
 </aside>
 
+<main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
+    
+    <div x-show="tab === 'home'" x-cloak class="space-y-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-800 uppercase tracking-tighter">System Overview</h1>
+                <p class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">Admin Command Console</p>
+            </div>
+        </div>
 
-    <main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
-        
-        <div x-show="tab === 'home'" x-cloak class="space-y-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-800 uppercase tracking-tighter">System Overview</h1>
-                     <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">Admin Command Console</p>
-                </div>
-                
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
+            <div class="clay-card border-t-4 border-t-emerald-500 p-5">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sales Today</p>
+                <p class="text-3xl font-black text-slate-800 mt-1" x-text="formatCurrency(salesSummary.total)"></p>
             </div>
 
-         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
-    <div class="clay-card border-t-4 border-t-emerald-500 p-5">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sales Today</p>
-        <p class="text-3xl font-black text-slate-800 mt-1" x-text="formatCurrency(salesSummary.total)"></p>
-    </div>
+            <div class="clay-card border-t-4 border-t-blue-500 p-5">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Sessions</p>
+                <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
+            </div>
 
-    <div class="clay-card border-t-4 border-t-blue-500 p-5">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Sessions</p>
-        <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
-    </div>
+            <div class="clay-card border-t-4 border-t-yellow-500 p-5">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Reservations</p>
+                <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
+            </div>
+        </div>
 
-    <div class="clay-card border-t-4 border-t-yellow-500 p-5">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Reservations</p>
-        <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <template x-for="table in tables" :key="table.id">
-        <div x-show="table.isSessionActive && table.payment === 'Paid' && !table.isMarkedPaid" 
+        <div x-show="table.isSessionActive && !table.isMarkedPaid" 
              x-transition 
-             class="clay-card flex flex-col overflow-hidden">
+             class="clay-card flex flex-col overflow-hidden border border-slate-200 shadow-md">
             
             <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <span class="w-8 h-8 rounded bg-white border font-black text-red-800 flex items-center justify-center shadow-sm" x-text="table.id"></span>
                     <span class="font-bold text-slate-700 text-xs uppercase tracking-tight">Occupied</span>
                 </div>
-                <span class="status-badge bg-red-800 text-white">Active</span>
+                
+                <span class="px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest text-white shadow-sm" 
+                      :class="table.payment.startsWith('Paid') ? 'bg-emerald-600' : 'bg-red-800'" 
+                      x-text="table.payment"></span>
             </div>
             
             <div class="p-5 flex-1">
+                <div class="mb-3 p-2 bg-red-50 rounded border border-red-100" x-show="table.customerName">
+                    <p class="text-[9px] font-bold text-red-800 uppercase tracking-widest">Order For</p>
+                    <p class="text-sm font-black text-slate-800 tracking-tight leading-tight" x-text="table.customerName"></p>
+                </div>
+
                 <div class="mb-4">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Bill</p>
                     <h2 class="text-2xl font-black text-slate-800" x-text="formatCurrency(table.bill)"></h2>
@@ -185,7 +191,8 @@
                     <div class="p-2 rounded border border-dashed text-center bg-green-50 text-green-600">
                         <p class="text-[9px] font-black uppercase">Order Ready</p>
                     </div>
-                    <div class="p-2 rounded border border-dashed text-center bg-green-50 text-green-600">
+                    <div class="p-2 rounded border border-dashed text-center"
+                         :class="table.payment.startsWith('Paid') ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'">
                         <p class="text-[9px] font-black uppercase">Settled</p>
                     </div>
                 </div>
@@ -197,8 +204,9 @@
                     </button>
 
                     <button @click="markAsPaid(table.id)" 
-                            class="w-full py-2.5 bg-red-800 text-white rounded text-[10px] font-black uppercase shadow-sm hover:bg-red-900 transition-all">
-                        Settle Payment
+                            class="w-full py-2.5 text-white rounded text-[10px] font-black uppercase shadow-sm transition-all"
+                            :class="table.payment.startsWith('Paid') ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-800 hover:bg-red-900'"
+                            x-text="table.payment.startsWith('Paid') ? 'Clear Table (Paid)' : 'Settle Payment'">
                     </button>
                 </div>
             </div>
@@ -206,221 +214,269 @@
     </template>
 </div>
 
-<template x-if="tables.filter(t => t.isSessionActive && t.payment === 'Paid' && !t.isMarkedPaid).length === 0">
-    <div class="w-full py-20 flex flex-col items-center justify-center bg-white border border-dashed rounded-xl">
-        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-            <i class="fa-solid fa-calendar-check text-slate-300 text-2xl"></i>
-        </div>
-        <h3 class="text-lg font-black text-slate-700 uppercase tracking-tight">No Pending Settlements</h3>
-        <p class="text-sm text-slate-400">Updates will appear here when tables are ready for payment.</p>
-    </div>
-</template>
-</div>
-
-        </div>
-
-        <div x-show="tab === 'reservations'" x-cloak>
-            @include('staff.cashier.reservecustomer')
-        </div>
-        <div x-show="tab === 'pos'" x-cloak>
-            @include('staff.cashier.service_hub')
-        </div>
-        <div x-show="tab === 'inventory'" x-cloak>
-            @include('staff.cashier.stock_vault')
-        </div>
-        <div x-show="tab === 'performance'" x-cloak>
-            @include('staff.cashier.performance')
-        </div>
-    </main>
-
-    
-
-    <div x-show="showTableDetail" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
-        <div class="clay-card w-full max-w-md overflow-hidden shadow-2xl">
-            <div class="maroon-gradient p-5 text-white text-center">
-                <h3 class="text-xl font-black uppercase" x-text="showTableDetail ? 'Table ' + showTableDetail.id : ''"></h3>
-                <p class="text-[9px] font-bold uppercase tracking-widest opacity-70">Order Breakdown</p>
+        <template x-if="tables.filter(t => t.isSessionActive && !t.isMarkedPaid).length === 0">
+            <div class="w-full py-20 flex flex-col items-center justify-center bg-white border border-dashed rounded-xl">
+                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-calendar-check text-slate-300 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-700 uppercase tracking-tight">No Pending Settlements</h3>
+                <p class="text-sm text-slate-400">Updates will appear here when tables are ready for payment.</p>
             </div>
-            <div class="p-6">
-                <div class="space-y-2 mb-6 max-h-[40vh] overflow-y-auto custom-scroll">
-                    <template x-for="(order, index) in (showTableDetail ? showTableDetail.orders : [])" :key="index">
-                        <div class="flex items-center gap-4 p-3 bg-slate-50 border rounded-lg">   
-                            <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 border p-1 shadow-sm">
-                                <img :src="'/img/' + order.img" class="w-full h-full object-contain">
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-[11px] font-black text-slate-700 uppercase" x-text="order.name"></p>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[8px] text-emerald-600 font-bold uppercase"><i class="fas fa-check"></i> Confirmed</span>
-                                    <span class="text-[10px] font-black text-red-800" x-text="'x' + order.qty"></span>
-                                </div>
+        </template>
+    </div>
+
+    <div x-show="tab === 'reservations'" x-cloak>
+        @include('staff.cashier.reservecustomer')
+    </div>
+    <div x-show="tab === 'pos'" x-cloak>
+        @include('staff.cashier.service_hub')
+    </div>
+    <div x-show="tab === 'inventory'" x-cloak>
+        @include('staff.cashier.stock_vault')
+    </div>
+    <div x-show="tab === 'performance'" x-cloak>
+        @include('staff.cashier.performance')
+    </div>
+</main>
+
+<div x-show="showTableDetail" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
+    <div class="clay-card w-full max-w-md overflow-hidden shadow-2xl bg-white rounded-xl">
+        <div class="maroon-gradient bg-red-900 p-5 text-white text-center">
+            <h3 class="text-xl font-black uppercase" x-text="showTableDetail ? 'Table ' + showTableDetail.id : ''"></h3>
+            <p class="text-[9px] font-bold uppercase tracking-widest opacity-70">Order Breakdown</p>
+        </div>
+        <div class="p-6">
+            <div class="space-y-2 mb-6 max-h-[40vh] overflow-y-auto custom-scroll">
+                <template x-for="(order, index) in (showTableDetail ? showTableDetail.orders : [])" :key="index">
+                    <div class="flex items-center gap-4 p-3 bg-slate-50 border rounded-lg">   
+                        <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 border p-1 shadow-sm">
+                        <img :src="getImageUrl(order.img)" 
+     x-on:error="$event.target.src = 'https://placehold.co/150x150/eeeeee/800000?text=No+Image'" 
+     class="w-full h-full object-contain rounded">
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-[11px] font-black text-slate-700 uppercase" x-text="order.name"></p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[8px] text-emerald-600 font-bold uppercase"><i class="fas fa-check"></i> Confirmed</span>
+                                <span class="text-[10px] font-black text-red-800" x-text="'x' + order.qty"></span>
                             </div>
                         </div>
-                    </template>
-                </div>
-                <div class="flex justify-between items-center border-t border-dashed pt-4 mb-6">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Grand Total</span>
-                    <span class="text-2xl font-black text-red-800" x-text="showTableDetail ? formatCurrency(showTableDetail.bill) : '₱0'"></span>
-                </div>
-                <button @click="showTableDetail = null" class="w-full py-3 bg-slate-800 text-white rounded font-black text-xs uppercase hover:bg-black transition-all">Confirm & Exit</button>
+                    </div>
+                </template>
             </div>
+            <div class="flex justify-between items-center border-t border-dashed pt-4 mb-6">
+                <span class="text-xs font-bold text-slate-400 uppercase">Grand Total</span>
+                <span class="text-2xl font-black text-red-800" x-text="showTableDetail ? formatCurrency(showTableDetail.bill) : '₱0'"></span>
+            </div>
+            <button @click="showTableDetail = null" class="w-full py-3 bg-slate-800 text-white rounded font-black text-xs uppercase hover:bg-black transition-all">Confirm & Exit</button>
         </div>
     </div>
+</div>
+
 
     <script>
-        function cashierSystem() {
-            return {
-                tab: 'home',
-                sidebarOpen: window.innerWidth >= 768,
-                showTableDetail: null,
-                showVacantModal: false,
-                showSuccessAlert: false,
-                reservations: [],
-                salesSummary: { total: 0},
-                cart: [],
-                selectedTableForOrder: '',
+    function cashierSystem() {
+        return {
+            tab: 'home',
+            sidebarOpen: window.innerWidth >= 768,
+            showTableDetail: null,
+            showVacantModal: false,
+            showSuccessAlert: false,
+            reservations: [],
+            salesSummary: { total: 0 },
+            cart: [],
+            selectedTableForOrder: '',
 
-                // Mock Data
-                products: [
-                    { id: 1, name: 'Burger Steak', cat: 'Meals', price: 150, stock: 25, img: 'burgersteak.png' },
-                    { id: 2, name: 'Carbonara', cat: 'Pasta', price: 180, stock: 15, img: 'carbonara.png' },
-                    { id: 3, name: 'Ice Tea', cat: 'Beverages', price: 45, stock: 100, img: 'icetea.png' },
-                    { id: 4, name: 'Leche Flan', cat: 'Desserts', price: 75, stock: 20, img: 'lecheflan.png' },
-                    { id: 5, name: 'Mozarella Sticks', cat: 'Appetizer', price: 130, stock: 15, img: 'mozarella.png' }
-                ],
+            products: [
+                { id: 1, name: 'Burger Steak', cat: 'Meals', price: 150, stock: 25, img: 'burgersteak.png' },
+                { id: 2, name: 'Carbonara', cat: 'Pasta', price: 180, stock: 15, img: 'carbonara.png' },
+                { id: 3, name: 'Ice Tea', cat: 'Beverages', price: 45, stock: 100, img: 'icetea.png' },
+                { id: 4, name: 'Leche Flan', cat: 'Desserts', price: 75, stock: 20, img: 'lecheflan.png' },
+                { id: 5, name: 'Mozarella Sticks', cat: 'Appetizer', price: 130, stock: 15, img: 'mozarella.png' }
+            ],
 
-                tables: [
-    // Table 1 at 2 lang ang gagawin nating Active
-    { id: 1, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: [{ name: 'Burger Steak', qty: 2, img: 'burgersteak.png' }], bill: 390 },
-    { id: 2, isSessionActive: true, payment: 'Paid', isMarkedPaid: false, orders: [{ name: 'Carbonara', qty: 1, img: 'carbonara.png' }], bill: 225 },
-    
-    // Ang lahat ng iba pang tables ay dapat false ang isSessionActive
-    { id: 3, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-    { id: 4, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
-    { id: 5, isSessionActive: false, payment: 'Paid', isMarkedPaid: true, orders: [], bill: 0 },
-    { id: 6, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-    { id: 7, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
-    { id: 8, isSessionActive: false, payment: 'Paid', isMarkedPaid: false, orders: [], bill: 0 },
-    { id: 9, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 }
-],
+            tables: [
+                { id: 1, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 2, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 3, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 4, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 5, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 6, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 7, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 8, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
+                { id: 9, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 }
+            ],
 
-                init() {
-                    this.loadReservations();
-                    window.addEventListener('storage', (event) => {
-                        if (event.key === 'ub_reservations') {
-                            this.loadReservations();
-                            this.showSuccessAlert = true;
-                            setTimeout(() => { this.showSuccessAlert = false; }, 4000);
-                        }
-                    });
-                },
-
-                // Navigation
-                switchTab(target) {
-                    this.tab = target;
-                    if (window.innerWidth < 768) this.sidebarOpen = false;
-                },
-
-                formatCurrency(value) {
-                    return '₱' + value.toLocaleString();
-                },
-
-                // POS Actions
-                addToCart(product) {
-                    if(product.stock <= 0) return alert('Out of Stock!');
-                    let item = this.cart.find(i => i.id === product.id);
-                    if(item) { item.qty++; } else { this.cart.push({ ...product, qty: 1 }); }
-                    product.stock--;
-                },
-
-                removeFromCart(index) {
-                    let item = this.cart[index];
-                    let p = this.products.find(x => x.id === item.id);
-                    if(p) p.stock += item.qty;
-                    this.cart.splice(index, 1);
-                },
-
-                get cartTotal() {
-                    return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                },
-
-                placeOrder() {
-                    if(!this.selectedTableForOrder) return alert('Select Table First');
-                    let t = this.tables.find(x => x.id == this.selectedTableForOrder);
-                    t.isSessionActive = true;
-                    t.payment = 'Unpaid';
-                    t.isMarkedPaid = false;
-                    t.bill += this.cartTotal;
-                    this.cart.forEach(c => t.orders.push({ name: c.name, qty: c.qty, img: c.img }));
-                    this.cart = [];
-                    this.selectedTableForOrder = '';
-                    this.tab = 'home';
-                },
-
-                // Table Management
-                markAsPaid(id) {
-                    let t = this.tables.find(x => x.id === id);
-                    if (t) {
-                        this.salesSummary.total += t.bill;
-                        t.isMarkedPaid = true;
-                        t.payment = 'Paid';
-                    }
-                },
-
-                resetTable(id) {
-                    let t = this.tables.find(x => x.id === id);
-                    if (t) {
-                        t.isSessionActive = false;
-                        t.orders = [];
-                        t.payment = 'Paid';
-                        t.isMarkedPaid = false;
-                        t.bill = 0;
-                    }
-                },
-
-
-                 init() {
+            // PINAG-ISA NA INIT FUNCTION
+            init() {
                 this.loadReservations();
-                // Optional: Auto-refresh data if needed
-                window.addEventListener('storage', () => this.loadReservations());
+                
+                // Bantayan ang bagong orders mula sa ibang tab
+                window.addEventListener('storage', (event) => {
+                    if (event.key === 'ub_new_customer_order' && event.newValue) {
+                        const orderData = JSON.parse(event.newValue);
+                        this.receiveIncomingOrder(orderData);
+                    }
+                    if (event.key === 'ub_reservations') {
+                        this.loadReservations();
+                    }
+                });
+
+                // Check kung may naiwang order bago pa nag-load ang page
+                const missedOrder = localStorage.getItem('ub_new_customer_order');
+                if (missedOrder) {
+                    this.receiveIncomingOrder(JSON.parse(missedOrder));
+                }
             },
-               // Reservation Actions
-            loadReservations() {
-    const stored = localStorage.getItem('ub_reservations');
-    this.reservations = stored ? JSON.parse(stored) : [];
-         },
-
-        confirmReservation(resId) {
-     const index = this.reservations.findIndex(r => r.id === resId);
-      if (index !== -1) {
-        this.reservations[index].status = 'confirmed'; 
-        this.updateStorage();
-    }
-  },
-
-       deleteReservation(resId) {
-    // Inalis ang confirm() alert - rektahan na delete
-    this.reservations = this.reservations.filter(r => r.id !== resId);
-    this.updateStorage();
-  },
-
-// Helper function para sa AM/PM format
-    formatTime(time) {
-    if (!time) return '';
-    const [hours, minutes] = time.split(':');
-    let h = parseInt(hours);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return `${h}:${minutes} ${ampm}`;
-  },
-
-     updateStorage() {
-    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
-     },
-        }
-           }
-    </script>
+receiveIncomingOrder(data) {
+    let index = this.tables.findIndex(x => x.id === parseInt(data.table));
     
+    if (index !== -1) {
+        // 1. Activate the table
+        this.tables[index].isSessionActive = true; 
+        this.tables[index].isMarkedPaid = false; 
+        
+        // 2. Handle the Name (Para hindi na "Guest")
+        let firstName = data.fname || 'Guest';
+        let lastName = data.lname || '';
+        this.tables[index].customerName = `${firstName} ${lastName}`.trim();
+        
+        // 3. Handle the Billing
+        this.tables[index].bill = parseFloat(data.bill);
+        this.tables[index].payment = data.method;
+
+        // 4. ITO ANG FIX PARA SA ORDERS (Cart Items)
+        // Binabasa natin yung 'cart' na pinasa galing Payment Gateway
+        if (data.cart && Array.isArray(data.cart)) {
+            this.tables[index].orders = data.cart.map(item => ({
+                name: item.name,
+                qty: item.qty,
+                img: item.img || 'Default.png' // Backup image kung sakaling wala
+            }));
+        } else {
+            this.tables[index].orders = []; // Empty array kung walang cart data
+        }
+        
+        // 5. Refresh the UI
+        this.tables = [...this.tables]; 
+        
+        // 6. Linisin ang storage para sa susunod na customer
+        localStorage.removeItem('ub_new_customer_order'); 
+        console.log("Order processed for: " + this.tables[index].customerName);
+    }
+},
+
+
+
+
+            switchTab(target) {
+                this.tab = target;
+                if (window.innerWidth < 768) this.sidebarOpen = false;
+            },
+
+            formatCurrency(amount) {
+                return '₱' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            },
+            formatCurrency(amount) {
+                return '₱' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            },
+
+            // --- IDAGDAG ITO PARA MAAYOS ANG IMAGE PATHS ---
+            getImageUrl(img) {
+                if (!img || img === 'Default.png') return 'https://placehold.co/150x150/eeeeee/800000?text=No+Image';
+                if (img.startsWith('http') || img.startsWith('data:')) return img;
+                if (img.startsWith('/')) return img;
+                return '/img/' + img;
+            },
+            // ------------------------------------------------
+
+            // POS / Service Hub ActionsPH
+
+            // POS / Service Hub Actions
+            addToCart(product) {
+                if(product.stock <= 0) return alert('Out of Stock!');
+                let item = this.cart.find(i => i.id === product.id);
+                if(item) { item.qty++; } else { this.cart.push({ ...product, qty: 1 }); }
+                product.stock--;
+            },
+
+            removeFromCart(index) {
+                let item = this.cart[index];
+                let p = this.products.find(x => x.id === item.id);
+                if(p) p.stock += item.qty;
+                this.cart.splice(index, 1);
+            },
+
+            get cartTotal() {
+                return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            },
+
+            placeOrder() {
+                if(!this.selectedTableForOrder) return alert('Select Table First');
+                let t = this.tables.find(x => x.id == this.selectedTableForOrder);
+                t.isSessionActive = true;
+                t.payment = 'Unpaid';
+                t.isMarkedPaid = false;
+                t.bill += this.cartTotal;
+                this.cart.forEach(c => t.orders.push({ name: c.name, qty: c.qty, img: c.img }));
+                
+                this.tables = [...this.tables]; // Refresh UI
+                this.cart = [];
+                this.selectedTableForOrder = '';
+                this.tab = 'home';
+            },
+
+            markAsPaid(id) {
+                let index = this.tables.findIndex(x => x.id === id);
+                if (index !== -1) {
+                    this.salesSummary.total += this.tables[index].bill;
+                    this.tables[index].isMarkedPaid = true;
+                    this.tables[index].isSessionActive = false;
+                    
+                    // Reset table state
+                    this.tables[index].bill = 0;
+                    this.tables[index].payment = 'Unpaid';
+                    this.tables[index].orders = [];
+                    
+                    this.tables = [...this.tables]; // Refresh UI
+                }
+            },
+
+            // Reservation Logic
+            loadReservations() {
+                const stored = localStorage.getItem('ub_reservations');
+                this.reservations = stored ? JSON.parse(stored) : [];
+            },
+
+            confirmReservation(resId) {
+                const index = this.reservations.findIndex(r => r.id === resId);
+                if (index !== -1) {
+                    this.reservations[index].status = 'confirmed'; 
+                    this.updateStorage();
+                }
+            },
+
+            deleteReservation(resId) {
+                this.reservations = this.reservations.filter(r => r.id !== resId);
+                this.updateStorage();
+            },
+
+            formatTime(time) {
+                if (!time) return '';
+                const [hours, minutes] = time.split(':');
+                let h = parseInt(hours);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12 || 12;
+                return `${h}:${minutes} ${ampm}`;
+            },
+
+            updateStorage() {
+                localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+            }
+        }
+    }
+</script>
+
 
 
 

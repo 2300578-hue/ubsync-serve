@@ -99,48 +99,103 @@
         </div>
     </div>
 
-    <script>
-        function gatewayApp() {
-            return {
-                // PHP Laravel variable placeholder
-                method: "{{ $method }}", 
-                total: localStorage.getItem('ub_final_total') || '0.00',
-                isDone: false,
-                // Kuhanin ang table mula sa URL (fallback sa '1')
-                table: new URLSearchParams(window.location.search).get('table') || '1',
+<script>
+function gatewayApp() {
+    return {
+        // --- Properties ---
+        method: "{{ $method }}", 
+        // 1. Kunin ang total mula sa storage
+        total: localStorage.getItem('ub_final_total') || '0.00',
+        isDone: false,
+        
+        // 2. LAYERED DEFENSE PARA SA PANGALAN AT TABLE
+        // Sinisiguro nito na kung wala sa URL, kukuha sa LocalStorage na sinave ng Menu Page
+        table: new URLSearchParams(window.location.search).get('table') || localStorage.getItem('ub_current_table') || '1',
+        fname: new URLSearchParams(window.location.search).get('fname') || localStorage.getItem('ub_customer_fname') || 'Guest',
+        lname: new URLSearchParams(window.location.search).get('lname') || localStorage.getItem('ub_customer_lname') || '',
 
-                init() {
-                    // Simulate processing for QR payments
-                    if (this.method !== 'card') {
-                        setTimeout(() => {
-                            this.isDone = true;
-                        }, 4000);
-                    }
-                },
-                processPayment() {
+        // --- Initialization ---
+        init() {
+            console.log("Gateway initialized for: " + this.fname); // Para makita mo sa Console kung sino ang binabasa
+
+            // Kung GCash o Maya, may 4 seconds delay bago mag-auto-complete (simulation)
+            if (this.method !== 'card') {
+                setTimeout(() => {
                     this.isDone = true;
-                },
-                backToMenu() {
-                    // Clear local storage data
-                    localStorage.removeItem('ub_cart');
-                    localStorage.removeItem('ub_final_total');
-                    
-                    /**
-                     * REDIRECT LOGIC:
-                     * Ginawa nating dynamic ang path para iwas "Not Found".
-                     * Susubukan nitong bumalik sa base /menu or /customer/menu depende sa structure mo.
-                     */
-                    const currentPath = window.location.pathname;
-                    let targetUrl = '/menu'; // Default path
-
-                    if (currentPath.includes('/customer/')) {
-                        targetUrl = '/customer/menu';
-                    }
-
-                    window.location.href = `${targetUrl}?table=${this.table}`;
-                }
+                    this.sendOrderToCashier(); 
+                }, 4000);
             }
+        },
+
+        // --- Actions ---
+        processPayment() {
+            // Para sa Card payment button manual trigger
+            this.isDone = true;
+            this.sendOrderToCashier(); 
+        },
+
+        sendOrderToCashier() {
+            // 1. Kunin ang cart items mula sa storage
+            const cartData = JSON.parse(localStorage.getItem('ub_cart')) || [];
+            
+            if(cartData.length > 0) {
+                // 2. Pag-aayos ng images: Siguraduhin na .png lahat bago isend sa cashier
+                // LINE 46: Simula ng pag-aayos
+const sanitizedCart = cartData.map(item => {
+    // 1. Kunin ang raw image name (check img or image property)
+    let rawImage = item.img || item.image || 'default.png';
+    
+    // 2. Linisin: Tanggalin ang spaces, gawing lowercase
+    let cleanedName = rawImage.trim().toLowerCase();
+    
+    // 3. Extension Guard: Siguraduhin na may .png (iwas sa .png.png)
+    if (!cleanedName.includes('.')) {
+        cleanedName = cleanedName + '.png';
+    }
+
+    return {
+        ...item,
+        img: cleanedName // Ito ang ipapasa sa orderPayload.cart
+    };
+});
+
+
+                // 3. Pag-prepare ng data na ibabato sa Cashier Dashboard
+                const orderPayload = {
+                    table: this.table,
+                    fname: this.fname, // SIGURADO NANG MAY LAMAN ITO
+                    lname: this.lname,
+                    bill: parseFloat(this.total),
+                    method: this.method,
+                    cart: sanitizedCart,
+                    timestamp: Date.now() 
+                };
+                
+                // 4. TRIGGER: Ito ang babasahin ng cashier.blade.php
+                localStorage.setItem('ub_new_customer_order', JSON.stringify(orderPayload));
+                
+                console.log("Order successfully transmitted for: " + this.fname);
+            } else {
+                console.error("Cart is empty. Nothing to send.");
+            }
+        },
+
+        backToMenu() {
+            // Linisin ang cart pagkatapos ng successful order
+            localStorage.removeItem('ub_cart');
+            localStorage.removeItem('ub_final_total');
+
+            // Bumalik sa menu dala pa rin ang table at name (para sa repeat orders)
+            // Encode natin para safe ang URL
+            let encodedFname = encodeURIComponent(this.fname);
+            let encodedLname = encodeURIComponent(this.lname);
+            
+            window.location.href = `/customer/menu?table=${this.table}&fname=${encodedFname}&lname=${encodedLname}`;
         }
-    </script>
+    }
+}
+</script>
+
+
 </body>
 </html>

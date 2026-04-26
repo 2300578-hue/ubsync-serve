@@ -198,9 +198,10 @@
         </div>
     </div>
 
-    <script>
+   <script>
     function menuApp() {
         return {
+            // --- State Properties ---
             customerName: '', 
             tempFirstName: '', 
             tempLastName: '', 
@@ -211,6 +212,7 @@
             showModal: false, 
             selectedFood: null,
 
+            // --- Static Data ---
             categories: [
                 {name:'All'}, {name:'Main Course'}, {name:'Desserts'}, {name:'Beverages'}, {name:'Appetizer'}
             ],
@@ -223,44 +225,116 @@
                 { id: 6, name: 'Leche Flan', category: 'Desserts', price: 55, tempQty: 1, stock: 8, image: "{{ asset('img/lecheflan.png') }}", selectedAddOns: [], addOns: [{name: 'Extra Caramel', price: 15}] },
             ],
 
-           initCart() {
-    // 1. Handle Table Number
-    const urlParams = new URLSearchParams(window.location.search);
-    this.tableNumber = urlParams.get('table') || localStorage.getItem('ub_current_table') || '1';
-    localStorage.setItem('ub_current_table', this.tableNumber);
-    
-    // 2. Handle Customer Name from URL (Bago ito)
-    const fname = urlParams.get('fname');
-    const lname = urlParams.get('lname');
+            // --- Core Functions ---
 
-    if (fname && lname) {
-        // Kung galing sa QR page at may name sa URL, ito ang gamitin
-        this.customerName = `${decodeURIComponent(fname)} ${decodeURIComponent(lname)}`;
-        localStorage.setItem('ub_customer_name', this.customerName);
-    } else {
-        // Kung wala sa URL, tingnan kung may naka-save na sa LocalStorage
-        const savedName = localStorage.getItem('ub_customer_name');
-        if (savedName) this.customerName = savedName;
-    }
+            initCart() {
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                // 1. Handle Table Number
+                this.tableNumber = urlParams.get('table') || localStorage.getItem('ub_current_table') || '1';
+                localStorage.setItem('ub_current_table', this.tableNumber);
+                
+                // 2. Handle Customer Name from URL (Priority) or LocalStorage
+                const fname = urlParams.get('fname');
+                const lname = urlParams.get('lname');
 
-    // 3. Handle Cart
-    const savedCart = localStorage.getItem('ub_cart');
-    this.cart = savedCart ? JSON.parse(savedCart) : [];
-},
+                if (fname) {
+                    // Decoding the name from URL
+                    let decodedFname = decodeURIComponent(fname);
+                    let decodedLname = lname ? decodeURIComponent(lname) : '';
+                    
+                    this.customerName = `${decodedFname} ${decodedLname}`.trim();
+                    this.tempFirstName = decodedFname;
+                    this.tempLastName = decodedLname;
+                    
+                    // Permanent save para sa current session
+                    localStorage.setItem('ub_customer_name', this.customerName);
+                    localStorage.setItem('ub_customer_fname', decodedFname);
+                    localStorage.setItem('ub_customer_lname', decodedLname);
+                } else {
+                    const savedName = localStorage.getItem('ub_customer_name');
+                    if (savedName) this.customerName = savedName;
+                }
 
+                // 3. Load existing Cart
+                const savedCart = localStorage.getItem('ub_cart');
+                this.cart = savedCart ? JSON.parse(savedCart) : [];
+            },
 
+            saveIdentity() {
+                if(this.tempFirstName.trim() && this.tempLastName.trim()) {
+                    this.customerName = this.tempFirstName.trim() + ' ' + this.tempLastName.trim();
+                    
+                    localStorage.setItem('ub_customer_name', this.customerName);
+                    localStorage.setItem('ub_customer_fname', this.tempFirstName.trim());
+                    localStorage.setItem('ub_customer_lname', this.tempLastName.trim());
+                    
+                    // Refresh URL without losing table number
+                    window.history.replaceState({}, document.title, window.location.pathname + "?table=" + this.tableNumber + "&fname=" + encodeURIComponent(this.tempFirstName) + "&lname=" + encodeURIComponent(this.tempLastName));
+                    alert('Profile Updated!');
+                } else { 
+                    alert('Please enter your full name.'); 
+                }
+            },
 
-             saveIdentity() {
-    if(this.tempFirstName.trim() && this.tempLastName.trim()) {
-        this.customerName = this.tempFirstName.trim() + ' ' + this.tempLastName.trim();
-        localStorage.setItem('ub_customer_name', this.customerName);
-        // Optional: Linisin ang URL params pagkatapos ma-save
-        window.history.replaceState({}, document.title, window.location.pathname + "?table=" + this.tableNumber);
-    } else { 
-        alert('Please enter your full name.'); 
-    }
-},
+            addToCart(food) {
+                const addOnPrice = food.selectedAddOns ? food.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0) : 0;
+                const unitPriceWithAddOns = food.price + addOnPrice;
+                const totalPriceForThisEntry = unitPriceWithAddOns * food.tempQty;
+                
+                const itemToCart = {
+                    id: food.id,
+                    name: food.name,
+                    price: food.price,
+                    image: food.image,
+                    qty: food.tempQty,
+                    addOns: food.addOns ? [...food.addOns] : [], 
+                    selectedAddOns: [...food.selectedAddOns].sort((a, b) => a.name.localeCompare(b.name)),
+                    totalPrice: totalPriceForThisEntry
+                };
+                
+                const existingIndex = this.cart.findIndex(i => 
+                    i.id === itemToCart.id && 
+                    JSON.stringify(i.selectedAddOns) === JSON.stringify(itemToCart.selectedAddOns)
+                );
 
+                if (existingIndex !== -1) {
+                    this.cart[existingIndex].qty += itemToCart.qty;
+                    this.cart[existingIndex].totalPrice += itemToCart.totalPrice;
+                } else {
+                    this.cart.push(itemToCart);
+                }
+                
+                localStorage.setItem('ub_cart', JSON.stringify(this.cart));
+                
+                // Reset UI state for the specific item
+                food.tempQty = 1;
+                food.selectedAddOns = []; 
+            },
+
+            goToPayment(method) {
+                if (this.cart.length === 0) {
+                    alert('Your cart is empty!');
+                    return;
+                }
+
+                // Kunin ang latest values mula sa URL o state
+                const urlParams = new URLSearchParams(window.location.search);
+                const fname = urlParams.get('fname') || localStorage.getItem('ub_customer_fname') || 'Guest';
+                const lname = urlParams.get('lname') || localStorage.getItem('ub_customer_lname') || '';
+                const table = urlParams.get('table') || this.tableNumber;
+
+                // I-save ang total bill
+                const finalTotal = this.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+                localStorage.setItem('ub_final_total', finalTotal.toFixed(2));
+                localStorage.setItem('ub_cart', JSON.stringify(this.cart));
+
+                // EKSAKTONG REDIRECT NA MAY PANGALAN
+                const targetUrl = `/payment/gateway/${method}?table=${table}&fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}`;
+                window.location.href = targetUrl;
+            },
+
+            // --- Getters & UI Helpers ---
             get filteredFoods() {
                 let filtered = this.selectedCategory === 'All' ? this.foods : this.foods.filter(f => f.category === this.selectedCategory);
                 if (this.searchQuery.trim()) {
@@ -274,7 +348,6 @@
                 return this.cart.reduce((sum, item) => sum + item.qty, 0);
             },
 
-            // FIX: Inalis ang manual reset ng selectedAddOns dito para maalala ng modal ang dating pinili
             openCustomizeModal(food) {
                 this.selectedFood = JSON.parse(JSON.stringify(food)); 
                 this.showModal = true;
@@ -294,56 +367,10 @@
             closeCustomizeModal() {
                 this.showModal = false;
                 this.selectedFood = null;
-            },
-
-   addToCart(food) {
-    // 1. Calculate prices
-    const addOnPrice = food.selectedAddOns ? food.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0) : 0;
-    const unitPriceWithAddOns = food.price + addOnPrice;
-    const totalPriceForThisEntry = unitPriceWithAddOns * food.tempQty;
-    
-    // 2. Create the item object
-    const itemToCart = {
-        id: food.id,
-        name: food.name,
-        price: food.price,
-        image: food.image,
-        qty: food.tempQty,
-        
-        // --- ITO ANG DAGDAG/AYOS ---
-        // Sinasama natin ang BUONG listahan ng add-ons para may choices ka sa Cart Page Edit Modal
-        addOns: food.addOns ? [...food.addOns] : [], 
-        // ---------------------------
-
-        selectedAddOns: [...food.selectedAddOns].sort((a, b) => a.name.localeCompare(b.name)),
-        totalPrice: totalPriceForThisEntry
-    };
-    
-    // 3. Smart Merge Logic
-    const existingIndex = this.cart.findIndex(i => 
-        i.id === itemToCart.id && 
-        JSON.stringify(i.selectedAddOns) === JSON.stringify(itemToCart.selectedAddOns)
-    );
-
-    if (existingIndex !== -1) {
-        this.cart[existingIndex].qty += itemToCart.qty;
-        this.cart[existingIndex].totalPrice += itemToCart.totalPrice;
-    } else {
-        this.cart.push(itemToCart);
-    }
-    
-    // 4. Cleanup & Save
-    localStorage.setItem('ub_cart', JSON.stringify(this.cart));
-    
-    // Reset the specific food card para malinis ulit ang UI
-    food.tempQty = 1;
-    food.selectedAddOns = []; 
-}
-                
-                
             }
         }
-    
+    }
 </script>
+
 </body>
 </html>

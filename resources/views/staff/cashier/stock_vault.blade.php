@@ -1,124 +1,4 @@
-<div class="clay-card p-4 md:p-8 w-full max-w-7xl mx-auto" x-data="{ 
-    editingId: null, 
-    showAddModal: false, 
-    showLogModal: false,
-    searchQuery: '',
-    filterCat: 'All',
-    tempStock: 0, 
-    tempPrice: 0, 
-    tempCost: 0,
-    stockLogs: [],
-    products: [
-        { id: 1, name: 'BURGER STEAK', cat: 'Main Course', stock: 10, price: 150, cost: 100, img: 'burgersteak.png', data: null },
-        { id: 2, name: 'CARBONARA', cat: 'Main Course', stock: 15, price: 120, cost: 80, img: 'carbonara.png', data: null },
-        { id: 3, name: 'ICE TEA', cat: 'Beverages', stock: 50, price: 45, cost: 20, img: 'icetea.png', data: null },
-        { id: 4, name: 'LECHE FLAN', cat: 'Dessert', stock: 20, price: 60, cost: 30, img: 'lecheflan.png', data: null },
-        { id: 5, name: 'MOZARELLA STICKS', cat: 'Appetizers', stock: 12, price: 110, cost: 60, img: 'mozarella.png', data: null }
-    ],
-    newItem: { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
-
-    handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.newItem.data = e.target.result;
-                this.newItem.img = file.name;
-            };
-            reader.readAsDataURL(file);
-        }
-    },
-
-    getImageUrl(p) {
-        if (p.data) return p.data;
-        if (!p.img || p.img.trim() === '') return 'https://placehold.co/150x150?text=No+Image';
-        return '/img/' + p.img;
-    },
-
-    addItem() {
-        if (!this.newItem.name) return alert('Error: Product Name is required.');
-        if (!this.newItem.cat) return alert('Error: Please select a Category.');
-        if (!this.newItem.data) return alert('Error: Please upload a Product Image.');
-        
-        let s = parseInt(this.newItem.stock);
-        let c = parseFloat(this.newItem.cost);
-        let p = parseFloat(this.newItem.price);
-
-        if (isNaN(s) || s < 0) return alert('Error: Stock must be 0 or higher.');
-        if (isNaN(c) || c <= 0) return alert('Error: Cost must be a positive number.');
-        if (isNaN(p) || p <= 0) return alert('Error: Selling Price must be a positive number.');
-        if (p <= c) return alert('Action Denied: Selling Price must be higher than Cost to have a margin.');
-
-        const product = {
-            id: Date.now(),
-            name: this.newItem.name.toUpperCase(),
-            cat: this.newItem.cat,
-            stock: s,
-            price: p,
-            cost: c,
-            img: this.newItem.img,
-            data: this.newItem.data
-        };
-
-        this.products.push(product);
-        this.addLog(product.name, product.stock, 'Initial Entry');
-        alert('Success: Data validated and saved.');
-        this.newItem = { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null };
-        this.showAddModal = false;
-    },
-
-    exportCSV() {
-        let csv = 'Product,Category,Stock,Cost,Price,Margin\n';
-        this.products.forEach(p => {
-            csv += `${p.name},${p.cat},${p.stock},${p.cost},${p.price},${p.price - p.cost}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Inventory_Report.csv';
-        a.click();
-    },
-
-    saveEdit(p) {
-        if (parseFloat(this.tempPrice) <= parseFloat(this.tempCost)) {
-            return alert('Error: Price must be higher than Cost.');
-        }
-        let diff = parseInt(this.tempStock) - p.stock;
-        if(diff !== 0) this.addLog(p.name, diff > 0 ? '+' + diff : diff, 'Manual Update');
-        
-        p.stock = parseInt(this.tempStock) || 0;
-        p.price = parseFloat(this.tempPrice) || 0;
-        p.cost = parseFloat(this.tempCost) || 0;
-        this.editingId = null;
-    },
-
-    addLog(name, qty, action) {
-        const now = new Date();
-        const datePart = now.toISOString().split('T')[0];
-        const timePart = now.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            hour12: true 
-        });
-        const fullStamp = `${datePart} | ${timePart}`;
-
-        this.stockLogs.unshift({
-            date: fullStamp, 
-            name: name,
-            qty: qty,
-            action: action
-        });
-    },
-
-    get filteredInventory() {
-        return this.products.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
-            const matchesCat = this.filterCat === 'All' || p.cat === this.filterCat;
-            return matchesSearch && matchesCat;
-        });
-    }
-}">
+<div class="clay-card p-4 md:p-8 w-full max-w-7xl mx-auto" x-data="inventoryApp()">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-8 text-left">
         <div class="w-full md:w-auto">
@@ -151,7 +31,7 @@
             <thead class="hidden md:table-header-group bg-gray-50 font-black text-gray-400 uppercase text-[9px] tracking-widest border-b border-gray-100">
                 <tr>
                     <th class="px-6 py-5 whitespace-nowrap">Product</th>
-                  <th class="px-6 py-5 text-center whitespace-nowrap">Stock</th>
+                    <th class="px-6 py-5 text-center whitespace-nowrap">Stock</th>
                     <th class="px-6 py-5 text-center whitespace-nowrap">Cost</th>
                     <th class="px-6 py-5 text-center whitespace-nowrap">Price</th>
                     <th class="px-6 py-5 text-center whitespace-nowrap">Margin</th>
@@ -174,32 +54,28 @@
                             </div>
                         </td>
 
-                     
                         <td class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none">
-    <div class="flex items-center justify-between md:block">
-        <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock</span>
-        
-        <div class="text-right md:text-center w-auto md:w-full">
-            <template x-if="editingId === p.id">
-                <input type="number" x-model="tempStock" 
-                    class="w-16 border border-gray-200 rounded-lg py-1 text-center font-bold outline-none bg-yellow-50 focus:border-yellow-500">
-            </template>
-            
-            <template x-if="editingId !== p.id">
-                <div class="flex flex-col items-end md:items-center">
-                    <span class="text-sm font-black text-gray-800 leading-none" x-text="p.stock"></span>
-                    
-                    <div class="mt-1 flex justify-center w-full" x-show="p.stock <= 9">
-                        <span x-show="p.stock > 0" 
-                            class="text-[7px] text-orange-500 font-bold uppercase bg-orange-50 px-2 py-0.5 rounded-full whitespace-nowrap">Low Stock</span>
-                        <span x-show="p.stock == 0" 
-                            class="text-[7px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded-full whitespace-nowrap">Out of Stock</span>
-                    </div>
-                </div>
-            </template>
-        </div>
-    </div>
-</td>
+                            <div class="flex items-center justify-between md:block">
+                                <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock</span>
+                                <div class="text-right md:text-center w-auto md:w-full">
+                                    <template x-if="editingId === p.id">
+                                        <input type="number" x-model="tempStock" 
+                                            class="w-16 border border-gray-200 rounded-lg py-1 text-center font-bold outline-none bg-yellow-50 focus:border-yellow-500">
+                                    </template>
+                                    <template x-if="editingId !== p.id">
+                                        <div class="flex flex-col items-end md:items-center">
+                                            <span class="text-sm font-black text-gray-800 leading-none" x-text="p.stock"></span>
+                                            <div class="mt-1 flex justify-center w-full" x-show="p.stock <= 9">
+                                                <span x-show="p.stock > 0" 
+                                                    class="text-[7px] text-orange-500 font-bold uppercase bg-orange-50 px-2 py-0.5 rounded-full whitespace-nowrap">Low Stock</span>
+                                                <span x-show="p.stock == 0" 
+                                                    class="text-[7px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded-full whitespace-nowrap">Out of Stock</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </td>
 
                         <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none font-bold text-gray-500">
                             <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Cost</span>
@@ -223,7 +99,9 @@
 
                         <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none font-bold text-green-600">
                             <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Margin</span>
-                            <span class="bg-green-50 px-3 py-1 rounded-lg" x-text="'₱' + (p.price - p.cost).toFixed(2)"></span>
+                            <div class="text-right md:text-center">
+                                <span class="bg-green-50 px-3 py-1 rounded-lg inline-block" x-text="'₱' + (p.price - p.cost).toFixed(2)"></span>
+                            </div>
                         </td>
 
                         <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-4 pt-4 md:pt-4 bg-gray-50/50 md:bg-transparent rounded-b-2xl md:rounded-none">
@@ -359,3 +237,129 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('inventoryApp', () => ({
+            editingId: null, 
+            showAddModal: false, 
+            showLogModal: false,
+            searchQuery: '',
+            filterCat: 'All',
+            tempStock: 0, 
+            tempPrice: 0, 
+            tempCost: 0,
+            stockLogs: [],
+            products: [
+                { id: 1, name: 'BURGER STEAK', cat: 'Main Course', stock: 10, price: 150, cost: 100, img: 'burgersteak.png', data: null },
+                { id: 2, name: 'CARBONARA', cat: 'Main Course', stock: 15, price: 120, cost: 80, img: 'carbonara.png', data: null },
+                { id: 3, name: 'ICE TEA', cat: 'Beverages', stock: 50, price: 45, cost: 20, img: 'icetea.png', data: null },
+                { id: 4, name: 'LECHE FLAN', cat: 'Dessert', stock: 20, price: 60, cost: 30, img: 'lecheflan.png', data: null },
+                { id: 5, name: 'MOZARELLA STICKS', cat: 'Appetizers', stock: 12, price: 110, cost: 60, img: 'mozarella.png', data: null }
+            ],
+            newItem: { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
+
+            handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.newItem.data = e.target.result;
+                        this.newItem.img = file.name;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            getImageUrl(p) {
+                if (p.data) return p.data;
+                if (!p.img || p.img.trim() === '') return 'https://placehold.co/150x150?text=No+Image';
+                return '/img/' + p.img;
+            },
+
+            addItem() {
+                if (!this.newItem.name) return alert('Error: Product Name is required.');
+                if (!this.newItem.cat) return alert('Error: Please select a Category.');
+                if (!this.newItem.data) return alert('Error: Please upload a Product Image.');
+                
+                let s = parseInt(this.newItem.stock);
+                let c = parseFloat(this.newItem.cost);
+                let p = parseFloat(this.newItem.price);
+
+                if (isNaN(s) || s < 0) return alert('Error: Stock must be 0 or higher.');
+                if (isNaN(c) || c <= 0) return alert('Error: Cost must be a positive number.');
+                if (isNaN(p) || p <= 0) return alert('Error: Selling Price must be a positive number.');
+                if (p <= c) return alert('Action Denied: Selling Price must be higher than Cost to have a margin.');
+
+                const product = {
+                    id: Date.now(),
+                    name: this.newItem.name.toUpperCase(),
+                    cat: this.newItem.cat,
+                    stock: s,
+                    price: p,
+                    cost: c,
+                    img: this.newItem.img,
+                    data: this.newItem.data
+                };
+
+                this.products.push(product);
+                this.addLog(product.name, product.stock, 'Initial Entry');
+                alert('Success: Data validated and saved.');
+                this.newItem = { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null };
+                this.showAddModal = false;
+            },
+
+            exportCSV() {
+                let csv = 'Product,Category,Stock,Cost,Price,Margin\n';
+                this.products.forEach(p => {
+                    csv += `${p.name},${p.cat},${p.stock},${p.cost},${p.price},${p.price - p.cost}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Inventory_Report.csv';
+                a.click();
+            },
+
+            saveEdit(p) {
+                if (parseFloat(this.tempPrice) <= parseFloat(this.tempCost)) {
+                    return alert('Error: Price must be higher than Cost.');
+                }
+                let diff = parseInt(this.tempStock) - p.stock;
+                if(diff !== 0) this.addLog(p.name, diff > 0 ? '+' + diff : diff, 'Manual Update');
+                
+                p.stock = parseInt(this.tempStock) || 0;
+                p.price = parseFloat(this.tempPrice) || 0;
+                p.cost = parseFloat(this.tempCost) || 0;
+                this.editingId = null;
+            },
+
+            addLog(name, qty, action) {
+                const now = new Date();
+                const datePart = now.toISOString().split('T')[0];
+                const timePart = now.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: true 
+                });
+                const fullStamp = `${datePart} | ${timePart}`;
+
+                this.stockLogs.unshift({
+                    date: fullStamp, 
+                    name: name,
+                    qty: qty,
+                    action: action
+                });
+            },
+
+            get filteredInventory() {
+                return this.products.filter(p => {
+                    const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                    const matchesCat = this.filterCat === 'All' || p.cat === this.filterCat;
+                    return matchesSearch && matchesCat;
+                });
+            }
+        }));
+    });
+</script>

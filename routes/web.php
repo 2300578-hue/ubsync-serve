@@ -37,46 +37,67 @@ Route::get('/stock-vault', function () {
     return view('staff.cashier.stock_vault');
 })->name('pos.vault');
 
+
 // Customer side
+Route::prefix('customer')->group(function () {
+    
+    // 1. QR Code Route
+    Route::get('/qr/{number}', function ($number) {
+        if ($number < 1 || $number > 20) {
+            abort(404, 'Table not found.');
+        }
+        return view('customer.qrcode', ['tableNumber' => $number]);
+    });
+
+    // 1.5 Customer Info Route (NEW: Dito muna pupunta bago mag-menu)
+    Route::get('/info', function (Request $request) {
+        $table = $request->query('table');
+        if (!$table) {
+            abort(404, 'Table number is required.');
+        }
+        return view('customer.customerinfo', ['tableNumber' => $table]);
+    })->name('customer.info');
+
+    // 2. Menu Route
+    Route::get('/menu', function (Request $request) {
+        $table = $request->query('table');
+        $fname = $request->query('fname');
+        $lname = $request->query('lname');
+
+        return view('customer.menu', [
+            'table' => $table,
+            'fname' => $fname,
+            'lname' => $lname
+        ]); 
+    })->name('customer.menu');
+
+    // 3. Cart Route
+    Route::get('/cart', function () {
+        return view('customer.cart'); 
+    })->name('customer.cart');
+
+    // 4. Payment Route
+    Route::get('/payment', function () {
+        return view('customer.payment'); 
+    })->name('customer.payment');
+
+});
+
+
+// 5. Payment Gateway Route (Nasa LABAS na ng customer prefix)
 Route::get('/payment/gateway/{method}', function ($method) {
     return view('customer.paymentgateway', ['method' => $method]);
 })->name('payment.gateway');
 
-Route::get('/customer/payment', function () {
-    return view('customer.payment'); 
-})->name('customer.payment');
 
-Route::get('/table/{number}', function ($number) {
-    if ($number < 1 || $number > 20) {
-        abort(404, 'Table not found.');
-    }
-    return view('tables.customer', ['tableNumber' => $number]);
-});
-
-Route::get('/reservation', function () {
-    return view('reservation.book');
-});
-
+// General Routes (Landing at Reservation)
 Route::get('/', function () {
     return view('welcome'); 
 })->name('landing');
 
-Route::get('/menu', function (Request $request) {
-    $table = $request->query('table');
-    $fname = $request->query('fname');
-    $lname = $request->query('lname');
-
-    return view('customer.menu', [
-        'table' => $table,
-        'fname' => $fname,
-        'lname' => $lname
-    ]); 
-})->name('customer.menu');
-
-Route::get('/cart', function () {
-    return view('customer.cart'); 
-})->name('customer.cart');
-
+Route::get('/reservation', function () {
+    return view('reservation.book');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -130,7 +151,7 @@ Route::middleware(['auth'])->group(function () {
         return match (strtolower($user->role)) {
             'faculty', 'admin'     => redirect()->route('faculty.dashboard'),
             'cashier'              => redirect()->route('cashier.monitor'),
-            'chef',                 => redirect()->route('chef.display'),
+            'chef',                => redirect()->route('chef.display'),
             'waiter'               => redirect()->route('waiter.dashboard'), 
             default => (function() { Auth::logout();  return redirect()->route('login')->withErrors(['email' => 'Unauthorized Role.']); })(),  
         };
