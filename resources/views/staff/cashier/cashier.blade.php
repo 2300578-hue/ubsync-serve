@@ -17,7 +17,7 @@
         .gold-accent { background-color: #D4AF37; height: 4px; position: fixed; top: 65px; width: 100%; z-index: 999; }
         
         /* Sidebar Navigation */
-        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; }
+       .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; }
         .sidebar-collapsed { left: -260px; }
         
         
@@ -92,32 +92,46 @@
     </header>
     <div class="gold-accent"></div>
 
-    <div x-show="sidebarOpen && window.innerWidth < 768" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 bg-black/60 z-[999] md:hidden" style="top: 69px;"></div>
-
     <aside class="aws-sidebar shadow-sm" :class="!sidebarOpen ? 'sidebar-collapsed' : ''">
-        <div class="p-6 space-y-8">
-            <div>
-                <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Main Navigation</p>
-                <nav class="space-y-1">
-                    <button @click="switchTab('home')" :class="tab === 'home' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
-                        <i class="fa-solid fa-table-cells-large w-5"></i> Control Center
-                    </button>
-                    <button @click="switchTab('pos')" :class="tab === 'pos' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
-                        <i class="fa-solid fa-cash-register w-5"></i> Service Hub
-                    </button>
-                    <button @click="switchTab('inventory')" :class="tab === 'inventory' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
-                        <i class="fa-solid fa-boxes-stacked w-5"></i> Stock Vault
-                    </button>
-                    <button @click="switchTab('reservations')" :class="tab === 'reservations' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
-                        <i class="fas fa-calendar-check w-5"></i> Reservations
-                    </button>
-                    <button @click="switchTab('performance')" :class="tab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" class="w-full flex items-center gap-4 p-3 transition-all text-left font-semibold">
-                        <i class="fa-solid fa-chart-line w-5"   ></i> Performance
-                    </button>
-                </nav>
-            </div>
+    <div class="p-6 space-y-8">
+        <div>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Main Navigation</p>
+            
+            <nav class="space-y-1">
+                <button @click="switchTab('home')" 
+                    :class="tab === 'home' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fa-solid fa-table-cells-large w-5"></i> Control Center
+                </button>
+
+                <button @click="switchTab('pos')" 
+                    :class="tab === 'pos' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fa-solid fa-cash-register w-5"></i> Service Hub
+                </button>
+
+                <button @click="switchTab('inventory')" 
+                    :class="tab === 'inventory' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fa-solid fa-boxes-stacked w-5"></i> Stock Vault
+                </button>
+
+                <button @click="switchTab('reservations')" 
+                    :class="tab === 'reservations' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fas fa-calendar-check w-5"></i> Reservations
+                </button>
+
+                <button @click="switchTab('performance')" 
+                    :class="tab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
+                    <i class="fa-solid fa-chart-line w-5"></i> Performance
+                </button>
+            </nav>
         </div>
-    </aside>
+    </div>
+</aside>
+
 
     <main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
         
@@ -141,7 +155,7 @@
         <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
     </div>
 
-    <div class="clay-card border-t-4 border-t-orange-500 p-5">
+    <div class="clay-card border-t-4 border-t-yellow-500 p-5">
         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Reservations</p>
         <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
     </div>

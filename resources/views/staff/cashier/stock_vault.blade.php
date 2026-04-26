@@ -151,7 +151,7 @@
             <thead class="hidden md:table-header-group bg-gray-50 font-black text-gray-400 uppercase text-[9px] tracking-widest border-b border-gray-100">
                 <tr>
                     <th class="px-6 py-5 whitespace-nowrap">Product</th>
-                    <th class="px-6 py-5 text-center whitespace-nowrap">Stock</th>
+                  <th class="px-6 py-5 text-center whitespace-nowrap">Stock</th>
                     <th class="px-6 py-5 text-center whitespace-nowrap">Cost</th>
                     <th class="px-6 py-5 text-center whitespace-nowrap">Price</th>
                     <th class="px-6 py-5 text-center whitespace-nowrap">Margin</th>
@@ -174,23 +174,32 @@
                             </div>
                         </td>
 
-                        <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none">
-                            <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock</span>
-                            <div class="flex flex-col items-end md:items-center justify-center">
-                                <template x-if="editingId === p.id">
-                                    <input type="number" x-model="tempStock" class="w-20 md:w-16 border border-gray-200 rounded-lg py-1 text-right md:text-center font-bold outline-none bg-yellow-50 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 transition-all">
-                                </template>
-                                <template x-if="editingId !== p.id">
-                                    <div class="text-right md:text-center">
-                                        <span class="text-sm font-black text-gray-800" x-text="p.stock"></span>
-                                        <div class="mt-0.5 min-h-[12px]">
-                                            <span x-show="p.stock > 0 && p.stock <= 9" class="text-[7px] text-orange-500 font-black uppercase tracking-wider bg-orange-50 px-2 py-0.5 rounded-full">Low Stock</span>
-                                            <span x-show="p.stock == 0" class="text-[7px] text-red-600 font-black uppercase tracking-wider bg-red-50 px-2 py-0.5 rounded-full">Out of Stock</span>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </td>
+                     
+                        <td class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none">
+    <div class="flex items-center justify-between md:block">
+        <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock</span>
+        
+        <div class="text-right md:text-center w-auto md:w-full">
+            <template x-if="editingId === p.id">
+                <input type="number" x-model="tempStock" 
+                    class="w-16 border border-gray-200 rounded-lg py-1 text-center font-bold outline-none bg-yellow-50 focus:border-yellow-500">
+            </template>
+            
+            <template x-if="editingId !== p.id">
+                <div class="flex flex-col items-end md:items-center">
+                    <span class="text-sm font-black text-gray-800 leading-none" x-text="p.stock"></span>
+                    
+                    <div class="mt-1 flex justify-center w-full" x-show="p.stock <= 9">
+                        <span x-show="p.stock > 0" 
+                            class="text-[7px] text-orange-500 font-bold uppercase bg-orange-50 px-2 py-0.5 rounded-full whitespace-nowrap">Low Stock</span>
+                        <span x-show="p.stock == 0" 
+                            class="text-[7px] text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded-full whitespace-nowrap">Out of Stock</span>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</td>
 
                         <td class="flex md:table-cell justify-between items-center px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 md:border-none font-bold text-gray-500">
                             <span class="md:hidden text-[10px] font-black text-gray-400 uppercase tracking-widest">Cost</span>
