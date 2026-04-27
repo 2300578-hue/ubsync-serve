@@ -122,6 +122,10 @@
                     <i class="fas fa-calendar-check w-5"></i> Reservations
                 </button>
 
+                
+
+
+
                 <button @click="switchTab('performance')" 
                     :class="tab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
                     class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
@@ -224,6 +228,10 @@
             </div>
         </template>
     </div>
+       
+    <div x-show="tab === 'master'" x-cloak>
+    @include('staff.cashier.product_master')
+</div>
 
     <div x-show="tab === 'reservations'" x-cloak>
         @include('staff.cashier.reservecustomer')

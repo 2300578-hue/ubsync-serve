@@ -48,24 +48,7 @@
 </head>
 <body class="antialiased" x-data="menuApp()" x-init="initCart()" x-cloak>
 
-    <div x-show="!customerName" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-maroon/40 backdrop-blur-md"></div>
-        <div class="bg-white rounded-[2rem] p-6 sm:p-8 max-w-lg w-full shadow-2xl animate__animated animate__zoomIn">
-            <div class="text-center mb-6 sm:mb-8">
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Table <span class="text-gray" x-text="tableNumber"></span></h2>
-                <p class="text-gray-500 mt-2">Enter your name to start ordering</p>
-            </div>  
-            <div class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <input type="text" x-model="tempFirstName" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-maroon" placeholder="First Name">
-                    <input type="text" x-model="tempLastName" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-maroon" placeholder="Last Name">
-                </div>
-                <button type="button" @click="saveIdentity()" class="w-full btn-maroon text-white py-3 sm:py-4 rounded-xl font-bold uppercase tracking-widest text-sm">
-                    Enter Menu
-                </button>
-            </div>
-        </div>
-    </div>
+  
 
     <div class="fixed bottom-8 right-8 z-50" id="cart-anchor">
              <a :href="'{{ route('customer.cart') }}?table=' + tableNumber" class="cart-floating text-white w-16 h-16 rounded-2xl flex items-center justify-center relative shadow-lg">
