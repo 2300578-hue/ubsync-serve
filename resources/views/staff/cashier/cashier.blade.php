@@ -229,10 +229,7 @@
         </template>
     </div>
        
-    <div x-show="tab === 'master'" x-cloak>
-    @include('staff.cashier.product_master')
-</div>
-
+    
     <div x-show="tab === 'reservations'" x-cloak>
         @include('staff.cashier.reservecustomer')
     </div>
