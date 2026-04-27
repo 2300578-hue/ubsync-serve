@@ -122,7 +122,9 @@
                     <i class="fas fa-calendar-check w-5"></i> Reservations
                 </button>
 
-                
+                 
+       
+
 
 
 
@@ -228,7 +230,8 @@
             </div>
         </template>
     </div>
-       
+        
+
     
     <div x-show="tab === 'reservations'" x-cloak>
         @include('staff.cashier.reservecustomer')
@@ -280,124 +283,123 @@
 
 
     <script>
-    function cashierSystem() {
+   function cashierSystem() {
         return {
             tab: 'home',
             sidebarOpen: window.innerWidth >= 768,
-            showTableDetail: null,
-            showVacantModal: false,
-            showSuccessAlert: false,
-            reservations: [],
-            salesSummary: { total: 0 },
-            cart: [],
             selectedTableForOrder: '',
+            showTableDetail: null,
+            cart: [],
+            orderHistory: [],
+            salesSummary: { total: 0 },
+            reservations: [],
 
-            products: [
-                { id: 1, name: 'Burger Steak', cat: 'Meals', price: 150, stock: 25, img: 'burgersteak.png' },
-                { id: 2, name: 'Carbonara', cat: 'Pasta', price: 180, stock: 15, img: 'carbonara.png' },
-                { id: 3, name: 'Ice Tea', cat: 'Beverages', price: 45, stock: 100, img: 'icetea.png' },
-                { id: 4, name: 'Leche Flan', cat: 'Desserts', price: 75, stock: 20, img: 'lecheflan.png' },
-                { id: 5, name: 'Mozarella Sticks', cat: 'Appetizer', price: 130, stock: 15, img: 'mozarella.png' }
-            ],
-
+            // Listahan ng Tables
             tables: [
-                { id: 1, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 2, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 3, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 4, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 5, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 6, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 7, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 8, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 },
-                { id: 9, isSessionActive: false, payment: 'Unpaid', isMarkedPaid: false, orders: [], bill: 0 }
+                { id: 1, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+                { id: 2, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+                { id: 3, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+                { id: 4, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+                { id: 5, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+                { id: 6, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' }
             ],
-
-            // PINAG-ISA NA INIT FUNCTION
-            init() {
+init() {
+                // 1. TAWAGIN ITO: I-load agad ang mga reservations pagka-load ng page
                 this.loadReservations();
-                
-                // Bantayan ang bagong orders mula sa ibang tab
+
+                // Makinig sa orders at reservations galing sa Customer/Booking Tab
                 window.addEventListener('storage', (event) => {
+                    // Para sa bagong orders
                     if (event.key === 'ub_new_customer_order' && event.newValue) {
-                        const orderData = JSON.parse(event.newValue);
-                        this.receiveIncomingOrder(orderData);
+                        this.receiveIncomingOrder(JSON.parse(event.newValue));
                     }
+                    
+                    // 2. IDAGDAG ITO: I-reload ang reservations kapag may bagong nag-book
                     if (event.key === 'ub_reservations') {
                         this.loadReservations();
                     }
                 });
 
-                // Check kung may naiwang order bago pa nag-load ang page
-                const missedOrder = localStorage.getItem('ub_new_customer_order');
-                if (missedOrder) {
-                    this.receiveIncomingOrder(JSON.parse(missedOrder));
+                // Check kung may naiwang order sa storage
+                const missed = localStorage.getItem('ub_new_customer_order');
+                if (missed) this.receiveIncomingOrder(JSON.parse(missed));
+            },
+
+            receiveIncomingOrder(data) {
+                let index = this.tables.findIndex(x => x.id === parseInt(data.table));
+                if (index !== -1) {
+                    this.tables[index].isSessionActive = true;
+                    this.tables[index].customerName = `${data.fname || 'Guest'} ${data.lname || ''}`.trim();
+                    this.tables[index].bill = parseFloat(data.bill);
+                    this.tables[index].payment = data.method || 'Unpaid';
+                    this.tables[index].orders = data.cart || [];
+                    this.tables = [...this.tables];
+                    localStorage.removeItem('ub_new_customer_order');
                 }
             },
-receiveIncomingOrder(data) {
-    let index = this.tables.findIndex(x => x.id === parseInt(data.table));
-    
-    if (index !== -1) {
-        // 1. Activate the table
-        this.tables[index].isSessionActive = true; 
-        this.tables[index].isMarkedPaid = false; 
-        
-        // 2. Handle the Name (Para hindi na "Guest")
-        let firstName = data.fname || 'Guest';
-        let lastName = data.lname || '';
-        this.tables[index].customerName = `${firstName} ${lastName}`.trim();
-        
-        // 3. Handle the Billing
-        this.tables[index].bill = parseFloat(data.bill);
-        this.tables[index].payment = data.method;
 
-        // 4. ITO ANG FIX PARA SA ORDERS (Cart Items)
-        // Binabasa natin yung 'cart' na pinasa galing Payment Gateway
-        if (data.cart && Array.isArray(data.cart)) {
-            this.tables[index].orders = data.cart.map(item => ({
-                name: item.name,
-                qty: item.qty,
-                img: item.img || 'Default.png' // Backup image kung sakaling wala
-            }));
-        } else {
-            this.tables[index].orders = []; // Empty array kung walang cart data
-        }
-        
-        // 5. Refresh the UI
-        this.tables = [...this.tables]; 
-        
-        // 6. Linisin ang storage para sa susunod na customer
-        localStorage.removeItem('ub_new_customer_order'); 
-        console.log("Order processed for: " + this.tables[index].customerName);
-    }
-},
+            // Eto ang function na magpapadala sa Kitchen
+            markAsPaid(tableId) {
+                let index = this.tables.findIndex(x => x.id === tableId);
+                if (index === -1) return;
 
+                let table = this.tables[index];
+                
+                // 1. Gumawa ng Unique Order Data para sa Chef
+                const dataForChef = {
+                    id: 'ORD-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+                    table: 'TABLE ' + table.id.toString().padStart(2, '0'),
+                    items: table.orders.map(item => ({
+                        name: item.name,
+                        qty: item.qty,
+                        done: false
+                    })),
+                    timestamp: new Date().getTime()
+                };
 
+                // 2. IPADALA SA CHEF (via LocalStorage)
+                localStorage.setItem('ub_chef_new_order', JSON.stringify(dataForChef));
 
+                // 3. I-save sa Cashier History
+                this.orderHistory.unshift({
+                    ...dataForChef,
+                    total: table.bill,
+                    time: new Date().toLocaleTimeString()
+                });
+                this.salesSummary.total += table.bill;
 
-            switchTab(target) {
-                this.tab = target;
-                if (window.innerWidth < 768) this.sidebarOpen = false;
+                // 4. RESET ANG MESA
+                this.tables[index].isSessionActive = false;
+                this.tables[index].orders = [];
+                this.tables[index].bill = 0;
+                this.tables[index].customerName = '';
+                
+                alert('Payment Settled! Order sent to Kitchen.');
             },
+
+            formatCurrency(num) {
+                return '₱' + parseFloat(num).toLocaleString(undefined, {minimumFractionDigits: 2});
+            },
+        
+           
 
             formatCurrency(amount) {
                 return '₱' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             },
-            formatCurrency(amount) {
-                return '₱' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            },
 
-            // --- IDAGDAG ITO PARA MAAYOS ANG IMAGE PATHS ---
             getImageUrl(img) {
                 if (!img || img === 'Default.png') return 'https://placehold.co/150x150/eeeeee/800000?text=No+Image';
                 if (img.startsWith('http') || img.startsWith('data:')) return img;
                 if (img.startsWith('/')) return img;
                 return '/img/' + img;
             },
-            // ------------------------------------------------
 
-            // POS / Service Hub ActionsPH
+             switchTab(target) {
+                this.tab = target;
+                if (window.innerWidth < 768) this.sidebarOpen = false;
+            },
 
-            // POS / Service Hub Actions
+
             addToCart(product) {
                 if(product.stock <= 0) return alert('Out of Stock!');
                 let item = this.cart.find(i => i.id === product.id);
@@ -425,7 +427,7 @@ receiveIncomingOrder(data) {
                 t.bill += this.cartTotal;
                 this.cart.forEach(c => t.orders.push({ name: c.name, qty: c.qty, img: c.img }));
                 
-                this.tables = [...this.tables]; // Refresh UI
+                this.tables = [...this.tables]; 
                 this.cart = [];
                 this.selectedTableForOrder = '';
                 this.tab = 'home';
@@ -434,20 +436,50 @@ receiveIncomingOrder(data) {
             markAsPaid(id) {
                 let index = this.tables.findIndex(x => x.id === id);
                 if (index !== -1) {
-                    this.salesSummary.total += this.tables[index].bill;
+                    let currentTable = this.tables[index];
+
+                    // 1. Ipadala sa Chef Tab
+                    const dataForChef = {
+                        id: 'ORD-' + Date.now().toString().slice(-6), // Mas maikling Order ID
+                        table: 'TABLE ' + currentTable.id.toString().padStart(2, '0'),
+                        status: 'NEW',
+                        items: currentTable.orders.map(item => ({
+                            name: item.name,
+                            qty: item.qty,
+                            done: false
+                        })),
+                        note: 'Paid at Counter - Start Prep',
+                        timestamp: new Date().getTime()
+                    };
+
+                    localStorage.setItem('ub_chef_new_order', JSON.stringify(dataForChef));
+
+                    // 2. I-save sa Cashier History
+                    this.orderHistory.unshift({
+                        orderId: dataForChef.id,
+                        tableId: currentTable.id,
+                        customerName: currentTable.customerName || 'Walk-in',
+                        totalAmount: currentTable.bill,
+                        paymentMethod: currentTable.payment,
+                        timestamp: new Date().toLocaleTimeString(),
+                        items: [...currentTable.orders]
+                    });
+
+                    this.salesSummary.total += currentTable.bill;
+
+                    // 3. I-reset ang Mesa
                     this.tables[index].isMarkedPaid = true;
                     this.tables[index].isSessionActive = false;
-                    
-                    // Reset table state
                     this.tables[index].bill = 0;
-                    this.tables[index].payment = 'Unpaid';
                     this.tables[index].orders = [];
+                    this.tables[index].customerName = '';
                     
-                    this.tables = [...this.tables]; // Refresh UI
+                    this.tables = [...this.tables]; 
+                    
+                    alert('Payment Settled! Order sent to the Kitchen.');
                 }
             },
 
-            // Reservation Logic
             loadReservations() {
                 const stored = localStorage.getItem('ub_reservations');
                 this.reservations = stored ? JSON.parse(stored) : [];

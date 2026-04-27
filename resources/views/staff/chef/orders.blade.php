@@ -61,3 +61,5 @@
                     <p class="text-slate-400 text-sm">Kitchen is clear. Waiting for new tickets...</p>
                 </div>
             </div>
+
+        
