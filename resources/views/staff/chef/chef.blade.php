@@ -32,7 +32,13 @@
             .aws-sidebar { box-shadow: 10px 0 15px rgba(0,0,0,0.1); z-index: 1001; }
         }
 
-        .aws-card { background: white; border: 1px solid #eaeded; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+       .clay-card { 
+            background: white !important; /* Siguradong white ang loob */
+            border: 1px solid #eaeded; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+            transition: all 0.3s ease;
+        }
 
         .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a52a2a 100%); }
         .status-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 800; text-transform: uppercase; }
@@ -148,25 +154,23 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
-               <div class="aws-card border-t-4 border-t-emerald-500 p-5">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Tickets</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="orders.length"></p>
-                </div>
-               <div class="bg-white rounded shadow p-6 border-t-4 border-blue-500">
-    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-        Live Sessions
+         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
+    <div class="clay-card border-t-4 border-t-emerald-500 p-5">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Tickets</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="orders.length"></p>
     </div>
-    <div class="text-3xl font-bold text-gray-800" x-text="orders.length">
-        0
+
+    <div class="clay-card border-t-4 border-t-blue-500 p-5">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Sessions</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="orders.length"></p>
+    </div>
+
+    <div class="clay-card border-t-4 border-t-yellow-500 p-5">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Served</p>
+        <p class="text-3xl font-black text-slate-800 mt-1" x-text="fulfilledCount"></p>
     </div>
 </div>
 
-                 <div class="aws-card p-5 border-t-4 border-t-yellow-500">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Served</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="fulfilledCount"></p>
-                </div>
-            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <template x-for="(order, index) in orders" :key="order.id">

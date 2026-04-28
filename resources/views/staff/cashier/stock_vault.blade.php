@@ -1,37 +1,26 @@
-<div class="space-y-8" x-data="inventoryApp()">
-    
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+<div class="w-full space-y-6" x-data="inventoryApp()">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-left">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-black text-slate-800 uppercase tracking-tighter">
-                Inventory Vault
-            </h1>
-            <p class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">
-                Audit & Stock Control
-            </p>
+            <h2 class="text-2xl md:text-3xl font-black text-slate-800 uppercase tracking-tighter">Inventory Vault</h2>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Audit & Stock Control</p>
         </div>
 
-        <div class="flex flex-wrap gap-2">
-            <button @click="exportCSV()" class="px-5 py-2.5 bg-green-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-green-700 transition-all">
-                Export
-            </button>
-            <button @click="showLogModal = true" class="px-5 py-2.5 bg-slate-800 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-slate-900 transition-all">
-                Logs
-            </button>
-            <button @click="showAddModal = true" class="px-6 py-2.5 bg-[#800000] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-red-800 transition-all">
-                + New Product
-            </button>
+        <div class="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto">
+            <button @click="exportCSV()" class="flex-1 md:flex-none px-4 py-3 bg-green-600 text-white rounded-xl font-black text-[10px] uppercase tracking-wider shadow-md hover:bg-green-700 active:scale-95 transition-all text-center">Export</button>
+            <button @click="showLogModal = true" class="flex-1 md:flex-none px-4 py-3 bg-slate-800 text-white rounded-xl font-black text-[10px] uppercase tracking-wider shadow-md hover:bg-slate-900 active:scale-95 transition-all text-center">Logs</button>
+            <button @click="showAddModal = true" class="w-full md:w-auto px-6 py-3 bg-[#800000] text-white rounded-xl font-black text-[10px] uppercase tracking-wider shadow-md hover:bg-red-900 active:scale-95 transition-all text-center">New Product</button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <div class="relative md:col-span-9">
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" x-model="searchQuery" placeholder="Search product by name..." 
-                class="w-full bg-white border border-slate-200 rounded-2xl py-3.5 pl-12 pr-4 text-xs font-bold outline-none focus:ring-4 focus:ring-red-900/5 transition-all shadow-sm">
-        </div>
-        <div class="md:col-span-3">
-            <select x-model="filterCat" 
-                class="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-4 text-xs font-bold outline-none cursor-pointer shadow-sm">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 md:p-6">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
+            <div class="relative text-left sm:col-span-2">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" x-model="searchQuery" placeholder="Search product..." class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:border-slate-400 focus:ring-0 transition-all">
+            </div>
+            <select x-model="filterCat" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-bold outline-none cursor-pointer focus:border-slate-400 focus:ring-0 transition-all">
                 <option value="All">All Categories</option>
                 <option value="Main Course">Main Course</option>
                 <option value="Appetizers">Appetizers</option>
@@ -39,76 +28,109 @@
                 <option value="Beverages">Beverages</option>
             </select>
         </div>
-    </div>
 
-    <div class="w-full bg-white rounded-[2rem] border border-slate-100 shadow-xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[800px]">
-                <thead class="bg-slate-50/50 border-b border-slate-100">
+        <div class="w-full overflow-x-auto">
+            <table class="w-full text-left text-xs min-w-full">
+                <thead class="bg-slate-50 font-black text-slate-400 uppercase text-[9px] tracking-widest border-b border-slate-100 hidden md:table-header-group">
                     <tr>
-                        <th class="px-8 py-6 font-black text-slate-400 uppercase text-[10px] tracking-[0.15em]">Product</th>
-                        <th class="px-6 py-6 font-black text-slate-400 uppercase text-[10px] tracking-[0.15em] text-center">Stock</th>
-                        <th class="px-6 py-6 font-black text-slate-400 uppercase text-[10px] tracking-[0.15em] text-center">Cost</th>
-                        <th class="px-6 py-6 font-black text-slate-400 uppercase text-[10px] tracking-[0.15em] text-center">SRP</th>
-                        <th class="px-6 py-6 font-black text-slate-400 uppercase text-[10px] tracking-[0.15em] text-center">Margin</th>
-                        <th class="px-8 py-6 font-black text-slate-400 uppercase text-[10px] tracking-[0.15em] text-right">Actions</th>
+                        <th class="px-4 py-4 whitespace-nowrap rounded-tl-xl">Product</th>
+                        <th class="px-4 py-4 text-center whitespace-nowrap">Stock</th>
+                        <th class="px-4 py-4 text-center whitespace-nowrap">Cost</th>
+                        <th class="px-4 py-4 text-center whitespace-nowrap">Price</th>
+                        <th class="px-4 py-4 text-center whitespace-nowrap">Margin</th>
+                        <th class="px-4 py-4 text-right whitespace-nowrap rounded-tr-xl">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50">
+                <tbody class="block md:table-row-group space-y-4 md:space-y-0 p-0 md:divide-y md:divide-slate-50">
                     <template x-for="p in filteredInventory" :key="p.id">
-                        <tr class="hover:bg-slate-50/40 transition-all group">
-                            <td class="px-8 py-5">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-xl border border-slate-100 overflow-hidden bg-white shadow-sm group-hover:scale-105 transition-transform">
+                        <tr class="block md:table-row bg-white border border-slate-200 md:border-none rounded-xl md:rounded-none shadow-sm md:shadow-none hover:bg-slate-50/50 transition-colors mb-4 md:mb-0">
+                            
+                            <td class="block md:table-cell px-4 py-4 border-b border-slate-50 md:border-none">
+                                <div class="flex items-center gap-4 text-left">
+                                    <div class="w-12 h-12 rounded-lg border border-slate-200 overflow-hidden bg-white shrink-0 shadow-sm">
                                         <img :src="getImageUrl(p)" class="w-full h-full object-cover">
                                     </div>
-                                    <div>
-                                        <p class="font-black text-slate-800 uppercase text-[12px]" x-text="p.name"></p>
-                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5" x-text="p.cat"></p>
+                                    <div class="min-w-0">
+                                        <p class="font-black text-slate-800 uppercase text-xs truncate" x-text="p.name"></p>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider truncate" x-text="p.cat"></p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-5 text-center font-black text-slate-800 text-sm" x-text="p.stock"></td>
-                            <td class="px-6 py-5 text-center font-bold text-slate-500" x-text="'₱' + parseFloat(p.cost).toFixed(2)"></td>
-                            <td class="px-6 py-5 text-center font-black text-red-800" x-text="'₱' + parseFloat(p.price).toFixed(2)"></td>
-                            <td class="px-6 py-5 text-center">
-                                <span class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg font-black text-[10px]" x-text="'₱' + (p.price - p.cost).toFixed(2)"></span>
+
+                            <td class="px-4 py-3 md:py-4 border-b border-slate-50 md:border-none">
+                                <div class="flex items-center justify-between md:block">
+                                    <span class="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Stock</span>
+                                    <div class="text-right md:text-center w-auto md:w-full">
+                                        <div class="flex flex-col items-end md:items-center">
+                                            <span class="text-sm font-black text-slate-800 leading-none" x-text="p.stock"></span>
+                                            <div class="mt-1 flex justify-center w-full" x-show="p.stock <= 9">
+                                                <span x-show="p.stock > 0" class="text-[7px] text-orange-500 font-bold uppercase bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full whitespace-nowrap">Low Stock</span>
+                                                <span x-show="p.stock == 0" class="text-[7px] text-red-600 font-bold uppercase bg-red-50 border border-red-100 px-2 py-0.5 rounded-full whitespace-nowrap">Out of Stock</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-8 py-5 text-right">
+
+                            <td class="flex md:table-cell justify-between items-center px-4 py-3 md:py-4 border-b border-slate-50 md:border-none font-bold text-slate-500">
+                                <span class="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Cost</span>
+                                <div class="text-right md:text-center">
+                                    <span x-text="'₱' + parseFloat(p.cost).toFixed(2)"></span>
+                                </div>
+                            </td>
+
+                            <td class="flex md:table-cell justify-between items-center px-4 py-3 md:py-4 border-b border-slate-50 md:border-none font-black text-[#800000]">
+                                <span class="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Price</span>
+                                <div class="text-right md:text-center">
+                                    <span x-text="'₱' + parseFloat(p.price).toFixed(2)"></span>
+                                </div>
+                            </td>
+
+                            <td class="flex md:table-cell justify-between items-center px-4 py-3 md:py-4 border-b border-slate-50 md:border-none font-bold text-green-600">
+                                <span class="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Margin</span>
+                                <div class="text-right md:text-center">
+                                    <span class="bg-green-50 text-green-700 px-3 py-1 rounded-lg inline-block" x-text="'₱' + (p.price - p.cost).toFixed(2)"></span>
+                                </div>
+                            </td>
+
+                            <td class="flex md:table-cell justify-between items-center px-4 py-4 md:py-4 bg-slate-50/50 md:bg-transparent rounded-b-xl md:rounded-none">
+                                <span class="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</span>
                                 <div class="flex justify-end gap-2">
-                                    <button @click="openEditModal(p)" class="w-9 h-9 flex items-center justify-center text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
-                                    <button @click="if(confirm('Delete?')) { products = products.filter(i => i.id !== p.id); }" class="w-9 h-9 flex items-center justify-center text-red-500 bg-red-50 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
+                                    <button @click="openEditModal(p)" class="w-8 h-8 flex items-center justify-center text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-600 hover:text-white active:scale-95 transition-all shadow-sm"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button @click="if(confirm('Are you sure you want to delete this product?')) { addLog(p.name, '-' + p.stock, 'Deleted Item'); products = products.filter(i => i.id !== p.id); }" class="w-8 h-8 flex items-center justify-center text-red-500 bg-red-50 rounded-lg hover:bg-red-500 hover:text-white active:scale-95 transition-all shadow-sm"><i class="fa-solid fa-trash text-xs"></i></button>
                                 </div>
                             </td>
                         </tr>
                     </template>
-                    
-                    <tr x-show="filteredInventory.length === 0">
-                        <td colspan="6" class="px-6 py-20 text-center text-slate-400">
-                            <i class="fa-solid fa-box-open text-4xl mb-4 opacity-20"></i>
-                            <p class="text-xs font-black uppercase tracking-[0.2em]">No Inventory Items Found</p>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
+
+        <div x-show="filteredInventory.length === 0" class="py-12 text-center" style="display: none;">
+            <i class="fa-solid fa-box-open text-slate-200 text-4xl mb-4"></i>
+            <h3 class="text-lg font-black text-slate-700 uppercase">No products found</h3>
+            <p class="text-slate-400 text-xs mt-1">Adjust your search or add a new product.</p>
+        </div>
     </div>
 
-    <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" x-show="showAddModal" x-transition.opacity></div>
-        <div class="bg-white w-full max-w-md p-8 rounded-[2.5rem] relative z-10 text-left shadow-2xl max-h-[90vh] overflow-y-auto" x-show="showAddModal" x-transition.scale.90>
-            <div class="flex justify-end mb-2">
-                <button @click="showAddModal = false" class="text-gray-400 hover:text-red-500 bg-gray-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" x-show="showAddModal" x-transition.opacity></div>
+        
+        <div class="bg-white w-full max-w-sm sm:max-w-md p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] relative z-10 text-left shadow-2xl max-h-[90vh] overflow-y-auto" x-show="showAddModal" x-transition.scale.90>
+            <div class="flex justify-end items-center mb-2">
+                <button @click="showAddModal = false" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <h3 class="text-[11px] font-black uppercase text-gray-800 mb-6 text-center tracking-widest">New Product Entry</h3>
+            
+            <h3 class="text-[11px] font-black uppercase text-slate-800 mb-6 text-center tracking-widest">New Product Entry</h3>
+            
             <div class="space-y-4">
                 <div>
-                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Product Name</label>
-                    <input type="text" x-model="newItem.name" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-gray-50 focus:bg-white focus:border-red-900 transition-all">
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Product Name</label>
+                    <input type="text" x-model="newItem.name" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all">
                 </div>
                 <div>
-                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Category</label>
-                    <select x-model="newItem.cat" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-gray-50 focus:bg-white focus:border-red-900 transition-all cursor-pointer">
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Category</label>
+                    <select x-model="newItem.cat" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all cursor-pointer">
                         <option value="">Select...</option>
                         <option value="Main Course">Main Course</option>
                         <option value="Appetizers">Appetizers</option>
@@ -117,56 +139,149 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Initial Stock</label>
-                    <input type="number" x-model="newItem.stock" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-gray-50 focus:bg-white focus:border-red-900 transition-all">
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Image Attachment</label>
+                    <div class="flex gap-3 items-center mt-1">
+                        <input type="file" id="fIn" class="hidden" @change="handleFileUpload($event)" accept="image/*">
+                        <button type="button" @click="document.getElementById('fIn').click()" class="flex-1 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2.5 text-[10px] font-bold text-slate-500 truncate hover:bg-slate-100 hover:text-slate-700 transition-colors text-left flex items-center">
+                            <i class="fa-solid fa-image mr-2 text-slate-400"></i>
+                            <span x-text="newItem.img ? newItem.img : 'Browse files...'"></span>
+                        </button>
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-slate-200 bg-slate-50 flex-shrink-0 overflow-hidden shadow-inner">
+                            <img x-show="newItem.data" :src="newItem.data" class="w-full h-full object-cover">
+                            <div x-show="!newItem.data" class="w-full h-full flex items-center justify-center text-slate-300">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                        <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Cost (₱)</label>
-                        <input type="number" step="0.01" x-model="newItem.cost" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-gray-50 focus:bg-white transition-all">
+                        <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Initial Stock</label>
+                        <input type="number" x-model="newItem.stock" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all">
                     </div>
                     <div>
-                        <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Price (₱)</label>
-                        <input type="number" step="0.01" x-model="newItem.price" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-gray-50 focus:bg-white transition-all text-[#800000]">
+                        <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Unit Cost (₱)</label>
+                        <input type="number" step="0.01" x-model="newItem.cost" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all">
                     </div>
+                </div>
+                <div>
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Selling Price (₱) <span class="text-green-500 lowercase normal-case text-[9px]">(Must be > Cost)</span></label>
+                    <input type="number" step="0.01" x-model="newItem.price" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all text-[#800000]">
                 </div>
             </div>
-            <button @click="addItem()" class="w-full mt-8 py-4 bg-[#800000] text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-red-900 transition-all">
+
+            <button @click="addItem()" class="w-full mt-8 py-3.5 sm:py-4 bg-[#800000] text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-red-900/20 active:scale-[0.98] transition-all hover:bg-red-900">
                 Confirm & Add Product
             </button>
         </div>
     </div>
 
-    <div x-show="showLogModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" @click="showLogModal = false"></div>
-        <div class="bg-white w-full max-w-lg p-8 rounded-[2rem] shadow-2xl relative z-10 max-h-[85vh] flex flex-col" x-show="showLogModal" x-transition.scale.90>
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-black text-gray-800 uppercase text-xs tracking-widest flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-list text-gray-400"></i> Audit Logs
-                </h3>
-                <button @click="showLogModal = false" class="text-gray-400 hover:text-red-500 bg-gray-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" x-show="showEditModal" x-transition.opacity></div>
+        
+        <div class="bg-white w-full max-w-sm sm:max-w-md p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] relative z-10 text-left shadow-2xl max-h-[90vh] overflow-y-auto" x-show="showEditModal" x-transition.scale.90>
+            <div class="flex justify-end items-center mb-2">
+                <button @click="showEditModal = false" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="overflow-y-auto custom-scrollbar">
-                <table class="w-full text-[10px]">
-                    <thead class="bg-white sticky top-0 border-b border-gray-100">
+            
+            <h3 class="text-[11px] font-black uppercase text-slate-800 mb-6 text-center tracking-widest">Edit Product Entry</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Product Name</label>
+                    <input type="text" x-model="editItem.name" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all">
+                </div>
+                <div>
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Category</label>
+                    <select x-model="editItem.cat" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all cursor-pointer">
+                        <option value="Main Course">Main Course</option>
+                        <option value="Appetizers">Appetizers</option>
+                        <option value="Dessert">Dessert</option>
+                        <option value="Beverages">Beverages</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Image Attachment (Optional)</label>
+                    <div class="flex gap-3 items-center mt-1">
+                        <input type="file" id="fEditIn" class="hidden" @change="handleEditFileUpload($event)" accept="image/*">
+                        <button type="button" @click="document.getElementById('fEditIn').click()" class="flex-1 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2.5 text-[10px] font-bold text-slate-500 truncate hover:bg-slate-100 hover:text-slate-700 transition-colors text-left flex items-center">
+                            <i class="fa-solid fa-image mr-2 text-slate-400"></i>
+                            <span x-text="editItem.img ? editItem.img : 'Update image...'"></span>
+                        </button>
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-slate-200 bg-slate-50 flex-shrink-0 overflow-hidden shadow-inner">
+                            <img x-show="editItem.data || editItem.img" :src="getImageUrl(editItem)" class="w-full h-full object-cover">
+                            <div x-show="!editItem.data && (!editItem.img || editItem.img.trim() === '')" class="w-full h-full flex items-center justify-center text-slate-300">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                        <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Stock</label>
+                        <input type="number" x-model="editItem.stock" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Unit Cost (₱)</label>
+                        <input type="number" step="0.01" x-model="editItem.cost" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Selling Price (₱) <span class="text-green-500 lowercase normal-case text-[9px]">(Must be > Cost)</span></label>
+                    <input type="number" step="0.01" x-model="editItem.price" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold bg-slate-50 focus:bg-white focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/10 transition-all text-[#800000]">
+                </div>
+            </div>
+
+            <button @click="saveEdit()" class="w-full mt-8 py-3.5 sm:py-4 bg-[#800000] text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-red-900/20 active:scale-[0.98] transition-all hover:bg-red-900">
+                Save Changes
+            </button>
+        </div>
+    </div>
+
+    <div x-show="showLogModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" x-show="showLogModal" x-transition.opacity></div>
+        
+        <div class="bg-white w-full max-w-lg p-6 sm:p-8 rounded-[2rem] shadow-2xl flex flex-col max-h-[85vh] text-left relative z-10" x-show="showLogModal" x-transition.scale.90>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-list text-slate-400"></i> Audit Logs
+                </h3>
+                <button @click="showLogModal = false" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="overflow-y-auto overflow-x-auto pr-2 sm:pr-4 -mr-2 sm:-mr-4 custom-scrollbar">
+                <table class="w-full text-[10px] min-w-[400px]">
+                    <thead class="bg-white sticky top-0 z-10 after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:border-b after:border-slate-100">
                         <tr>
-                            <th class="p-3 pl-0 text-gray-400 font-black uppercase text-left">Timestamp</th>
-                            <th class="p-3 text-gray-400 font-black uppercase text-left">Product</th>
-                            <th class="p-3 text-center text-gray-400 font-black uppercase">Qty</th>
-                            <th class="p-3 pr-0 text-right text-gray-400 font-black uppercase">Action</th>
+                            <th class="p-3 pl-0 text-slate-400 font-black uppercase tracking-widest text-left">Timestamp</th>
+                            <th class="p-3 text-slate-400 font-black uppercase tracking-widest text-left">Product</th>
+                            <th class="p-3 text-center text-slate-400 font-black uppercase tracking-widest">Qty</th>
+                            <th class="p-3 pr-0 text-right text-slate-400 font-black uppercase tracking-widest">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y divide-slate-50">
                         <template x-for="log in stockLogs">
-                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                <td class="p-3 pl-0 text-gray-400 font-bold whitespace-nowrap" x-text="log.date"></td>
-                                <td class="p-3 font-bold uppercase text-gray-800" x-text="log.name"></td>
-                                <td class="p-3 font-black text-center text-xs" :class="log.qty.includes('+') ? 'text-green-600' : 'text-red-600'" x-text="log.qty"></td>
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 pl-0 text-slate-400 font-bold whitespace-nowrap text-[9px]" x-text="log.date"></td>
+                                <td class="p-3 font-bold uppercase text-slate-800" x-text="log.name"></td>
+                                <td class="p-3 font-black text-center text-xs" 
+                                    :class="(log.qty.toString().includes('+') || log.action === 'Initial Entry') ? 'text-green-600' : 'text-red-600'" 
+                                    x-text="log.qty">
+                                </td>
                                 <td class="p-3 pr-0 text-right">
-                                    <span class="bg-gray-50 text-gray-500 font-bold px-2 py-1 rounded-md text-[8px] uppercase" x-text="log.action"></span>
+                                    <span class="bg-slate-50 text-slate-500 font-bold px-2 py-1 rounded-md text-[8px] uppercase tracking-wider" x-text="log.action"></span>
                                 </td>
                             </tr>
-                        </template>
+                        </template> 
+                        
+                        <tr x-show="stockLogs.length === 0">
+                            <td colspan="4" class="p-8 text-center">
+                                <div class="border-dashed border-2 border-slate-100 rounded-2xl p-6 bg-slate-50/50">
+                                    <i class="fa-solid fa-clock-rotate-left text-2xl text-slate-300 mb-2"></i>
+                                    <p class="text-slate-400 font-bold uppercase tracking-widest text-[9px]">No logs recorded yet</p>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -175,6 +290,7 @@
 </div>
 
 <script>
+    // Your existing Javascript/Alpine code goes here (No changes needed sa logic!)
     document.addEventListener('alpine:init', () => {
         Alpine.data('inventoryApp', () => ({
             showAddModal: false, 
@@ -191,7 +307,6 @@
                 { id: 5, name: 'MOZARELLA STICKS', cat: 'Appetizers', stock: 12, price: 110, cost: 60, img: 'mozarella.png', data: null }
             ],
             newItem: { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
-            
             editItem: { id: null, name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
 
             handleFileUpload(event) {

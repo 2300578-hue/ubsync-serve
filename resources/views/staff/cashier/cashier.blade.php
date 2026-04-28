@@ -31,13 +31,14 @@
             .aws-sidebar { box-shadow: 10px 0 15px rgba(0,0,0,0.1); z-index: 1001; }
         }
 
-        .clay-card {
-            background: white;
-            border-radius: 4px; 
-            border: 1px solid #eaeded;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      .clay-card { 
+            background: white !important; /* Siguradong white ang loob */
+            border: 1px solid #eaeded; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
             transition: all 0.3s ease;
         }
+        
 
         .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a52a2a 100%); }
         .status-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 800; text-transform: uppercase; }
@@ -128,11 +129,7 @@
 
 
 
-                <button @click="switchTab('performance')" 
-                    :class="tab === 'performance' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
-                    class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
-                    <i class="fa-solid fa-chart-line w-5"></i> Performance
-                </button>
+               
             </nav>
         </div>
     </div>
@@ -242,9 +239,8 @@
     <div x-show="tab === 'inventory'" x-cloak>
         @include('staff.cashier.stock_vault')
     </div>
-    <div x-show="tab === 'performance'" x-cloak>
-        @include('staff.cashier.performance')
-    </div>
+
+   
 </main>
 
 <div x-show="showTableDetail" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
