@@ -30,6 +30,7 @@
             .main-content { margin-left: 0 !important; padding: 15px; width: 100%; }
             .aws-sidebar { box-shadow: 10px 0 15px rgba(0,0,0,0.1); z-index: 1001; }
         }
+        
 
       .clay-card { 
             background: white !important; /* Siguradong white ang loob */
@@ -45,6 +46,22 @@
         [x-cloak] { display: none !important; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #800000; border-radius: 10px; }
+
+        @media print {
+            body * { visibility: hidden; } /* Itago ang buong website */
+            #print-receipt-area, #print-receipt-area * { visibility: visible; } /* Ipakita lang ang resibo */
+            #print-receipt-area { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 80mm; /* Standard Thermal Paper Size */
+                padding: 0; 
+                margin: 0;
+                font-family: 'Courier New', Courier, monospace !important; /* Resibo font */
+                color: black;
+            }
+            .no-print { display: none !important; } /* Itago ang mga buttons kapag nag-pprint na */
+        }
     </style>
 </head>
 
@@ -276,6 +293,64 @@
     </div>
 </div>
 
+<div x-show="receiptData" x-cloak class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 no-print">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-[350px] flex flex-col items-center">
+        
+        <div id="print-receipt-area" class="w-full text-black bg-white p-4 text-sm font-mono border border-slate-300">
+            <div class="text-center mb-4">
+                <h2 class="font-bold text-lg uppercase">University of Batangas</h2>
+                <p class="text-[10px]">Brgy Hilltop Rd, Batangas City, 4200 Batangas</p>
+                <p class="text-[10px] font-bold mt-1">OFFICIAL RECEIPT</p>
+                <div class="border-b border-dashed border-black my-2"></div>
+            </div>
+
+            <div class="text-[11px] mb-3 space-y-1">
+                <p>Order ID: <span class="font-bold" x-text="receiptData?.orderId"></span></p>
+                <p>Date: <span class="font-bold" x-text="receiptData?.timestamp"></span></p>
+            </div>
+
+            <div class="border-b border-dashed border-black my-2"></div>
+
+            <table class="w-full text-[11px] mb-3">
+                <thead>
+                    <tr class="border-b border-dashed border-black">
+                        <th class="text-left pb-1">QTY</th>
+                        <th class="text-left pb-1">ITEM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="item in receiptData?.items" :key="item.name">
+                        <tr>
+                            <td class="py-1 text-left align-top" x-text="'x' + item.qty"></td>
+                            <td class="py-1 text-left" x-text="item.name"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+            <div class="border-b border-dashed border-black my-2"></div>
+
+            <div class="flex justify-between font-black text-sm mt-2">
+                <span>TOTAL:</span>
+                <span x-text="receiptData ? formatCurrency(receiptData.totalAmount) : '₱0.00'"></span>
+            </div>
+
+            <div class="text-center text-[10px] mt-6">
+                <p>Thank you for dining with us!</p>
+                <p>Please come again.</p>
+            </div>
+        </div>
+
+        <div class="flex gap-3 mt-6 w-full no-print">
+            <button @click="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-black uppercase tracking-widest text-xs flex justify-center items-center gap-2 transition-all shadow-md">
+                <i class="fa-solid fa-print text-lg"></i> Print
+            </button>
+            <button @click="receiptData = null" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 rounded-lg font-black uppercase tracking-widest text-xs transition-all">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
 
     <script>
    function cashierSystem() {
@@ -284,6 +359,7 @@
             sidebarOpen: window.innerWidth >= 768,
             selectedTableForOrder: '',
             showTableDetail: null,
+            receiptData: null, // ---> IDAGDAG MO ITO
             cart: [],
             orderHistory: [],
             salesSummary: { total: 0 },
@@ -333,44 +409,65 @@ init() {
                 }
             },
 
-            // Eto ang function na magpapadala sa Kitchen
-            markAsPaid(tableId) {
-                let index = this.tables.findIndex(x => x.id === tableId);
-                if (index === -1) return;
+           markAsPaid(id) {
+                let index = this.tables.findIndex(x => x.id === id);
+                if (index !== -1) {
+                    let currentTable = this.tables[index];
 
-                let table = this.tables[index];
-                
-                // 1. Gumawa ng Unique Order Data para sa Chef
-                const dataForChef = {
-                    id: 'ORD-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
-                    table: 'TABLE ' + table.id.toString().padStart(2, '0'),
-                    items: table.orders.map(item => ({
-                        name: item.name,
-                        qty: item.qty,
-                        done: false
-                    })),
-                    timestamp: new Date().getTime()
-                };
+                    // 1. Ipadala sa Chef Tab
+                    const dataForChef = {
+                        id: 'ORD-' + Date.now().toString().slice(-6),
+                        table: 'TABLE ' + currentTable.id.toString().padStart(2, '0'),
+                        status: 'NEW',
+                        items: currentTable.orders.map(item => ({
+                            name: item.name,
+                            qty: item.qty,
+                            done: false
+                        })),
+                        note: 'Paid at Counter - Start Prep',
+                        timestamp: new Date().getTime()
+                    };
 
-                // 2. IPADALA SA CHEF (via LocalStorage)
-                localStorage.setItem('ub_chef_new_order', JSON.stringify(dataForChef));
+                    localStorage.setItem('ub_chef_new_order', JSON.stringify(dataForChef));
 
-                // 3. I-save sa Cashier History
-                this.orderHistory.unshift({
-                    ...dataForChef,
-                    total: table.bill,
-                    time: new Date().toLocaleTimeString()
-                });
-                this.salesSummary.total += table.bill;
+                    // 2. I-save sa Cashier History
+                    this.orderHistory.unshift({
+                        orderId: dataForChef.id,
+                        tableId: currentTable.id,
+                        customerName: currentTable.customerName || 'Walk-in',
+                        totalAmount: currentTable.bill,
+                        paymentMethod: currentTable.payment,
+                        timestamp: new Date().toLocaleTimeString(),
+                        items: [...currentTable.orders]
+                        
+                    });
 
-                // 4. RESET ANG MESA
-                this.tables[index].isSessionActive = false;
-                this.tables[index].orders = [];
-                this.tables[index].bill = 0;
-                this.tables[index].customerName = '';
-                
-                alert('Payment Settled! Order sent to Kitchen.');
+                    this.salesSummary.total += currentTable.bill;
+
+                    // ---> IDAGDAG ITO: I-save ang data bago i-reset para sa Print Modal <---
+                    this.receiptData = {
+                        orderId: dataForChef.id,
+                        tableId: currentTable.id,
+                        customerName: currentTable.customerName || 'Walk-in',
+                        items: [...currentTable.orders],
+                        totalAmount: currentTable.bill,
+                         timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+    };
+
+
+                    // 3. I-reset ang Mesa
+                    this.tables[index].isMarkedPaid = true;
+                    this.tables[index].isSessionActive = false;
+                    this.tables[index].bill = 0;
+                    this.tables[index].orders = [];
+                    this.tables[index].customerName = '';
+                    
+                    this.tables = [...this.tables]; 
+                    
+                    // Tinanggal ko yung alert('Payment Settled...') para diretso labas na ng resibo pop-up.
+                }
             },
+            
 
             formatCurrency(num) {
                 return '₱' + parseFloat(num).toLocaleString(undefined, {minimumFractionDigits: 2});
@@ -428,52 +525,6 @@ init() {
                 this.tab = 'home';
             },
 
-            markAsPaid(id) {
-                let index = this.tables.findIndex(x => x.id === id);
-                if (index !== -1) {
-                    let currentTable = this.tables[index];
-
-                    // 1. Ipadala sa Chef Tab
-                    const dataForChef = {
-                        id: 'ORD-' + Date.now().toString().slice(-6), // Mas maikling Order ID
-                        table: 'TABLE ' + currentTable.id.toString().padStart(2, '0'),
-                        status: 'NEW',
-                        items: currentTable.orders.map(item => ({
-                            name: item.name,
-                            qty: item.qty,
-                            done: false
-                        })),
-                        note: 'Paid at Counter - Start Prep',
-                        timestamp: new Date().getTime()
-                    };
-
-                    localStorage.setItem('ub_chef_new_order', JSON.stringify(dataForChef));
-
-                    // 2. I-save sa Cashier History
-                    this.orderHistory.unshift({
-                        orderId: dataForChef.id,
-                        tableId: currentTable.id,
-                        customerName: currentTable.customerName || 'Walk-in',
-                        totalAmount: currentTable.bill,
-                        paymentMethod: currentTable.payment,
-                        timestamp: new Date().toLocaleTimeString(),
-                        items: [...currentTable.orders]
-                    });
-
-                    this.salesSummary.total += currentTable.bill;
-
-                    // 3. I-reset ang Mesa
-                    this.tables[index].isMarkedPaid = true;
-                    this.tables[index].isSessionActive = false;
-                    this.tables[index].bill = 0;
-                    this.tables[index].orders = [];
-                    this.tables[index].customerName = '';
-                    
-                    this.tables = [...this.tables]; 
-                    
-                    alert('Payment Settled! Order sent to the Kitchen.');
-                }
-            },
 
             loadReservations() {
                 const stored = localStorage.getItem('ub_reservations');

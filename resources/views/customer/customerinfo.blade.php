@@ -54,13 +54,13 @@
         <div class="space-y-4">
             <div>
                 <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">First Name</label>
-                <input type="text" x-model="firstName" placeholder="e.g. Juan" 
+                <input type="text" x-model="firstName" placeholder="" 
                        @keydown.enter="proceedToMenu()"
                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold bg-gray-50 focus:bg-white focus:border-maroon focus:ring-2 focus:ring-red-900/10 outline-none transition-all">
             </div>
             <div>
                 <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Last Name</label>
-                <input type="text" x-model="lastName" placeholder="e.g. Dela Cruz" 
+                <input type="text" x-model="lastName" placeholder="" 
                        @keydown.enter="proceedToMenu()"
                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold bg-gray-50 focus:bg-white focus:border-maroon focus:ring-2 focus:ring-red-900/10 outline-none transition-all">
             </div>

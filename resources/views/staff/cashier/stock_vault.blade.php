@@ -290,15 +290,10 @@
 </div>
 
 <script>
-    // Your existing Javascript/Alpine code goes here (No changes needed sa logic!)
     document.addEventListener('alpine:init', () => {
-        Alpine.data('inventoryApp', () => ({
-            showAddModal: false, 
-            showEditModal: false, 
-            showLogModal: false,
-            searchQuery: '',
-            filterCat: 'All',
-            stockLogs: [],
+        // --- CENTRAL STORE ---
+        // Ito ang "Brain" na nagdudugtong sa Service Hub at Vault
+        Alpine.store('inventory', {
             products: [
                 { id: 1, name: 'BURGER STEAK', cat: 'Main Course', stock: 10, price: 150, cost: 100, img: 'burgersteak.png', data: null },
                 { id: 2, name: 'CARBONARA', cat: 'Main Course', stock: 15, price: 120, cost: 80, img: 'carbonara.png', data: null },
@@ -306,6 +301,41 @@
                 { id: 4, name: 'LECHE FLAN', cat: 'Dessert', stock: 20, price: 60, cost: 30, img: 'lecheflan.png', data: null },
                 { id: 5, name: 'MOZARELLA STICKS', cat: 'Appetizers', stock: 12, price: 110, cost: 60, img: 'mozarella.png', data: null }
             ],
+            // Function na tatawagin ng Service Hub kapag may benta
+            updateStock(productId, qty) {
+                let p = this.products.find(i => i.id === productId);
+                if (p) {
+                    p.stock -= qty;
+                    // Nagpapadala ng signal sa inventoryApp para i-log ang benta
+                    window.dispatchEvent(new CustomEvent('stock-sold', { detail: { name: p.name, qty: qty } }));
+                }
+            }
+        });
+
+        // --- VAULT APP LOGIC ---
+        Alpine.data('inventoryApp', () => ({
+            showAddModal: false, 
+            showEditModal: false, 
+            showLogModal: false,
+            searchQuery: '',
+            filterCat: 'All',
+            stockLogs: [],
+
+            // KONEKTA SA GLOBAL STORE
+            get products() {
+                return Alpine.store('inventory').products;
+            },
+            set products(val) {
+                Alpine.store('inventory').products = val;
+            },
+
+            // Listener para sa benta mula sa POS para ma-log dito sa Vault
+            init() {
+                window.addEventListener('stock-sold', (e) => {
+                    this.addLog(e.detail.name, `-${e.detail.qty}`, 'POS Sale');
+                });
+            },
+
             newItem: { name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
             editItem: { id: null, name: '', cat: '', stock: '', price: '', cost: '', img: '', data: null },
 
@@ -342,7 +372,6 @@
             addItem() {
                 if (!this.newItem.name) return alert('Error: Product Name is required.');
                 if (!this.newItem.cat) return alert('Error: Please select a Category.');
-                if (!this.newItem.data) return alert('Error: Please upload a Product Image.');
                 
                 let s = parseInt(this.newItem.stock);
                 let c = parseFloat(this.newItem.cost);
@@ -351,7 +380,7 @@
                 if (isNaN(s) || s < 0) return alert('Error: Stock must be 0 or higher.');
                 if (isNaN(c) || c <= 0) return alert('Error: Cost must be a positive number.');
                 if (isNaN(p) || p <= 0) return alert('Error: Selling Price must be a positive number.');
-                if (p <= c) return alert('Action Denied: Selling Price must be higher than Cost to have a margin.');
+                if (p <= c) return alert('Action Denied: Selling Price must be higher than Cost.');
 
                 const product = {
                     id: Date.now(),
@@ -393,14 +422,10 @@
                 let c = parseFloat(this.editItem.cost);
                 let p = parseFloat(this.editItem.price);
 
-                if (isNaN(s) || s < 0) return alert('Error: Stock must be 0 or higher.');
-                if (p <= c) return alert('Error: Price must be higher than Cost.');
-
                 const index = this.products.findIndex(prod => prod.id === this.editItem.id);
                 
                 if (index !== -1) {
                     let originalProduct = this.products[index];
-                    
                     let diff = s - originalProduct.stock;
                     if(diff !== 0) this.addLog(originalProduct.name, diff > 0 ? '+' + diff : diff, 'Manual Update');
                     
@@ -412,19 +437,12 @@
                         name: this.editItem.name.toUpperCase()
                     };
                 }
-
                 this.showEditModal = false;
             },
 
             addLog(name, qty, action) {
                 const now = new Date();
-                const datePart = now.toISOString().split('T')[0];
-                const timePart = now.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    hour12: true 
-                });
-                const fullStamp = `${datePart} | ${timePart}`;
+                const fullStamp = `${now.toISOString().split('T')[0]} | ${now.toLocaleTimeString()}`;
 
                 this.stockLogs.unshift({
                     date: fullStamp, 

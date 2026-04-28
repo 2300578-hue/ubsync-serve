@@ -30,7 +30,7 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fa-regular fa-user text-gray-400"></i>
                     </div>
-                    <input type="text" name="name" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="Juan Dela Cruz">
+                    <input type="text" name="name" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="">
                 </div>
             </div>
 
@@ -40,7 +40,7 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fa-solid fa-mobile-screen text-gray-400"></i>
                     </div>
-                    <input type="tel" name="phone" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="0912 345 6789">
+                    <input type="tel" name="phone" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="">
                 </div>
             </div>
 
@@ -72,13 +72,13 @@
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fa-solid fa-users text-gray-400"></i>
                     </div>
-                    <input type="number" name="pax" min="1" max="20" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="E.g. 2">
+                    <input type="number" name="pax" min="1" max="20" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="">
                 </div>
             </div>
 
             <div>
                 <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Special Requests (Optional)</label>
-                <textarea name="requests" rows="2" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="Anniversary, Window seat, etc..."></textarea>
+                <textarea name="requests" rows="2" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder=""></textarea>
             </div>
 
             <button type="submit" class="w-full mt-2 bg-maroon hover:bg-red-900 text-white font-black py-4 rounded-xl uppercase tracking-[0.2em] shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
