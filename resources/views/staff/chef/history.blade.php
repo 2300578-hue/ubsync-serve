@@ -26,9 +26,8 @@
                     </div>
                 </template>
 
-                <div x-show="fulfilledLogs.length === 0" class="p-12 text-center border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                    <i class="fas fa-clipboard-list text-4xl text-slate-300 mb-3"></i>
-                    <h3 class="text-lg font-bold text-slate-600 uppercase">No Fulfilled Logs</h3>
-                    <p class="text-slate-400 text-sm">Order history will appear once kitchen items are completed.</p>
-                </div>
-            </div>
+   <div x-show="fulfilledLogs.length === 0" class="p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-sm">
+    <i class="fas fa-clipboard-list text-4xl text-slate-300 mb-3"></i>
+    <h3 class="text-lg font-bold text-slate-600 uppercase">No Fulfilled Logs</h3>
+    <p class="text-slate-400 text-sm">Order history will appear once kitchen items are completed.</p>
+</div>

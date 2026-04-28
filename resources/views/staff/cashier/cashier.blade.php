@@ -218,16 +218,15 @@
 </div>
 
         <template x-if="tables.filter(t => t.isSessionActive && !t.isMarkedPaid).length === 0">
-            <div class="w-full py-20 flex flex-col items-center justify-center bg-white border border-dashed rounded-xl">
-                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                    <i class="fa-solid fa-calendar-check text-slate-300 text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-black text-slate-700 uppercase tracking-tight">No Pending Settlements</h3>
-                <p class="text-sm text-slate-400">Updates will appear here when tables are ready for payment.</p>
-            </div>
-        </template>
+    <div class="w-full py-20 flex flex-col items-center justify-center bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-calendar-check text-slate-300 text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-black text-slate-700 uppercase tracking-tight">No Pending Settlements</h3>
+        <p class="text-sm text-slate-400">Updates will appear here when tables are ready for payment.</p>
     </div>
-        
+</template>
+</div>
 
     
     <div x-show="tab === 'reservations'" x-cloak>

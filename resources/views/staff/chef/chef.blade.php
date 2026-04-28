@@ -200,12 +200,12 @@
                         </div>
                     </div>
                 </template>
-
-                <div x-show="orders.length === 0" class="col-span-full p-12 text-center border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                    <i class="fas fa-clipboard-check text-4xl text-slate-300 mb-3"></i>
-                    <h3 class="text-lg font-bold text-slate-600 uppercase">No Active Orders</h3>
-                    <p class="text-slate-400 text-sm">Kitchen is clear. Waiting for new tickets...</p>
-                </div>
+         
+                <div x-show="orders.length === 0" class="col-span-full p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-sm">
+    <i class="fas fa-clipboard-check text-4xl text-slate-300 mb-3"></i>
+    <h3 class="text-lg font-bold text-slate-600 uppercase">No Active Orders</h3>
+    <p class="text-slate-400 text-sm">Kitchen is clear. Waiting for new tickets...</p>
+</div>
             </div>
         </div>
 
@@ -253,11 +253,11 @@
                     </div>
                 </template>
 
-                <div x-show="incomingOrders.length === 0" class="col-span-full p-12 text-center border-2 border-dashed border-slate-300 rounded-lg bg-slate-50">
-                    <i class="fas fa-inbox text-4xl text-slate-300 mb-3"></i>
-                    <h3 class="text-lg font-bold text-slate-600 uppercase">No Incoming Orders</h3>
-                    <p class="text-slate-400 text-sm">New orders will appear here as they arrive.</p>
-                </div>
+               <div x-show="incomingOrders.length === 0" class="col-span-full p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-sm">
+    <i class="fas fa-inbox text-4xl text-slate-300 mb-3"></i>
+    <h3 class="text-lg font-bold text-slate-600 uppercase">No Incoming Orders</h3>
+    <p class="text-slate-400 text-sm">New orders will appear here as they arrive.</p>
+</div>
             </div>
         </div>
 
