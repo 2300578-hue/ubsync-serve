@@ -469,7 +469,8 @@ function cashierSystem() {
             customerName: currentTable.customerName || 'Walk-in',
             items: [...currentTable.orders],
             totalAmount: currentTable.bill,
-            timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+          // Pinalitan ang '2-digit' ng 'numeric' para mawala ang leading zero (0)
+timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
         };
 
         // Save to history & sales

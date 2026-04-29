@@ -210,7 +210,8 @@
         customerName: 'WALK-IN CUSTOMER',
         items: [...this.cart],
         totalAmount: this.cartTotal,
-        timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+        // Pinalitan ang '2-digit' ng 'numeric' para mawala ang leading zero (0)
+timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
     };
 
     const orderForChef = {

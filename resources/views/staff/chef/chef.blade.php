@@ -117,6 +117,7 @@
     :class="currentTab === 'history' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
     class="w-full flex items-center gap-4 p-3 rounded-sm text-left font-semibold">
     <i class="fas fa-clipboard-list w-5"></i> Fulfilled Logs
+    
 </button>
 
             </nav>
@@ -181,16 +182,24 @@
             </div>
         </div>
 
-        <div x-show="currentTab === 'history'" x-cloak>
-            <div class="flex justify-between items-end mb-8">
-                <div>
-                    <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Fulfilled Logs</h1>
-                    <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">
-                        <span>Completed Orders</span> <span class="mx-3 text-slate-300">|</span>
-                        <span class="text-red-800 font-bold">Kitchen Records</span>
-                    </nav>
-                </div>
-            </div>
+     <div x-show="currentTab === 'history'" x-cloak>
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter">Fulfilled Logs</h1>
+            <nav class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">
+                <span>Completed Orders</span> <span class="mx-3 text-slate-300">|</span>
+                <span class="text-red-800 font-bold">Kitchen Records</span>
+            </nav>
+        </div>
+
+        <div class="pr-4"> <button @click="clearHistory()" 
+                    x-show="fulfilledLogs.length > 0"
+                    class="flex items-center gap-2 bg-[#fff1f1] hover:bg-[#ffe4e4] text-[#d93025] px-5 py-2.5 rounded-xl border border-[#ffdfdf] transition-all active:scale-95 shadow-sm mb-0.5">
+                <i class="fas fa-trash-alt text-xs"></i>
+                <span class="text-[11px] font-black uppercase tracking-wider">Clear All</span>
+            </button>
+        </div>
+    </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="log in fulfilledLogs" :key="log.id">
@@ -218,7 +227,7 @@
         
         <center>
             <h1 style="margin: 0; font-size: 28px; font-weight: bold; text-transform: uppercase;" x-text="printData.table || 'DINE IN'"></h1>
-            <p style="margin: 5px 0; font-size: 12px;" x-text="new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></p>
+           <p style="margin: 5px 0; font-size: 12px;" x-text="new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit', hour12: true})"></p>
             <p style="margin: 0;">==========================</p>
         </center>
 
@@ -254,8 +263,16 @@ function kitchenHandler() {
         fulfilledLogs: [],
         fulfilledCount: 0,
         printData: { items: [] },
+        processedIds: new Set(), // Tagabantay para sa double tickets
 
         init() {
+            // Load history from localstorage para hindi mawala pag-refresh
+            const savedHistory = localStorage.getItem('ub_kitchen_history');
+            if (savedHistory) {
+                this.fulfilledLogs = JSON.parse(savedHistory);
+                this.fulfilledCount = this.fulfilledLogs.length;
+            }
+
             // Sound Activator
             const unlock = () => {
                 const bell = document.getElementById('kitchen-bell');
@@ -276,7 +293,7 @@ function kitchenHandler() {
                 });
             }, 1000);
 
-            // FIX: Mas mahigpit na listener para maiwasan ang double print
+            // LISTEN para sa bagong order
             window.addEventListener('storage', (e) => {
                 if (e.key === 'ub_chef_new_order' && e.newValue !== null) {
                     try {
@@ -288,7 +305,7 @@ function kitchenHandler() {
                 }
             });
 
-            // Initial check pagka-load
+            // Check kung may naiwan na order pagka-load ng page
             const pending = localStorage.getItem('ub_chef_new_order');
             if (pending) {
                 this.processIncomingOrder(JSON.parse(pending));
@@ -296,39 +313,41 @@ function kitchenHandler() {
         },
 
         async processIncomingOrder(order) {
-            // 1. Guard: Check kung existing na ang ID para hindi mag-duplicate
-            if (this.orders.some(o => o.id === order.id)) {
+            // CRITICAL FIX: Huwag tanggapin kung ang ID ay naproseso na
+            if (this.processedIds.has(order.id) || this.orders.some(o => o.id === order.id)) {
+                localStorage.removeItem('ub_chef_new_order'); // Burahin para hindi mag-loop
                 return; 
             }
 
-            // 2. Clear agad ang storage para hindi na maulit sa ibang tab
+            // Mark as processed agad
+            this.processedIds.add(order.id);
+            
+            // Burahin ang order sa storage para sa ibang tabs
             localStorage.removeItem('ub_chef_new_order');
 
-            // 3. Play Sound
+            // Play Sound
             const bell = document.getElementById('kitchen-bell');
             if(bell) {
                 bell.currentTime = 0;
                 try { await bell.play(); } catch(e) {}
             }
 
-            // 4. Add to Dashboard
+            // I-push sa live dashboard
             this.orders.push({ ...order, minutes: 0, seconds: '00' });
 
-            // 5. Print with Delay
-            // Gumamit ng timeout para masiguradong tapos na ang rendering bago lumabas ang print dialog
+            // FIX: Repreint with delay para hindi mag-clash ang Alpine updates at browser print
             setTimeout(() => { 
                 this.reprint(order); 
-            }, 1000);
+            }, 500);
         },
 
         reprint(order) {
-            // I-set ang data para sa invisible receipt div
             this.printData = { 
                 table: order.table, 
                 items: order.items 
             };
             
-            // Gamitin ang nextTick para siguradong updated ang DOM bago mag-print
+            // Mas maikling delay para sa actual print dialog
             this.$nextTick(() => { 
                 window.print(); 
             });
@@ -336,18 +355,34 @@ function kitchenHandler() {
 
         serveOrder(index) {
             const order = this.orders[index];
+            
+            // I-save sa local history array
             this.fulfilledLogs.unshift({
                 id: order.id,
                 table: order.table,
                 items: order.items,
                 status: 'COMPLETED',
-                completedAt: new Date().toLocaleString([], { hour: '2-digit', minute: '2-digit' })
+           completedAt: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
             });
+
+            // FIX: I-save permanentemente sa LocalStorage para sa History Tab
+            localStorage.setItem('ub_kitchen_history', JSON.stringify(this.fulfilledLogs));
+
             this.orders.splice(index, 1);
-            this.fulfilledCount++;
-        }
-    }
+            this.fulfilledCount = this.fulfilledLogs.length;
+        },
+    
+
+    clearHistory() {
+    // Tinanggal na ang alert/confirm message
+    this.fulfilledLogs = [];
+    this.fulfilledCount = 0;
+    localStorage.removeItem('ub_kitchen_history');
+    this.processedIds.clear();
 }
+}
+}
+
 </script>
 
 </body>
