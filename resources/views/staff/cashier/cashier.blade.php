@@ -195,10 +195,11 @@
                 <p class="text-3xl font-black text-slate-800 mt-1" x-text="tables.filter(t => t.isSessionActive).length"></p>
             </div>
 
-            <div class="clay-card border-t-4 border-t-yellow-500 p-5">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Reservations</p>
-                <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
-            </div>
+         <div class="clay-card border-t-4 border-t-yellow-500 p-5"
+     @storage.window="loadReservations()"> <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Reservations</p>
+    <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
+</div>
+
         </div>
 
        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -342,23 +343,24 @@ function cashierSystem() {
             { id: 6, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' }
         ],
 
-        init() {
-            this.loadReservations();
+      init() {
+    this.loadReservations();
 
-            // Makinig sa orders at reservations galing sa Customer/Booking Tab
-            window.addEventListener('storage', (event) => {
-                if (event.key === 'ub_new_customer_order' && event.newValue) {
-                    this.receiveIncomingOrder(JSON.parse(event.newValue));
-                }
-                
-                if (event.key === 'ub_reservations') {
-                    this.loadReservations();
-                }
-            });
+    window.addEventListener('storage', (event) => {
+        // Kapag may nagbago sa ub_new_customer_order
+        if (event.key === 'ub_new_customer_order' && event.newValue) {
+            this.receiveIncomingOrder(JSON.parse(event.newValue));
+        }
+        
+        // Kapag may nagbago sa ub_reservations (Dito mag-uupdate ang counter mo)
+        if (event.key === 'ub_reservations') {
+            this.loadReservations(); // Ito ang magre-refresh ng this.reservations array
+        }
+    });
 
-            const missed = localStorage.getItem('ub_new_customer_order');
-            if (missed) this.receiveIncomingOrder(JSON.parse(missed));
-        },
+    const missed = localStorage.getItem('ub_new_customer_order');
+    if (missed) this.receiveIncomingOrder(JSON.parse(missed));
+},
 
         receiveIncomingOrder(data) {
             let index = this.tables.findIndex(x => x.id === parseInt(data.table));
@@ -611,10 +613,37 @@ doc.write(`
             }
         },
 
-        deleteReservation(resId) {
-            this.reservations = this.reservations.filter(r => r.id !== resId);
-            this.updateStorage();
-        },
+       // Line 251 (approximate) - Palitan ang lumang deleteReservation nito:
+deleteReservation(resId) {
+    // 1. Burahin agad sa array (Wala nang popup)
+    this.reservations = this.reservations.filter(r => r.id !== resId);
+    
+    // 2. I-save sa LocalStorage para permanenteng bura na
+    this.updateStorage(); 
+    
+    // 3. I-broadcast ang pagbabago para mag-0 ang counter sa Home tab
+    window.dispatchEvent(new Event('storage'));
+    
+    // 4. Siguraduhin na reactive ang data sa screen
+    this.reservations = [...this.reservations];
+},
+
+// Ilagay ito sa ilalim ng deleteReservation(resId) { ... }
+      clearAllReservations() {
+    // 1. Linisin ang array sa memory
+    this.reservations = [];
+    
+    // 2. Burahin ang lahat sa LocalStorage
+    this.updateStorage();
+    
+    // 3. MAG-SIGNAL sa system (Ito ang importante para mag-0 ang counter)
+    window.dispatchEvent(new Event('storage'));
+    
+    // 4. I-update ang UI ng kasalukuyang tab
+    this.reservations = [...this.reservations];
+},
+
+
 
         formatTime(time) {
             if (!time) return '';

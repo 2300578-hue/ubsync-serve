@@ -7,10 +7,10 @@
         </div>
         
         <div class="flex items-center gap-3">
-            <button @click="if(confirm('Clear all reservations?')) { reservations = []; updateStorage(); }" 
-                    class="bg-red-50 text-red-600 text-[10px] font-black uppercase px-4 py-3 rounded-xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm">
-                <i class="fas fa-trash-alt mr-2"></i> Clear All
-            </button>
+            <button @click="clearAllReservations()" 
+        class="bg-red-50 text-red-600 text-[10px] font-black uppercase px-4 py-3 rounded-xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm">
+    <i class="fas fa-trash-alt mr-2"></i> Clear All
+</button>
             <div class="bg-slate-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider shadow-md">
                 Total: <span x-text="reservations.length"></span>
             </div>
