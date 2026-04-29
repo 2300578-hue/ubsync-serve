@@ -33,7 +33,7 @@
 
         <div class="bg-gray-50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-3xl mb-6 inline-block shadow-inner border border-gray-100">
             {{-- QR Code API - Binago papunta sa customer/info --}}
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ urlencode(url('/customer/info?table=' . $tableNumber)) }}" 
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ urlencode(url('/customer/menu?table=' . $tableNumber)) }}"
                  alt="QR Code" 
                  class="mx-auto w-56 h-56 sm:w-64 sm:h-64 shadow-sm rounded-xl object-contain">
         </div>
@@ -44,7 +44,7 @@
             </p>
             
             <div class="pt-4 border-t border-gray-100 no-print">
-                <a href="{{ url('/customer/info?table=' . $tableNumber) }}" 
+               <a href="{{ url('/customer/menu?table=' . $tableNumber) }}"
                    class="w-full inline-flex items-center justify-center gap-2 text-maroon font-bold hover:text-red-900 transition-all text-[10px] sm:text-xs uppercase tracking-[0.2em] bg-red-50 hover:bg-red-100 px-4 py-3 rounded-xl border border-red-100">
                     <span>Order for this Table</span>
                     <i class="fa-solid fa-utensils"></i>

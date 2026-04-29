@@ -47,21 +47,51 @@
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #800000; border-radius: 10px; }
 
-        @media print {
-            body * { visibility: hidden; } /* Itago ang buong website */
-            #print-receipt-area, #print-receipt-area * { visibility: visible; } /* Ipakita lang ang resibo */
-            #print-receipt-area { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 80mm; /* Standard Thermal Paper Size */
-                padding: 0; 
-                margin: 0;
-                font-family: 'Courier New', Courier, monospace !important; /* Resibo font */
-                color: black;
+      @media print {
+            /* 1. Itago nang tuluyan ang mga main layouts para iwas blank pages */
+            .aws-header, .gold-accent, .aws-sidebar, .main-content, div[x-show="showTableDetail"] {
+                display: none !important;
             }
-            .no-print { display: none !important; } /* Itago ang mga buttons kapag nag-pprint na */
+
+            /* 2. Tanggalin ang itim na background at ayusin ang position ng receipt popup */
+            div[x-show="receiptData"] {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                background: white !important; /* Puti dapat ang background pag print */
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+            
+            /* Tanggalin ang shadow at padding nung puting box na bumabalot sa resibo */
+            div[x-show="receiptData"] > div {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* 3. I-format ang mismong papel (Thermal 80mm) */
+            #print-receipt-area {
+                width: 80mm !important;
+                margin: 0 !important;
+                padding: 10px !important;
+                font-family: 'Courier New', Courier, monospace !important;
+                color: black !important;
+                border: none !important;
+            }
+
+            /* 4. Itago ang mga buttons tulad ng Print at Close */
+            .no-print { display: none !important; }
         }
+
+        /* 5. Alisin ang default margins ng browser (header/footer na may link at date) */
+        @page {
+            margin: 0; 
+        }
+        
+
     </style>
 </head>
 
@@ -139,14 +169,6 @@
                     class="w-full flex items-center gap-4 p-3 rounded-sm transition-all text-left font-semibold">
                     <i class="fas fa-calendar-check w-5"></i> Reservations
                 </button>
-
-                 
-       
-
-
-
-
-               
             </nav>
         </div>
     </div>
@@ -197,11 +219,7 @@
             </div>
             
             <div class="p-5 flex-1">
-                <div class="mb-3 p-2 bg-red-50 rounded border border-red-100" x-show="table.customerName">
-                    <p class="text-[9px] font-bold text-red-800 uppercase tracking-widest">Order For</p>
-                    <p class="text-sm font-black text-slate-800 tracking-tight leading-tight" x-text="table.customerName"></p>
-                </div>
-
+            
                 <div class="mb-4">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Bill</p>
                     <h2 class="text-2xl font-black text-slate-800" x-text="formatCurrency(table.bill)"></h2>
@@ -245,18 +263,18 @@
 </template>
 </div>
 
-    
     <div x-show="tab === 'reservations'" x-cloak>
         @include('staff.cashier.reservecustomer')
     </div>
-    <div x-show="tab === 'pos'" x-cloak>
-        @include('staff.cashier.service_hub')
-    </div>
+
     <div x-show="tab === 'inventory'" x-cloak>
         @include('staff.cashier.stock_vault')
     </div>
 
-   
+    <div x-show="tab === 'pos'" x-cloak>
+        @include('staff.cashier.service_hub')
+    </div>
+    
 </main>
 
 <div x-show="showTableDetail" x-cloak class="fixed inset-0 z-[1100] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
@@ -270,13 +288,17 @@
                 <template x-for="(order, index) in (showTableDetail ? showTableDetail.orders : [])" :key="index">
                     <div class="flex items-center gap-4 p-3 bg-slate-50 border rounded-lg">   
                         <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 border p-1 shadow-sm">
-                        <img :src="getImageUrl(order.img)" 
-     x-on:error="$event.target.src = 'https://placehold.co/150x150/eeeeee/800000?text=No+Image'" 
-     class="w-full h-full object-contain rounded">
+                            <img :src="getImageUrl(order.img)" 
+                                 x-on:error="$event.target.src = 'https://placehold.co/150x150/eeeeee/800000?text=No+Image'" 
+                                 class="w-full h-full object-contain rounded">
                         </div>
                         <div class="flex-1">
                             <p class="text-[11px] font-black text-slate-700 uppercase" x-text="order.name"></p>
-                            <div class="flex justify-between items-center">
+                            <template x-if="order.addonName && order.addonName !== 'Default'">
+                                <p class="text-[9px] text-red-600 font-bold italic" x-text="'+ ' + order.addonName"></p>
+                            </template>
+                            
+                            <div class="flex justify-between items-center mt-1">
                                 <span class="text-[8px] text-emerald-600 font-bold uppercase"><i class="fas fa-check"></i> Confirmed</span>
                                 <span class="text-[10px] font-black text-red-800" x-text="'x' + order.qty"></span>
                             </div>
@@ -293,272 +315,323 @@
     </div>
 </div>
 
-<div x-show="receiptData" x-cloak class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 no-print">
-    <div class="bg-white p-6 rounded-xl shadow-2xl w-[350px] flex flex-col items-center">
-        
-        <div id="print-receipt-area" class="w-full text-black bg-white p-4 text-sm font-mono border border-slate-300">
-            <div class="text-center mb-4">
-                <h2 class="font-bold text-lg uppercase">University of Batangas</h2>
-                <p class="text-[10px]">Brgy Hilltop Rd, Batangas City, 4200 Batangas</p>
-                <p class="text-[10px] font-bold mt-1">OFFICIAL RECEIPT</p>
-                <div class="border-b border-dashed border-black my-2"></div>
-            </div>
+</body>
+</html>
 
-            <div class="text-[11px] mb-3 space-y-1">
-                <p>Order ID: <span class="font-bold" x-text="receiptData?.orderId"></span></p>
-                <p>Date: <span class="font-bold" x-text="receiptData?.timestamp"></span></p>
-            </div>
 
-            <div class="border-b border-dashed border-black my-2"></div>
+   <script>
+function cashierSystem() {
+    return {
+        tab: 'home',
+        sidebarOpen: window.innerWidth >= 768,
+        selectedTableForOrder: '',
+        showTableDetail: null,
+        receiptData: null,
+        cart: [],
+        orderHistory: [],
+        salesSummary: { total: 0 },
+        reservations: [],
 
-            <table class="w-full text-[11px] mb-3">
-                <thead>
-                    <tr class="border-b border-dashed border-black">
-                        <th class="text-left pb-1">QTY</th>
-                        <th class="text-left pb-1">ITEM</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-for="item in receiptData?.items" :key="item.name">
-                        <tr>
-                            <td class="py-1 text-left align-top" x-text="'x' + item.qty"></td>
-                            <td class="py-1 text-left" x-text="item.name"></td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
+        // Listahan ng Tables
+        tables: [
+            { id: 1, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+            { id: 2, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+            { id: 3, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+            { id: 4, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+            { id: 5, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
+            { id: 6, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' }
+        ],
 
-            <div class="border-b border-dashed border-black my-2"></div>
+        init() {
+            this.loadReservations();
 
-            <div class="flex justify-between font-black text-sm mt-2">
-                <span>TOTAL:</span>
-                <span x-text="receiptData ? formatCurrency(receiptData.totalAmount) : '₱0.00'"></span>
-            </div>
-
-            <div class="text-center text-[10px] mt-6">
-                <p>Thank you for dining with us!</p>
-                <p>Please come again.</p>
-            </div>
-        </div>
-
-        <div class="flex gap-3 mt-6 w-full no-print">
-            <button @click="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-black uppercase tracking-widest text-xs flex justify-center items-center gap-2 transition-all shadow-md">
-                <i class="fa-solid fa-print text-lg"></i> Print
-            </button>
-            <button @click="receiptData = null" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 rounded-lg font-black uppercase tracking-widest text-xs transition-all">
-                Close
-            </button>
-        </div>
-    </div>
-</div>
-
-    <script>
-   function cashierSystem() {
-        return {
-            tab: 'home',
-            sidebarOpen: window.innerWidth >= 768,
-            selectedTableForOrder: '',
-            showTableDetail: null,
-            receiptData: null, // ---> IDAGDAG MO ITO
-            cart: [],
-            orderHistory: [],
-            salesSummary: { total: 0 },
-            reservations: [],
-
-            // Listahan ng Tables
-            tables: [
-                { id: 1, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
-                { id: 2, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
-                { id: 3, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
-                { id: 4, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
-                { id: 5, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' },
-                { id: 6, isSessionActive: false, payment: 'Unpaid', orders: [], bill: 0, customerName: '' }
-            ],
-init() {
-                // 1. TAWAGIN ITO: I-load agad ang mga reservations pagka-load ng page
-                this.loadReservations();
-
-                // Makinig sa orders at reservations galing sa Customer/Booking Tab
-                window.addEventListener('storage', (event) => {
-                    // Para sa bagong orders
-                    if (event.key === 'ub_new_customer_order' && event.newValue) {
-                        this.receiveIncomingOrder(JSON.parse(event.newValue));
-                    }
-                    
-                    // 2. IDAGDAG ITO: I-reload ang reservations kapag may bagong nag-book
-                    if (event.key === 'ub_reservations') {
-                        this.loadReservations();
-                    }
-                });
-
-                // Check kung may naiwang order sa storage
-                const missed = localStorage.getItem('ub_new_customer_order');
-                if (missed) this.receiveIncomingOrder(JSON.parse(missed));
-            },
-
-            receiveIncomingOrder(data) {
-                let index = this.tables.findIndex(x => x.id === parseInt(data.table));
-                if (index !== -1) {
-                    this.tables[index].isSessionActive = true;
-                    this.tables[index].customerName = `${data.fname || 'Guest'} ${data.lname || ''}`.trim();
-                    this.tables[index].bill = parseFloat(data.bill);
-                    this.tables[index].payment = data.method || 'Unpaid';
-                    this.tables[index].orders = data.cart || [];
-                    this.tables = [...this.tables];
-                    localStorage.removeItem('ub_new_customer_order');
+            // Makinig sa orders at reservations galing sa Customer/Booking Tab
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'ub_new_customer_order' && event.newValue) {
+                    this.receiveIncomingOrder(JSON.parse(event.newValue));
                 }
-            },
-
-           markAsPaid(id) {
-                let index = this.tables.findIndex(x => x.id === id);
-                if (index !== -1) {
-                    let currentTable = this.tables[index];
-
-                    // 1. Ipadala sa Chef Tab
-                    const dataForChef = {
-                        id: 'ORD-' + Date.now().toString().slice(-6),
-                        table: 'TABLE ' + currentTable.id.toString().padStart(2, '0'),
-                        status: 'NEW',
-                        items: currentTable.orders.map(item => ({
-                            name: item.name,
-                            qty: item.qty,
-                            done: false
-                        })),
-                        note: 'Paid at Counter - Start Prep',
-                        timestamp: new Date().getTime()
-                    };
-
-                    localStorage.setItem('ub_chef_new_order', JSON.stringify(dataForChef));
-
-                    // 2. I-save sa Cashier History
-                    this.orderHistory.unshift({
-                        orderId: dataForChef.id,
-                        tableId: currentTable.id,
-                        customerName: currentTable.customerName || 'Walk-in',
-                        totalAmount: currentTable.bill,
-                        paymentMethod: currentTable.payment,
-                        timestamp: new Date().toLocaleTimeString(),
-                        items: [...currentTable.orders]
-                        
-                    });
-
-                    this.salesSummary.total += currentTable.bill;
-
-                    // ---> IDAGDAG ITO: I-save ang data bago i-reset para sa Print Modal <---
-                    this.receiptData = {
-                        orderId: dataForChef.id,
-                        tableId: currentTable.id,
-                        customerName: currentTable.customerName || 'Walk-in',
-                        items: [...currentTable.orders],
-                        totalAmount: currentTable.bill,
-                         timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
-    };
-
-
-                    // 3. I-reset ang Mesa
-                    this.tables[index].isMarkedPaid = true;
-                    this.tables[index].isSessionActive = false;
-                    this.tables[index].bill = 0;
-                    this.tables[index].orders = [];
-                    this.tables[index].customerName = '';
-                    
-                    this.tables = [...this.tables]; 
-                    
-                    // Tinanggal ko yung alert('Payment Settled...') para diretso labas na ng resibo pop-up.
-                }
-            },
-            
-
-            formatCurrency(num) {
-                return '₱' + parseFloat(num).toLocaleString(undefined, {minimumFractionDigits: 2});
-            },
-        
-           
-
-            formatCurrency(amount) {
-                return '₱' + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            },
-
-            getImageUrl(img) {
-                if (!img || img === 'Default.png') return 'https://placehold.co/150x150/eeeeee/800000?text=No+Image';
-                if (img.startsWith('http') || img.startsWith('data:')) return img;
-                if (img.startsWith('/')) return img;
-                return '/img/' + img;
-            },
-
-             switchTab(target) {
-                this.tab = target;
-                if (window.innerWidth < 768) this.sidebarOpen = false;
-            },
-
-
-            addToCart(product) {
-                if(product.stock <= 0) return alert('Out of Stock!');
-                let item = this.cart.find(i => i.id === product.id);
-                if(item) { item.qty++; } else { this.cart.push({ ...product, qty: 1 }); }
-                product.stock--;
-            },
-
-            removeFromCart(index) {
-                let item = this.cart[index];
-                let p = this.products.find(x => x.id === item.id);
-                if(p) p.stock += item.qty;
-                this.cart.splice(index, 1);
-            },
-
-            get cartTotal() {
-                return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            },
-
-            placeOrder() {
-                if(!this.selectedTableForOrder) return alert('Select Table First');
-                let t = this.tables.find(x => x.id == this.selectedTableForOrder);
-                t.isSessionActive = true;
-                t.payment = 'Unpaid';
-                t.isMarkedPaid = false;
-                t.bill += this.cartTotal;
-                this.cart.forEach(c => t.orders.push({ name: c.name, qty: c.qty, img: c.img }));
                 
-                this.tables = [...this.tables]; 
-                this.cart = [];
-                this.selectedTableForOrder = '';
-                this.tab = 'home';
-            },
-
-
-            loadReservations() {
-                const stored = localStorage.getItem('ub_reservations');
-                this.reservations = stored ? JSON.parse(stored) : [];
-            },
-
-            confirmReservation(resId) {
-                const index = this.reservations.findIndex(r => r.id === resId);
-                if (index !== -1) {
-                    this.reservations[index].status = 'confirmed'; 
-                    this.updateStorage();
+                if (event.key === 'ub_reservations') {
+                    this.loadReservations();
                 }
-            },
+            });
 
-            deleteReservation(resId) {
-                this.reservations = this.reservations.filter(r => r.id !== resId);
-                this.updateStorage();
-            },
+            const missed = localStorage.getItem('ub_new_customer_order');
+            if (missed) this.receiveIncomingOrder(JSON.parse(missed));
+        },
 
-            formatTime(time) {
-                if (!time) return '';
-                const [hours, minutes] = time.split(':');
-                let h = parseInt(hours);
-                const ampm = h >= 12 ? 'PM' : 'AM';
-                h = h % 12 || 12;
-                return `${h}:${minutes} ${ampm}`;
-            },
-
-            updateStorage() {
-                localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+        receiveIncomingOrder(data) {
+            let index = this.tables.findIndex(x => x.id === parseInt(data.table));
+            if (index !== -1) {
+                this.tables[index].isSessionActive = true;
+                this.tables[index].bill = parseFloat(data.bill);
+                this.tables[index].payment = data.method || 'Unpaid';
+                this.tables[index].orders = data.cart || [];
+                this.tables = [...this.tables];
+                localStorage.removeItem('ub_new_customer_order');
             }
+        },
+
+        // --- UPDATED ADD TO CART WITH ADDONS ---
+        addToCart(product, addonValue = 'Default|0') {
+            if (product.stock <= 0) return alert('Out of Stock!');
+
+            let addonPrice = 0;
+            let addonName = 'Default';
+
+            if (addonValue && addonValue.includes('|')) {
+                const parts = addonValue.split('|');
+                addonName = parts[0];
+                addonPrice = parseInt(parts[1]) || 0;
+            }
+
+            // Gumawa ng unique ID base sa Product + Addon para hindi sila mag-merge kung magkaiba ng addon
+            let cartId = product.id + '-' + addonName;
+            let foundItem = this.cart.find(i => i.cartId === cartId);
+
+            if (foundItem) {
+                foundItem.qty++;
+            } else {
+                this.cart.push({
+                    ...product,
+                    cartId: cartId,
+                    qty: 1,
+                    addonName: addonName,
+                    price: product.price + addonPrice // Addon price is added to the base price
+                });
+            }
+            product.stock--;
+        },
+
+        removeFromCart(index) {
+            let item = this.cart[index];
+            let p = Alpine.store('inventory').products.find(x => x.id === item.id);
+            if (p) p.stock += item.qty;
+            this.cart.splice(index, 1);
+        },
+
+        get cartTotal() {
+            return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        },
+
+        placeOrder() {
+            if (!this.selectedTableForOrder) return alert('Select Table First');
+            let t = this.tables.find(x => x.id == this.selectedTableForOrder);
+            
+            t.isSessionActive = true;
+            t.payment = 'Unpaid';
+            t.isMarkedPaid = false;
+            t.bill += this.cartTotal;
+            
+            // I-save ang orders kasama ang addon details
+            this.cart.forEach(c => {
+                t.orders.push({ 
+                    name: c.name, 
+                    qty: c.qty, 
+                    price: c.price,
+                    addonName: c.addonName,
+                    img: c.img 
+                });
+            });
+            
+            this.tables = [...this.tables]; 
+            this.cart = [];
+            this.selectedTableForOrder = '';
+            this.tab = 'home';
+        },
+
+    markAsPaid(id) {
+    let index = this.tables.findIndex(x => x.id === id);
+    if (index !== -1) {
+        let currentTable = this.tables[index];
+
+        // 1. Ipadala sa Chef Tab (Mananatili ito)
+        const dataForChef = {
+            id: 'ORD-' + Date.now().toString().slice(-6),
+            table: 'TABLE ' + currentTable.id.toString().padStart(2, '0'),
+            status: 'NEW',
+            items: currentTable.orders.map(item => ({
+                name: item.name + (item.addonName && item.addonName !== 'Default' ? ' (' + item.addonName + ')' : ''),
+                qty: item.qty,
+                done: false
+            })),
+            note: 'Paid at Counter - Start Prep',
+            timestamp: new Date().getTime()
+        };
+        localStorage.setItem('ub_chef_new_order', JSON.stringify(dataForChef));
+
+        // 2. GUMAWA NG TEMPORARY DATA (Huwag i-assign sa this.receiptData)
+        const tempReceiptData = {
+            orderId: dataForChef.id,
+            tableId: currentTable.id,
+            customerName: currentTable.customerName || 'Walk-in',
+            items: [...currentTable.orders],
+            totalAmount: currentTable.bill,
+            timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+        };
+
+        // Save to history & sales
+        this.orderHistory.unshift({ ...tempReceiptData, paymentMethod: currentTable.payment });
+        this.salesSummary.total += currentTable.bill;
+
+        // 3. I-reset agad ang Mesa sa UI (Dito mawawala na agad yung mesa sa screen)
+        this.tables[index].isMarkedPaid = true;
+        this.tables[index].isSessionActive = false;
+        this.tables[index].bill = 0;
+        this.tables[index].orders = [];
+        this.tables[index].customerName = '';
+        this.tables = [...this.tables]; 
+
+        // 4. REKTA PRINT (I-pass natin yung tempReceiptData direkta sa function)
+        this.triggerIsolatedPrint(tempReceiptData);
+    }
+},
+
+
+        formatCurrency(num) {
+            return '₱' + parseFloat(num).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        },
+
+        // --- UPDATED PRINT WITH ADDONS ---
+      // --- UPDATED PRINT WITH DYNAMIC TABLE NUMBER ---
+   triggerIsolatedPrint(data) {
+    if (!data) return;
+
+    // Gagawa ng items list para sa resibo
+    let itemsHTML = '';
+    data.items.forEach(item => {
+        itemsHTML += `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+            <div style="width: 20px;">${item.qty}</div>
+            <div style="flex: 1; padding-left: 5px;">
+                <div style="text-transform: uppercase;">${item.name}</div>
+                ${item.addonName && item.addonName !== 'Default' ? `<div style="font-size: 10px; font-style: italic;">+ ${item.addonName}</div>` : ''}
+            </div>
+        </div>`;
+    });
+
+    // Invisible Iframe para sa "Silent" Printing
+    let iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    let doc = iframe.contentWindow.document;
+doc.write(`
+        <html>
+        <head>
+            <style>
+                body { font-family: 'Courier New', monospace; width: 80mm; padding: 4mm; color: black; font-size: 12px; margin: 0; }
+                .text-center { text-align: center; }
+                .divider { border-bottom: 1px dashed black; margin: 5px 0; }
+                .bold { font-weight: bold; }
+                .total { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 10px; }
+                .table-box { font-size: 24px; font-weight: bold; border: 2px solid black; margin: 10px 0; padding: 10px; text-transform: uppercase; }
+            </style>
+        </head>
+        <body>
+            <div class="text-center">
+                <div class="bold" style="font-size: 14px;">UNIVERSITY OF BATANGAS</div>
+                <div style="font-size: 10px;">Hilltop Rd, Batangas City, 4200 Batangas</div> 
+                <div class="divider"></div>
+                
+                <div class="table-box">TABLE ${String(data.tableId).padStart(2, '0')}</div>
+            </div>
+            
+            <div style="font-size: 10px; margin-top: 5px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Order ID:</span>
+                    <span class="bold">${data.orderId}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Date:</span>
+                    <span>${data.timestamp}</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+            
+            <div style="display: flex; font-weight: bold; margin-bottom: 5px; font-size: 10px;">
+                <div style="width: 20px;">QTY</div>
+                <div style="flex: 1; padding-left: 5px;">ITEM/S</div>
+            </div>
+
+            ${itemsHTML}
+
+            <div class="divider"></div>
+            
+            <div class="total">
+                <span>TOTAL:</span>
+                <span>₱${parseFloat(data.totalAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            </div>
+
+            <div class="text-center" style="margin-top: 25px; font-size: 10px;">
+                <div class="bold">THANK YOU!</div>
+                <div>Please come again.</div>
+            </div>
+        </body>
+        </html>
+    `);
+    doc.close();
+
+    // Command sa printer
+    setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        
+        // Pagkatapos lumabas ng print dialog, tanggalin ang iframe at linisin ang variable
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+            this.receiptData = null; 
+        }, 1000);
+    }, 500);
+
+
+},
+
+
+        getImageUrl(img) {
+            if (!img || img === 'Default.png') return 'https://placehold.co/150x150/eeeeee/800000?text=No+Image';
+            return img.startsWith('http') ? img : '/img/' + img;
+        },
+
+        switchTab(target) {
+            this.tab = target;
+            if (window.innerWidth < 768) this.sidebarOpen = false;
+        },
+
+        loadReservations() {
+            const stored = localStorage.getItem('ub_reservations');
+            this.reservations = stored ? JSON.parse(stored) : [];
+        },
+
+        confirmReservation(resId) {
+            const index = this.reservations.findIndex(r => r.id === resId);
+            if (index !== -1) {
+                this.reservations[index].status = 'confirmed'; 
+                this.updateStorage();
+            }
+        },
+
+        deleteReservation(resId) {
+            this.reservations = this.reservations.filter(r => r.id !== resId);
+            this.updateStorage();
+        },
+
+        formatTime(time) {
+            if (!time) return '';
+            const [hours, minutes] = time.split(':');
+            let h = parseInt(hours);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return `${h}:${minutes} ${ampm}`;
+        },
+
+        updateStorage() {
+            localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
         }
     }
+}
 </script>
+
 
 
 

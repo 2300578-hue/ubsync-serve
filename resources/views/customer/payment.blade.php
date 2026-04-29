@@ -17,14 +17,13 @@
         .section-box {
             border: 2px solid #e5e7eb; 
             background-color: #ffffff;
-            border-radius: 1rem; /* Pinaliit nang konti para sa mobile */
+            border-radius: 1rem;
         }
 
         @media (min-width: 640px) {
             .section-box { border-radius: 1.5rem; }
         }
 
-        /* Payment Selection Box */
         .payment-box { 
             border: 2px solid #e5e7eb; 
             cursor: pointer; 
@@ -162,7 +161,9 @@
                     this.cart = JSON.parse(localStorage.getItem('ub_cart')) || [];
                     const params = new URLSearchParams(window.location.search);
                     this.table = params.get('table') || '1';
-                    if(this.cart.length === 0) window.location.href = '/menu?table=' + this.table;
+                    
+                    // URL Redirect pabalik sa menu (Table na lang ang dala)
+                    if(this.cart.length === 0) window.location.href = '/customer/menu?table=' + this.table;
                 },
 
                 get total() {
@@ -172,7 +173,8 @@
                 placeOrder() {
                     if(!this.method) return;
                     localStorage.setItem('ub_final_total', this.total.toFixed(2));
-                    // I-redirect sa gateway depende sa pinili
+                    
+                    // URL Redirect papuntang gateway (Table na lang ang dala)
                     window.location.href = `/payment/gateway/${this.method}?table=${this.table}`;
                 }
             }

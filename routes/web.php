@@ -50,14 +50,7 @@ Route::prefix('customer')->group(function () {
     });
 
     // 1.5 Customer Info Route (NEW: Dito muna pupunta bago mag-menu)
-    Route::get('/info', function (Request $request) {
-        $table = $request->query('table');
-        if (!$table) {
-            abort(404, 'Table number is required.');
-        }
-        return view('customer.customerinfo', ['tableNumber' => $table]);
-    })->name('customer.info');
-
+   
     // 2. Menu Route
     Route::get('/menu', function (Request $request) {
         $table = $request->query('table');

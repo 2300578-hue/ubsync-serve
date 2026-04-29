@@ -30,13 +30,32 @@
         .kitchen-checkbox:checked::after { content: '✓'; color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; }
 
         @media print {
-            body * { visibility: hidden; }
-            #kitchen-receipt, #kitchen-receipt * { visibility: visible; }
-            #kitchen-receipt { 
-                position: fixed; left: 0; top: 0; width: 80mm; display: block !important;
-                background-color: transparent !important; margin: 0; padding: 0;
+            /* 1. Itago nang buo ang dashboard UI */
+            .aws-header, .gold-accent, .aws-sidebar, .main-content {
+                display: none !important;
             }
+
+            /* 2. Ilabas at ipwesto ang resibo */
+            #kitchen-receipt { 
+                position: absolute !important; 
+                left: 0 !important; 
+                top: 0 !important; 
+                width: 80mm !important; 
+                display: block !important;
+                background-color: white !important; 
+                margin: 0 !important; 
+                padding: 10px !important;
+            }
+            
+            /* Puti dapat ang background para malinaw ang print */
+            body { background: white !important; }
         }
+
+        /* 3. Alisin ang default margins ng browser (URLs and Dates) */
+        @page {
+            margin: 0;
+        }
+
     </style>
 </head>
 <body x-data="kitchenHandler()" x-init="init()">
@@ -48,7 +67,7 @@
             <button @click="isSidebarOpen = !isSidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
                 <i class="fas fa-bars"></i>
             </button>
-            <span class="font-bold tracking-tight uppercase">UB SYNC | KITCHEN COMMAND</span>
+            <span class="font-bold tracking-tight uppercase"></span>
         </div>
 
         <div class="flex items-center gap-6">
@@ -88,12 +107,18 @@
         <div class="p-6 space-y-8">
             <nav class="space-y-1">
                 <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Kitchen</p>
-                <button @click="currentTab = 'orders'" :class="currentTab === 'orders' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600'" class="w-full flex items-center gap-4 p-3 rounded-sm text-left font-semibold transition-all">
-                    <i class="fas fa-utensils w-5"></i> Live Orders
-                </button>
-                <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600'" class="w-full flex items-center gap-4 p-3 rounded-sm text-left font-semibold transition-all">
-                    <i class="fas fa-clipboard-list w-5"></i> Fulfilled Logs
-                </button>
+                <button @click="currentTab = 'orders'" 
+    :class="currentTab === 'orders' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+    class="w-full flex items-center gap-4 p-3 rounded-sm text-left font-semibold">
+    <i class="fas fa-utensils w-5"></i> Live Orders
+</button>
+
+               <button @click="currentTab = 'history'" 
+    :class="currentTab === 'history' ? 'bg-red-50 border-l-4 border-red-800 text-red-900 font-bold' : 'text-slate-600 hover:bg-slate-50 border-l-4 border-transparent'" 
+    class="w-full flex items-center gap-4 p-3 rounded-sm text-left font-semibold">
+    <i class="fas fa-clipboard-list w-5"></i> Fulfilled Logs
+</button>
+
             </nav>
         </div>
     </aside>
@@ -219,84 +244,111 @@
 </div>
 
 
-    <script>
-    function kitchenHandler() {
-        return {
-            isSidebarOpen: window.innerWidth >= 768,
-            currentTab: 'orders',
-            orders: [],
-            fulfilledLogs: [],
-            fulfilledCount: 0,
-            printData: { items: [] },
+   
+  <script>
+function kitchenHandler() {
+    return {
+        isSidebarOpen: window.innerWidth >= 768,
+        currentTab: 'orders',
+        orders: [],
+        fulfilledLogs: [],
+        fulfilledCount: 0,
+        printData: { items: [] },
 
-            init() {
-                // Sound Activator
-                const unlock = () => {
-                    const bell = document.getElementById('kitchen-bell');
-                    bell.muted = true;
-                    bell.play().then(() => { bell.pause(); bell.currentTime = 0; bell.muted = false; });
-                    window.removeEventListener('click', unlock);
-                };
-                window.addEventListener('click', unlock);
-
-                // Timer
-                setInterval(() => {
-                    this.orders.forEach(o => {
-                        let s = parseInt(o.seconds || 0) + 1;
-                        let m = parseInt(o.minutes || 0);
-                        if(s >= 60) { m++; s = 0; }
-                        o.seconds = s < 10 ? '0' + s : s.toString();
-                        o.minutes = m;
-                    });
-                }, 1000);
-
-                window.addEventListener('storage', (e) => {
-                    if (e.key === 'ub_chef_new_order' && e.newValue) {
-                        this.processIncomingOrder(JSON.parse(e.newValue));
-                    }
-                });
-
-                const pending = localStorage.getItem('ub_chef_new_order');
-                if (pending) this.processIncomingOrder(JSON.parse(pending));
-            },
-
-            async processIncomingOrder(order) {
-                // 1. Play Sound first
+        init() {
+            // Sound Activator
+            const unlock = () => {
                 const bell = document.getElementById('kitchen-bell');
-                if(bell) {
-                    bell.currentTime = 0;
-                    try { await bell.play(); } catch(e) {}
-                }
+                bell.muted = true;
+                bell.play().then(() => { bell.pause(); bell.currentTime = 0; bell.muted = false; });
+                window.removeEventListener('click', unlock);
+            };
+            window.addEventListener('click', unlock);
 
-                // 2. Add to Dashboard
-                if (!this.orders.some(o => o.id === order.id)) {
-                    this.orders.push({ ...order, minutes: 0, seconds: '00' });
-                }
-                localStorage.removeItem('ub_chef_new_order');
-
-                // 3. Print with Delay (para hindi ma-freeze ang sound)
-                setTimeout(() => { this.reprint(order); }, 1500);
-            },
-
-            reprint(order) {
-                this.printData = { items: order.items };
-                this.$nextTick(() => { window.print(); });
-            },
-
-            serveOrder(index) {
-                const order = this.orders[index];
-                this.fulfilledLogs.unshift({
-                    id: order.id,
-                    table: order.table,
-                    items: order.items,
-                    status: 'COMPLETED',
-                    completedAt: new Date().toLocaleString([], { hour: '2-digit', minute: '2-digit' })
+            // Timer
+            setInterval(() => {
+                this.orders.forEach(o => {
+                    let s = parseInt(o.seconds || 0) + 1;
+                    let m = parseInt(o.minutes || 0);
+                    if(s >= 60) { m++; s = 0; }
+                    o.seconds = s < 10 ? '0' + s : s.toString();
+                    o.minutes = m;
                 });
-                this.orders.splice(index, 1);
-                this.fulfilledCount++;
+            }, 1000);
+
+            // FIX: Mas mahigpit na listener para maiwasan ang double print
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'ub_chef_new_order' && e.newValue !== null) {
+                    try {
+                        const orderData = JSON.parse(e.newValue);
+                        this.processIncomingOrder(orderData);
+                    } catch (err) {
+                        console.error("Error parsing order:", err);
+                    }
+                }
+            });
+
+            // Initial check pagka-load
+            const pending = localStorage.getItem('ub_chef_new_order');
+            if (pending) {
+                this.processIncomingOrder(JSON.parse(pending));
             }
+        },
+
+        async processIncomingOrder(order) {
+            // 1. Guard: Check kung existing na ang ID para hindi mag-duplicate
+            if (this.orders.some(o => o.id === order.id)) {
+                return; 
+            }
+
+            // 2. Clear agad ang storage para hindi na maulit sa ibang tab
+            localStorage.removeItem('ub_chef_new_order');
+
+            // 3. Play Sound
+            const bell = document.getElementById('kitchen-bell');
+            if(bell) {
+                bell.currentTime = 0;
+                try { await bell.play(); } catch(e) {}
+            }
+
+            // 4. Add to Dashboard
+            this.orders.push({ ...order, minutes: 0, seconds: '00' });
+
+            // 5. Print with Delay
+            // Gumamit ng timeout para masiguradong tapos na ang rendering bago lumabas ang print dialog
+            setTimeout(() => { 
+                this.reprint(order); 
+            }, 1000);
+        },
+
+        reprint(order) {
+            // I-set ang data para sa invisible receipt div
+            this.printData = { 
+                table: order.table, 
+                items: order.items 
+            };
+            
+            // Gamitin ang nextTick para siguradong updated ang DOM bago mag-print
+            this.$nextTick(() => { 
+                window.print(); 
+            });
+        },
+
+        serveOrder(index) {
+            const order = this.orders[index];
+            this.fulfilledLogs.unshift({
+                id: order.id,
+                table: order.table,
+                items: order.items,
+                status: 'COMPLETED',
+                completedAt: new Date().toLocaleString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            this.orders.splice(index, 1);
+            this.fulfilledCount++;
         }
     }
-    </script>
+}
+</script>
+
 </body>
 </html>
