@@ -518,7 +518,8 @@ timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeStrin
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
     let doc = iframe.contentWindow.document;
-doc.write(`
+
+    doc.write(`
         <html>
         <head>
             <style>
@@ -527,7 +528,8 @@ doc.write(`
                 .divider { border-bottom: 1px dashed black; margin: 5px 0; }
                 .bold { font-weight: bold; }
                 .total { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 10px; }
-                .table-box { font-size: 24px; font-weight: bold; border: 2px solid black; margin: 10px 0; padding: 10px; text-transform: uppercase; }
+                /* Pinag-isang style para sa box */
+                .highlight-box { font-size: 24px; font-weight: bold; border: 2px solid black; margin: 10px 0; padding: 10px; text-transform: uppercase; text-align: center; }
             </style>
         </head>
         <body>
@@ -536,7 +538,7 @@ doc.write(`
                 <div style="font-size: 10px;">Hilltop Rd, Batangas City, 4200 Batangas</div> 
                 <div class="divider"></div>
                 
-                <div class="table-box">TABLE ${String(data.tableId).padStart(2, '0')}</div>
+                <div class="highlight-box">TABLE ${String(data.tableId).padStart(2, '0')}</div>
             </div>
             
             <div style="font-size: 10px; margin-top: 5px;">
@@ -572,8 +574,9 @@ doc.write(`
             </div>
         </body>
         </html>
-    `);
-    doc.close();
+`);
+doc.close();
+
 
     // Command sa printer
     setTimeout(() => {

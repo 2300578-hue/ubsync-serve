@@ -269,47 +269,63 @@ timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeStrin
 
 // Sa loob ng doc.write style at body...
 doc.write(`
-    <html>
-    <head>
-        <style>
-            body { font-family: 'Courier New', monospace; width: 80mm; padding: 4mm; color: black; font-size: 12px; margin: 0; }
-            .text-center { text-align: center; }
-            .divider { border-bottom: 1px dashed black; margin: 5px 0; }
-            .bold { font-weight: bold; }
-            .order-type { font-size: 20px; font-weight: bold; border: 2px solid black; margin: 10px 0; padding: 5px; text-transform: uppercase; }
-            .total { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 10px; }
-        </style>
-    </head>
-    <body>
-        <div class="text-center">
-            <div class="bold" style="font-size: 14px;">UNIVERSITY OF BATANGAS</div>
-            <div style="font-size: 10px;">Hilltop Rd, Batangas City, 4200 Batangas</div>
-            <div class="divider"></div>
+        <html>
+        <head>
+            <style>
+                body { font-family: 'Courier New', monospace; width: 80mm; padding: 4mm; color: black; font-size: 12px; margin: 0; }
+                .text-center { text-align: center; }
+                .divider { border-bottom: 1px dashed black; margin: 5px 0; }
+                .bold { font-weight: bold; }
+                .total { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 10px; }
+                /* Pinag-isang style para sa box */
+                .highlight-box { font-size: 24px; font-weight: bold; border: 2px solid black; margin: 10px 0; padding: 10px; text-transform: uppercase; text-align: center; }
+            </style>
+        </head>
+        <body>
+            <div class="text-center">
+                <div class="bold" style="font-size: 14px;">UNIVERSITY OF BATANGAS</div>
+                <div style="font-size: 10px;">Hilltop Rd, Batangas City, 4200 Batangas</div>
+                <div class="divider"></div>
+                
+                <div class="highlight-box">${data.orderType}</div> 
+            </div>
             
-            <div class="order-type">${data.orderType}</div> 
-            
-            <div class="divider"></div>
-        </div>
-        <div style="font-size: 10px; margin-top: 5px;">
-            Order: <span class="bold">${data.orderId}</span><br>
-            Date: ${data.timestamp}
-        </div>
-        <div class="divider"></div>
-        ${itemsHTML}
-        <div class="divider"></div>
-        <div class="total">
-            <span>TOTAL:</span>
-            <span>${this.formatCurrency(data.totalAmount)}</span>
-        </div>
-        <div class="text-center" style="margin-top: 25px; font-size: 10px;">
-            <div class="bold">THANK YOU!</div>
-            <div>Please come again.</div>
-        </div>
-    </body>
-    </html>
-`);
+            <div style="font-size: 10px; margin-top: 5px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Order ID:</span>
+                    <span class="bold">${data.orderId}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Date:</span>
+                    <span>${data.timestamp}</span>
+                </div>
+            </div>
 
-    doc.close();
+            <div class="divider"></div>
+            
+            <div style="display: flex; font-weight: bold; margin-bottom: 5px; font-size: 10px;">
+                <div style="width: 20px;">QTY</div>
+                <div style="flex: 1; padding-left: 5px;">ITEM/S</div>
+            </div>
+
+            ${itemsHTML}
+
+            <div class="divider"></div>
+            
+            <div class="total">
+                <span>TOTAL:</span>
+                <span>${this.formatCurrency(data.totalAmount)}</span>
+            </div>
+
+            <div class="text-center" style="margin-top: 25px; font-size: 10px;">
+                <div class="bold">THANK YOU!</div>
+                <div>Please come again.</div>
+            </div>
+        </body>
+        </html>
+`);
+doc.close();
+
 
     setTimeout(() => {
         iframe.contentWindow.focus();
