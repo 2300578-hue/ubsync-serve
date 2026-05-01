@@ -11,7 +11,8 @@
                 </div>
 
                 <div class="flex justify-start lg:justify-center gap-3 w-full mt-5 overflow-x-auto pb-4 scrollbar-hide px-1">
-                    <template x-for="cat in ['All', 'Main Course', 'Appetizer', 'Desserts', 'Beverages']">
+                   <!-- Palitan ang linyang iyon ng ganito: -->
+<template x-for="cat in ['All', 'Main Course', 'Appetizer', 'Dessert', 'Beverage']">
                         <button x-on:click="selectedCategory = cat" 
                                 :class="selectedCategory === cat ? 'bg-[#800000] text-white shadow-md border-[#800000]' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'"
                                 class="px-6 py-3.5 rounded-2xl text-sm font-black uppercase border whitespace-nowrap transition-all tracking-wide" 
@@ -152,13 +153,24 @@
                 return Alpine.store('inventory').products;
             },
 
-            get filteredProducts() {
-                return this.products.filter(p => {
-                    const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
-                    const matchesCat = this.selectedCategory === 'All' || p.cat === this.selectedCategory;
-                    return matchesSearch && matchesCat;
-                });
-            },
+    get filteredProducts() {
+            return this.products.filter(p => {
+                // 1. Check kung may search query
+                const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                
+                // 2. Format Categories: Tatanggalin natin ang "s" sa dulo para siguradong laging magtugma
+                // Halimbawa: Ang "Desserts" at "Dessert" ay parehong magiging "dessert" sa checking
+                const btnCat = this.selectedCategory.toLowerCase().trim().replace(/s$/, '');
+                const dbCat = p.cat ? p.cat.toLowerCase().trim().replace(/s$/, '') : '';
+                
+                // 3. I-match sila
+                const matchesCat = this.selectedCategory === 'All' || dbCat === btnCat;
+                
+                return matchesSearch && matchesCat;
+            });
+        },
+        
+        
 
             get cartTotal() {
                 return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);

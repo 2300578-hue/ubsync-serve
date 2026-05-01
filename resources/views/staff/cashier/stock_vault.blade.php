@@ -417,28 +417,39 @@
                 this.showEditModal = true;
             },
 
-            saveEdit() {
-                let s = parseInt(this.editItem.stock);
-                let c = parseFloat(this.editItem.cost);
-                let p = parseFloat(this.editItem.price);
+          saveEdit() {
+    // Idinagdag na validations
+    if (!this.editItem.name) return alert('Error: Product Name is required.');
+    if (!this.editItem.cat) return alert('Error: Please select a Category.');
 
-                const index = this.products.findIndex(prod => prod.id === this.editItem.id);
-                
-                if (index !== -1) {
-                    let originalProduct = this.products[index];
-                    let diff = s - originalProduct.stock;
-                    if(diff !== 0) this.addLog(originalProduct.name, diff > 0 ? '+' + diff : diff, 'Manual Update');
-                    
-                    this.products[index] = { 
-                        ...this.editItem, 
-                        stock: s, 
-                        price: p, 
-                        cost: c,
-                        name: this.editItem.name.toUpperCase()
-                    };
-                }
-                this.showEditModal = false;
-            },
+    let s = parseInt(this.editItem.stock);
+    let c = parseFloat(this.editItem.cost);
+    let p = parseFloat(this.editItem.price);
+
+    // Idinagdag na number validations
+    if (isNaN(s) || s < 0) return alert('Error: Stock must be 0 or higher.');
+    if (isNaN(c) || c <= 0) return alert('Error: Cost must be a positive number.');
+    if (isNaN(p) || p <= 0) return alert('Error: Selling Price must be a positive number.');
+    if (p <= c) return alert('Action Denied: Selling Price must be higher than Cost.');
+
+    const index = this.products.findIndex(prod => prod.id === this.editItem.id);
+    
+    if (index !== -1) {
+        let originalProduct = this.products[index];
+        let diff = s - originalProduct.stock;
+        if(diff !== 0) this.addLog(originalProduct.name, diff > 0 ? '+' + diff : diff, 'Manual Update');
+        
+        this.products[index] = { 
+            ...this.editItem, 
+            stock: s, 
+            price: p, 
+            cost: c,
+            name: this.editItem.name.toUpperCase()
+        };
+    }
+    this.showEditModal = false;
+},
+
 
             addLog(name, qty, action) {
                 const now = new Date();
