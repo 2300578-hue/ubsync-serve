@@ -137,34 +137,52 @@
         </div>
     </main>
 
-    <div x-show="showModal" x-transition class="fixed inset-0 z-[200] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-maroon/50 backdrop-blur-sm"></div>
+  <!-- Inalis ang @click sa backdrop para hindi na mag-close sa labas -->
+<div x-show="showModal" x-transition class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    
+    <!-- Backdrop: Static na lang ito, hindi na clickable -->
+    <div class="absolute inset-0 bg-maroon/50 backdrop-blur-sm"></div>
+    
+    <div class="bg-white rounded-[2rem] p-6 max-w-md w-full shadow-2xl animate__animated animate__zoomIn relative z-10">
         
-        <div class="bg-white rounded-[2rem] p-6 max-w-md w-full shadow-2xl animate__animated animate__zoomIn relative z-10">
-            <div class="text-center mb-6">
-                <h3 class="text-lg font-bold text-maroon" x-text="'Customize ' + (selectedFood ? selectedFood.name : '')"></h3>
-                <p class="text-xs text-gray-500 mt-1">Select add-ons for this item</p>
-            </div>
-            
-            <div x-show="selectedFood" class="space-y-3 max-h-60 overflow-y-auto mb-6 px-2">
-                 <template x-for="addon in (selectedFood ? selectedFood.addOns : [])" :key="addon.name">
-                    <label class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-100">
-                        <input type="checkbox" 
-                               :value="addon.name"
-                               x-model="tempSelectedNames"
-                               class="accent-maroon mr-3 w-5 h-5">
-                        <span class="text-sm font-medium text-gray-800" x-text="addon.name"></span>
-                        <span class="text-sm text-maroon font-bold ml-auto" x-text="'+₱' + addon.price"></span>
-                    </label>
-                </template>
-            </div>
-            
-            <div class="flex gap-3">
-                <button type="button" @click="confirmAddOns()" class="flex-1 bg-maroon text-white py-3 px-6 rounded-xl font-bold text-sm uppercase tracking-widest shadow-md hover:bg-red-800 transition-colors">
-                    Confirm Selection
-                </button>
-            </div>
+        <!-- EXIT BUTTON: Ginawa nating explicit hex code ang hover para siguradong mag-maroon -->
+        <button type="button" @click="closeCustomizeModal()" 
+            class="absolute top-5 right-5 text-gray-400 hover:text-[#800000] transition-colors duration-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
+        <div class="text-center mb-6 mt-2">
+            <h3 class="text-lg font-bold text-[#800000]" x-text="'Customize ' + (selectedFood ? selectedFood.name : '')"></h3>
+            <p class="text-xs text-gray-500 mt-1">Select add-ons for this item</p>
         </div>
+        
+        <div x-show="selectedFood" class="space-y-3 max-h-60 overflow-y-auto mb-6 px-2">
+             <template x-for="addon in (selectedFood ? selectedFood.addOns : [])" :key="addon.name">
+                <label class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-100">
+                    <input type="checkbox" 
+                           :value="addon.name"
+                           x-model="tempSelectedNames"
+                           class="accent-[#800000] mr-3 w-5 h-5">
+                    <span class="text-sm font-medium text-gray-800" x-text="addon.name"></span>
+                    <span class="text-sm text-[#800000] font-bold ml-auto" x-text="'+₱' + addon.price"></span>
+                </label>
+            </template>
+        </div>
+        
+        <div class="flex gap-3">
+            <!-- Button logic: Disabled kung walang check, para hindi rin mag-close accidentally -->
+            <button type="button" 
+                @click="confirmAddOns()" 
+                :disabled="tempSelectedNames.length === 0"
+                :class="tempSelectedNames.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#800000] hover:bg-[#a50000] shadow-md'"
+                class="flex-1 text-white py-3 px-6 rounded-xl font-bold text-sm uppercase tracking-widest transition-all">
+                Confirm Selection
+            </button>
+        </div>
+    </div>
+</div>
     </div>
 
 <script>
@@ -199,41 +217,41 @@
             },
 
             addToCart(food) {
-                const addOnPrice = food.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0);
-                const finalUnitPrice = food.price + addOnPrice;
-                
-                const itemToCart = {
-                    id: food.id,
-                    name: food.name,
-                    price: food.price, // base price
-                    unitPrice: finalUnitPrice, // total unit price with addons
-                    image: food.image,
-                    qty: food.tempQty,
-                    // Pinakamahalaga para sa thermal receipt display:
-                    selectedAddOns: JSON.parse(JSON.stringify(food.selectedAddOns)),
-                    addonName: food.selectedAddOns.length > 0 ? food.selectedAddOns.map(a => a.name).join(', ') : 'Default',
-                    totalPrice: finalUnitPrice * food.tempQty
-                };
-                
-                // Unique check base sa ID + Addons para hindi mag-merge ang plain at custom
-                const existingIndex = this.cart.findIndex(i => 
-                    i.id === itemToCart.id && 
-                    i.addonName === itemToCart.addonName
-                );
+    const addOnPrice = food.selectedAddOns.reduce((sum, addon) => sum + addon.price, 0);
+    const finalUnitPrice = food.price + addOnPrice;
+    
+    const itemToCart = {
+        id: food.id,
+        name: food.name,
+        price: food.price, 
+        unitPrice: finalUnitPrice, 
+        image: food.image,
+        qty: food.tempQty,
+        // DITO ANG SIKRETO: Isama ang lahat ng choices (addOns) at yung napili na (selectedAddOns)
+        addOns: JSON.parse(JSON.stringify(food.addOns)), 
+        selectedAddOns: JSON.parse(JSON.stringify(food.selectedAddOns)),
+        addonName: food.selectedAddOns.length > 0 ? food.selectedAddOns.map(a => a.name).join(', ') : 'Default',
+        totalPrice: finalUnitPrice * food.tempQty
+    };
+    
+    const existingIndex = this.cart.findIndex(i => 
+        i.id === itemToCart.id && 
+        i.addonName === itemToCart.addonName
+    );
 
-                if (existingIndex !== -1) {
-                    this.cart[existingIndex].qty += itemToCart.qty;
-                    this.cart[existingIndex].totalPrice += itemToCart.totalPrice;
-                } else {
-                    this.cart.push(itemToCart);
-                }
-                
-                localStorage.setItem('ub_cart', JSON.stringify(this.cart));
-                
-                food.tempQty = 1;
-                food.selectedAddOns = []; 
-               
-            },
+    if (existingIndex !== -1) {
+        this.cart[existingIndex].qty += itemToCart.qty;
+        this.cart[existingIndex].totalPrice += itemToCart.totalPrice;
+    } else {
+        this.cart.push(itemToCart);
+    }
+    
+    localStorage.setItem('ub_cart', JSON.stringify(this.cart));
+    food.tempQty = 1;
+    food.selectedAddOns = []; 
+    alert('Added to order!');
+},
+
 
             get filteredFoods() {
                 let filtered = this.selectedCategory === 'All' ? this.foods : this.foods.filter(f => f.category === this.selectedCategory);
