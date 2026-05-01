@@ -170,7 +170,6 @@
             });
         },
         
-        
 
             get cartTotal() {
                 return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
