@@ -58,95 +58,151 @@
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 space-y-4 sm:space-y-8">
         
-        <div class="section-box p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden border-b-[4px] sm:border-b-[6px] border-b-maroon shadow-sm">
-            <button @click="window.history.back()" class="absolute top-4 left-4 sm:top-6 sm:left-6 group flex items-center bg-[#f8f9fb] border border-[#eef1f6] py-2 px-3 sm:py-3 sm:px-6 rounded-full transition-all active:scale-95 shadow-sm">
-                <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                </svg>
-                <span class="text-[9px] sm:text-[11px] font-extrabold text-[#707c91] uppercase tracking-wider">Back</span>
-            </button>
+        <!-- STEP 1: ORDER SUMMARY & PAYMENT SELECTION -->
+        <div x-show="!isProcessing && !isDone" x-transition.opacity.duration.300ms class="space-y-4 sm:space-y-8">
+            <div class="section-box p-6 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden border-b-[4px] sm:border-b-[6px] border-b-maroon shadow-sm">
+                <button @click="window.history.back()" class="absolute top-4 left-4 sm:top-6 sm:left-6 group flex items-center bg-[#f8f9fb] border border-[#eef1f6] py-2 px-3 sm:py-3 sm:px-6 rounded-full transition-all active:scale-95 shadow-sm">
+                    <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span class="text-[9px] sm:text-[11px] font-extrabold text-[#707c91] uppercase tracking-wider">Back</span>
+                </button>
 
-            <h1 class="text-xl sm:text-3xl font-black text-gray-800 uppercase tracking-tighter">Checkout</h1>
-            <div class="mt-2 sm:mt-3 px-4 py-1 bg-maroon text-white rounded-full">
-                <p class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center">Table <span x-text="table"></span></p>
+                <h1 class="text-xl sm:text-3xl font-black text-gray-800 uppercase tracking-tighter">Checkout</h1>
+                <div class="mt-2 sm:mt-3 px-4 py-1 bg-maroon text-white rounded-full">
+                    <p class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-center">Table <span x-text="table"></span></p>
+                </div>
+            </div>
+
+            <section class="section-box overflow-hidden shadow-sm">
+                <div class="p-4 sm:p-6 border-b-2 border-gray-100 flex items-center gap-3 bg-gray-50/50">
+                    <div class="text-maroon">
+                        <i class="fas fa-receipt text-base sm:text-lg"></i>
+                    </div>
+                    <h2 class="font-bold text-[10px] sm:text-sm uppercase tracking-widest text-gray-500">Order Summary</h2>
+                </div>
+                
+                <div class="overflow-y-auto max-h-[300px] sm:max-h-[400px] custom-scroll">
+                    <div class="divide-y divide-gray-50">
+                        <template x-for="item in cart" :key="item.id">
+                            <div class="p-4 sm:p-6 flex items-center gap-4 sm:gap-6 hover:bg-gray-50/30 transition-colors">
+                                <div class="relative w-14 h-14 sm:w-20 sm:h-20 bg-gray-50 border border-gray-100 rounded-xl flex-shrink-0 overflow-hidden shadow-inner">
+                                    <img :src="item.image || 'https://placehold.co/100x100?text=Brew'" class="w-full h-full object-cover">
+                                </div>
+
+                                <div class="flex-grow min-w-0">
+                                    <h3 class="font-bold text-gray-800 text-sm sm:text-lg leading-tight mb-1 truncate" x-text="item.name"></h3>
+                                    <p class="text-[9px] sm:text-xs font-bold text-maroon border border-maroon/20 inline-block px-2 py-0.5 rounded uppercase bg-maroon/5">
+                                        Qty: <span x-text="item.qty"></span>
+                                    </p>
+                                </div>
+
+                                <div class="text-right">
+                                    <p class="text-gray-900 font-black text-sm sm:text-xl tracking-tight">₱<span x-text="parseFloat(item.totalPrice).toFixed(2)"></span></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-3">
+                <h2 class="font-bold text-[10px] sm:text-xs uppercase tracking-[0.2em] text-gray-400 ml-2 italic">Payment Method</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <div @click="method = 'gcash'" :class="method === 'gcash' ? 'active' : ''" 
+                         class="payment-box p-4 sm:p-6 bg-white flex items-center gap-4 sm:flex-col sm:justify-center sm:text-center shadow-sm">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                            <i class="fas fa-mobile-screen text-xl sm:text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-700">GCash</span>
+                    </div>
+                    <div @click="method = 'maya'" :class="method === 'maya' ? 'active' : ''" 
+                         class="payment-box p-4 sm:p-6 bg-white flex items-center gap-4 sm:flex-col sm:justify-center sm:text-center shadow-sm">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100">
+                            <i class="fas fa-wallet text-xl sm:text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-700">Maya</span>
+                    </div>
+                    <div @click="method = 'card'" :class="method === 'card' ? 'active' : ''" 
+                         class="payment-box p-4 sm:p-6 bg-white flex items-center gap-4 sm:flex-col sm:justify-center sm:text-center shadow-sm">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-900 border border-gray-200">
+                            <i class="fas fa-credit-card text-xl sm:text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-700">Card</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-box p-6 sm:p-10 border-t-[4px] sm:border-t-[6px] border-t-maroon shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-10 text-center sm:text-left">
+                    <div>
+                        <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">Total to Pay</p>
+                        <p class="text-4xl sm:text-6xl font-black text-maroon tracking-tighter leading-none mt-1">₱<span x-text="total.toFixed(2)"></span></p>
+                    </div>
+                </div>
+
+                <button 
+                    @click="placeOrder()" 
+                    :disabled="!method"
+                    :class="!method ? 'bg-gray-200 text-gray-400 cursor-not-allowed border-2 border-gray-300' : 'bg-maroon text-white hover:bg-black active:translate-y-1 transition-all border-b-4 border-black shadow-lg shadow-maroon/20'"
+                    class="w-full py-4 sm:py-6 rounded-full font-black uppercase tracking-[0.15em] sm:tracking-[0.25em] text-lg sm:text-xl">
+                    Place Order Now
+                </button>
+            </section>
+        </div>
+
+
+        <!-- STEP 2: GATEWAY INTERFACE (Card form ONLY) -->
+        <div x-show="isProcessing && !isDone" x-transition.opacity.duration.300ms x-cloak class="bg-white rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-16 w-full max-w-lg mx-auto text-center section-box relative overflow-hidden shadow-sm mt-10 sm:mt-20">
+            
+            <!-- CARD UI -->
+            <div x-show="method === 'card'">
+                <div class="mb-6 sm:mb-8 text-left">
+                    <h3 class="text-2xl sm:text-3xl font-black uppercase tracking-tighter text-gray-900">Card Details</h3>
+                    <p class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Enter your card information</p>
+                </div>
+
+                <div class="space-y-3 sm:space-y-4 mb-8 sm:mb-10 text-left">
+                    <div>
+                        <label class="text-[9px] sm:text-[10px] font-black uppercase text-gray-400 ml-4 mb-1 block">Card Number</label>
+                        <input type="text" placeholder="0000 0000 0000 0000" class="w-full p-4 sm:p-5 bg-white border-2 border-gray-100 rounded-2xl sm:rounded-3xl outline-none focus:border-maroon transition-all font-bold text-sm sm:text-base">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                            <label class="text-[9px] sm:text-[10px] font-black uppercase text-gray-400 ml-4 mb-1 block">Expiry</label>
+                            <input type="text" placeholder="MM/YY" class="w-full p-4 sm:p-5 bg-white border-2 border-gray-100 rounded-2xl sm:rounded-3xl outline-none focus:border-maroon transition-all font-bold text-center text-sm sm:text-base">
+                        </div>
+                        <div>
+                            <label class="text-[9px] sm:text-[10px] font-black uppercase text-gray-400 ml-4 mb-1 block">CVV</label>
+                            <input type="password" placeholder="***" class="w-full p-4 sm:p-5 bg-white border-2 border-gray-100 rounded-2xl sm:rounded-3xl outline-none focus:border-maroon transition-all font-bold text-center text-sm sm:text-base">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-maroon/5 p-4 sm:p-6 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8 flex justify-between items-center">
+                    <span class="font-bold text-gray-500 uppercase text-[10px] sm:text-xs">Total:</span>
+                    <span class="font-black text-maroon text-lg sm:text-xl">₱<span x-text="total.toFixed(2)"></span></span>
+                </div>
+
+                <button @click="processCardPayment()" class="w-full py-4 sm:py-6 bg-maroon text-white rounded-2xl sm:rounded-[2rem] font-black uppercase tracking-widest shadow-xl shadow-maroon/30 transition-all active:scale-95 text-sm sm:text-base">
+                    Authorize Payment
+                </button>
             </div>
         </div>
 
-        <section class="section-box overflow-hidden shadow-sm">
-            <div class="p-4 sm:p-6 border-b-2 border-gray-100 flex items-center gap-3 bg-gray-50/50">
-                <div class="text-maroon">
-                    <i class="fas fa-receipt text-base sm:text-lg"></i>
-                </div>
-                <h2 class="font-bold text-[10px] sm:text-sm uppercase tracking-widest text-gray-500">Order Summary</h2>
+
+        <!-- STEP 3: SUCCESS SCREEN -->
+        <div x-show="isDone" x-transition.opacity.duration.500ms x-cloak class="bg-white rounded-[2.5rem] sm:rounded-[3rem] p-8 sm:p-16 w-full max-w-lg mx-auto text-center section-box relative overflow-hidden shadow-sm mt-10 sm:mt-20">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8 text-3xl sm:text-4xl shadow-inner">
+                <i class="fas fa-check"></i>
             </div>
+            <h2 class="text-4xl sm:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-2 sm:mb-4">Paid!</h2>
+            <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-8 sm:mb-12">Your order is now being prepared</p>
             
-            <div class="overflow-y-auto max-h-[300px] sm:max-h-[400px] custom-scroll">
-                <div class="divide-y divide-gray-50">
-                    <template x-for="item in cart" :key="item.id">
-                        <div class="p-4 sm:p-6 flex items-center gap-4 sm:gap-6 hover:bg-gray-50/30 transition-colors">
-                            <div class="relative w-14 h-14 sm:w-20 sm:h-20 bg-gray-50 border border-gray-100 rounded-xl flex-shrink-0 overflow-hidden shadow-inner">
-                                <img :src="item.image || 'https://placehold.co/100x100?text=Brew'" class="w-full h-full object-cover">
-                            </div>
-
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-bold text-gray-800 text-sm sm:text-lg leading-tight mb-1 truncate" x-text="item.name"></h3>
-                                <p class="text-[9px] sm:text-xs font-bold text-maroon border border-maroon/20 inline-block px-2 py-0.5 rounded uppercase bg-maroon/5">
-                                    Qty: <span x-text="item.qty"></span>
-                                </p>
-                            </div>
-
-                            <div class="text-right">
-                                <p class="text-gray-900 font-black text-sm sm:text-xl tracking-tight">₱<span x-text="parseFloat(item.totalPrice).toFixed(2)"></span></p>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </section>
-
-        <section class="space-y-3">
-            <h2 class="font-bold text-[10px] sm:text-xs uppercase tracking-[0.2em] text-gray-400 ml-2 italic">Payment Method</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div @click="method = 'gcash'" :class="method === 'gcash' ? 'active' : ''" 
-                     class="payment-box p-4 sm:p-6 bg-white flex items-center gap-4 sm:flex-col sm:justify-center sm:text-center shadow-sm">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                        <i class="fas fa-mobile-screen text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-700">GCash</span>
-                </div>
-                <div @click="method = 'maya'" :class="method === 'maya' ? 'active' : ''" 
-                     class="payment-box p-4 sm:p-6 bg-white flex items-center gap-4 sm:flex-col sm:justify-center sm:text-center shadow-sm">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100">
-                        <i class="fas fa-wallet text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-700">Maya</span>
-                </div>
-                <div @click="method = 'card'" :class="method === 'card' ? 'active' : ''" 
-                     class="payment-box p-4 sm:p-6 bg-white flex items-center gap-4 sm:flex-col sm:justify-center sm:text-center shadow-sm">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-900 border border-gray-200">
-                        <i class="fas fa-credit-card text-xl sm:text-2xl"></i>
-                    </div>
-                    <span class="font-bold text-xs sm:text-sm uppercase tracking-wider text-gray-700">Card</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="section-box p-6 sm:p-10 border-t-[4px] sm:border-t-[6px] border-t-maroon shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-10 text-center sm:text-left">
-                <div>
-                    <p class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">Total to Pay</p>
-                    <p class="text-4xl sm:text-6xl font-black text-maroon tracking-tighter leading-none mt-1">₱<span x-text="total.toFixed(2)"></span></p>
-                </div>
-            </div>
-
-            <button 
-                @click="placeOrder()" 
-                :disabled="!method"
-                :class="!method ? 'bg-gray-200 text-gray-400 cursor-not-allowed border-2 border-gray-300' : 'bg-maroon text-white hover:bg-black active:translate-y-1 transition-all border-b-4 border-black shadow-lg shadow-maroon/20'"
-                class="w-full py-4 sm:py-6 rounded-full font-black uppercase tracking-[0.15em] sm:tracking-[0.25em] text-lg sm:text-xl">
-                Place Order Now
+            <button @click="backToMenu()" class="w-full py-4 sm:py-6 bg-maroon text-white rounded-2xl sm:rounded-[2rem] font-black uppercase tracking-widest shadow-xl shadow-maroon/30 transition-all hover:brightness-110 active:scale-95 text-sm sm:text-base">
+                Back to Menu
             </button>
-        </section>
+        </div>
 
     </div>
 
@@ -156,13 +212,14 @@
                 table: '1',
                 cart: [],
                 method: null,
+                isProcessing: false, // gagamitin lang para sa Card form
+                isDone: false,       // para maipakita yung success screen
 
                 init() {
                     this.cart = JSON.parse(localStorage.getItem('ub_cart')) || [];
                     const params = new URLSearchParams(window.location.search);
                     this.table = params.get('table') || '1';
                     
-                    // URL Redirect pabalik sa menu (Table na lang ang dala)
                     if(this.cart.length === 0) window.location.href = '/customer/menu?table=' + this.table;
                 },
 
@@ -172,10 +229,61 @@
 
                 placeOrder() {
                     if(!this.method) return;
-                    localStorage.setItem('ub_final_total', this.total.toFixed(2));
                     
-                    // URL Redirect papuntang gateway (Table na lang ang dala)
-                    window.location.href = `/payment/gateway/${this.method}?table=${this.table}`;
+                    if (this.method === 'card') {
+                        // Kung Card, ipakita muna ang input form
+                        this.isProcessing = true;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        // Kung GCash o Maya, REKTAHAN NA (Instant Paid!)
+                        this.isDone = true;
+                        this.sendOrderToCashier();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                },
+
+                processCardPayment() {
+                    // Trigger kapag napindot na ang "Authorize Payment" sa card form
+                    this.isDone = true;
+                    this.sendOrderToCashier();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                sendOrderToCashier() {
+                    if(this.cart.length > 0) {
+                        const sanitizedCart = this.cart.map(item => {
+                            let rawImage = item.img || item.image || 'default.png';
+                            let cleanedName = rawImage.trim().toLowerCase();
+                            if (!cleanedName.includes('.')) {
+                                cleanedName = cleanedName + '.png';
+                            }
+                            return {
+                                ...item,
+                                img: cleanedName 
+                            };
+                        });
+
+                        const orderPayload = {
+                            table: this.table,
+                            bill: parseFloat(this.total),
+                            method: this.method,
+                            cart: sanitizedCart,
+                            timestamp: Date.now() 
+                        };
+                        
+                        // Save sa LocalStorage (Ito ang babasahin ng cashier side)
+                        localStorage.setItem('ub_new_customer_order', JSON.stringify(orderPayload));
+                        console.log("Order successfully transmitted for Table: " + this.table);
+                    } else {
+                        console.error("Cart is empty. Nothing to send.");
+                    }
+                },
+
+                backToMenu() {
+                    // I-clear ang cart at ibalik sa menu page
+                    localStorage.removeItem('ub_cart');
+                    localStorage.removeItem('ub_final_total');
+                    window.location.href = `/customer/menu?table=${this.table}`;
                 }
             }
         }
