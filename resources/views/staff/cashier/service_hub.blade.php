@@ -11,8 +11,7 @@
                 </div>
 
                 <div class="flex justify-start lg:justify-center gap-3 w-full mt-5 overflow-x-auto pb-4 scrollbar-hide px-1">
-                   <!-- Palitan ang linyang iyon ng ganito: -->
-<template x-for="cat in ['All', 'Main Course', 'Appetizer', 'Dessert', 'Beverage']">
+                    <template x-for="cat in ['All', 'Main Course', 'Appetizer', 'Dessert', 'Beverage']">
                         <button x-on:click="selectedCategory = cat" 
                                 :class="selectedCategory === cat ? 'bg-[#800000] text-white shadow-md border-[#800000]' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'"
                                 class="px-6 py-3.5 rounded-2xl text-sm font-black uppercase border whitespace-nowrap transition-all tracking-wide" 
@@ -23,8 +22,7 @@
 
             <div class="grid grid-cols-2 xl:grid-cols-3 gap-6">
                 <template x-for="p in filteredProducts" :key="p.id">
-                    <div x-data="{ selectedAddon: 'Default|0' }" 
-                         class="bg-white p-5 flex flex-col relative border border-gray-200 rounded-[2rem] shadow-sm hover:shadow-lg transition-all duration-300"
+                    <div class="bg-white p-5 flex flex-col relative border border-gray-200 rounded-[2rem] shadow-sm hover:shadow-lg transition-all duration-300"
                          :class="p.stock <= 0 ? 'opacity-60 grayscale' : ''">
                         
                         <div class="absolute top-6 right-6 z-10 flex flex-col gap-2 items-end">
@@ -52,16 +50,27 @@
                         </div>
 
                         <div class="mt-auto space-y-3 pt-4 border-t border-gray-100">
-                            <select x-model="selectedAddon" :disabled="p.stock <= 0" class="w-full text-sm font-bold bg-gray-50 border border-gray-200 rounded-xl p-3.5 outline-none cursor-pointer">
-                                <option value="Default|0">Default Serving</option>
-                                <option value="Extra Rice|20">Extra Rice (+₱20)</option>
-                                <option value="Extra Sauce|10">Extra Sauce (+₱10)</option>
-                                <option value="Add Egg|15">Add Egg (+₱15)</option>
-                            </select>
                             
-                            <button x-on:click.prevent="if(p.stock > 0) { addToCart(p, selectedAddon); selectedAddon = 'Default|0'; }" 
+                             <div class="mb-2">
+    <button type="button" @click="openCustomizeModal(p)" :disabled="p.stock <= 0" class="flex items-center justify-between w-full bg-gray-50 border border-gray-200 rounded-xl p-3 hover:bg-gray-100 transition-colors">
+        <span class="text-[11px] font-bold text-[#800000] uppercase tracking-wider">Customize</span>
+        <i class="fas fa-chevron-right text-[#800000] text-xs"></i>
+    </button>
+    
+    <div x-show="p.selectedAddOns && p.selectedAddOns.length > 0" style="display: none;" class="mt-2 bg-blue-50/80 border-l-2 border-blue-400 rounded-r-lg p-2 space-y-0.5">
+        <template x-for="addon in p.selectedAddOns" :key="addon.name">
+            <div class="text-[10px] text-blue-700 flex justify-between font-bold uppercase tracking-wider">
+                <span class="truncate pr-1" x-text="'• ' + addon.name"></span>
+                <span x-text="'+₱' + addon.price"></span>
+            </div>
+        </template>
+    </div>
+</div>
+
+                            
+                            <button x-on:click.prevent="if(p.stock > 0) { addToCart(p); }" 
                                     :disabled="p.stock <= 0"
-                                    class="w-full py-4 bg-[#800000] text-white rounded-xl text-sm font-black uppercase tracking-[0.1em] transition-all shadow-md active:scale-[0.98] disabled:bg-gray-300">
+                                    class="w-full py-4 bg-[#800000] text-white rounded-xl text-sm font-black uppercase tracking-[0.1em] transition-all shadow-md active:scale-[0.98] disabled:bg-gray-300 flex items-center justify-center gap-2">
                                 <i class="fas fa-plus"></i> Add
                             </button>
                         </div>
@@ -75,20 +84,20 @@
                 
                 <div class="space-y-3 mb-4 overflow-y-auto flex-1 min-h-[150px] scrollbar-hide pr-1 relative">
                     <div x-show="cart.length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white">
-                        <p class="text-sm font-bold text-gray-400 uppercase">Cart is empty</p>
+                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Cart is empty</p>
                     </div>
 
                     <template x-for="(item, index) in cart" :key="index">
                         <div class="flex justify-between items-center bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-red-50 text-[#800000] flex items-center justify-center text-sm font-black" x-text="item.qty + 'x'"></div>
-                                <div>
-                                    <p class="text-sm font-black uppercase text-gray-800" x-text="item.name"></p>
-                                    <p x-show="item.addonName !== 'Default'" class="text-[10px] text-orange-600 font-bold uppercase" x-text="'+ ' + item.addonName"></p>
+                            <div class="flex items-center gap-3 w-full">
+                                <div class="w-8 h-8 rounded-lg bg-red-50 text-[#800000] flex items-center justify-center text-sm font-black shrink-0" x-text="item.qty + 'x'"></div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-black uppercase text-gray-800 truncate" x-text="item.name"></p>
+                                    <p x-show="item.addonName !== 'Default'" class="text-[10px] text-orange-600 font-bold uppercase truncate" x-text="'+ ' + item.addonName"></p>
                                     <p class="text-xs text-gray-500 font-bold" x-text="formatCurrency(item.price * item.qty)"></p>
                                 </div>
                             </div>
-                            <button x-on:click="removeFromCart(index)" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-red-500 bg-gray-50 rounded-lg">
+                            <button x-on:click="removeFromCart(index)" class="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-red-500 bg-gray-50 rounded-lg transition-colors ml-2">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
@@ -119,7 +128,7 @@
 
                     <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
                         <div class="flex justify-between items-end pt-3">
-                            <span class="text-xs font-black text-gray-800 uppercase">Total Due</span>
+                            <span class="text-xs font-black text-gray-800 uppercase tracking-widest">Total Due</span>
                             <span class="text-3xl font-black text-[#800000]" x-text="formatCurrency(cartTotal)"></span>
                         </div>
                     </div>
@@ -127,7 +136,7 @@
                     <button type="button" 
                             @click="completeOrder"
                             :disabled="cart.length === 0"
-                            class="w-full py-4 bg-[#800000] text-white rounded-xl font-black text-sm uppercase shadow-lg disabled:opacity-50 flex justify-center items-center gap-2">
+                            class="w-full py-4 bg-[#800000] text-white rounded-xl font-black text-sm uppercase shadow-lg disabled:opacity-50 flex justify-center items-center gap-2 transition-all">
                         Complete Order <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
@@ -136,7 +145,55 @@
 
     </div>
 
-   
+   <!-- Inalis ang @click sa backdrop para hindi na mag-close sa labas -->
+<div x-show="showModal" x-transition class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    
+    <!-- Backdrop: Static na lang ito, hindi na clickable -->
+    <div class="absolute inset-0 bg-maroon/50 backdrop-blur-sm"></div>
+    
+    <div class="bg-white rounded-[2rem] p-6 max-w-md w-full shadow-2xl animate__animated animate__zoomIn relative z-10">
+        
+        <!-- EXIT BUTTON: Ginawa nating explicit hex code ang hover para siguradong mag-maroon -->
+        <button type="button" @click="closeCustomizeModal()" 
+            class="absolute top-5 right-5 text-gray-400 hover:text-[#800000] transition-colors duration-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
+        <div class="text-center mb-6 mt-2">
+           <h3 class="text-lg font-bold text-[#800000] capitalize" x-text="'Customize ' + (selectedFood ? selectedFood.name.toLowerCase() : '')"></h3>
+            <p class="text-xs text-gray-500 mt-1">Select add-ons for this item</p>
+        </div>
+        
+        <div x-show="selectedFood" class="space-y-3 max-h-60 overflow-y-auto mb-6 px-2">
+             <template x-for="addon in (selectedFood ? selectedFood.addOns : [])" :key="addon.name">
+                <label class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-100">
+                    <input type="checkbox" 
+                           :value="addon.name"
+                           x-model="tempSelectedNames"
+                           class="accent-[#800000] mr-3 w-5 h-5">
+                    <span class="text-sm font-medium text-gray-800" x-text="addon.name"></span>
+                    <span class="text-sm text-[#800000] font-bold ml-auto" x-text="'+₱' + addon.price"></span>
+                </label>
+            </template>
+        </div>
+        
+        <div class="flex gap-3">
+            <!-- Button logic: Disabled kung walang check, para hindi rin mag-close accidentally -->
+            <button type="button" 
+                @click="confirmAddOns()" 
+                :disabled="tempSelectedNames.length === 0"
+                :class="tempSelectedNames.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#800000] hover:bg-[#a50000] shadow-md'"
+                class="flex-1 text-white py-3 px-6 rounded-xl font-bold text-sm uppercase tracking-widest transition-all">
+                Confirm Selection
+            </button>
+        </div>
+    </div>
+</div>
+    </div>
+
+    
 
 <script>
     function posSystem() {
@@ -149,28 +206,25 @@
             cart: [],
             receiptData: null, 
             
+            // New State for Modal
+            showModal: false,
+            selectedFood: null,
+            tempSelectedNames: [],
+            
             get products() {
                 return Alpine.store('inventory').products;
             },
 
-    get filteredProducts() {
-            return this.products.filter(p => {
-                // 1. Check kung may search query
-                const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
-                
-                // 2. Format Categories: Tatanggalin natin ang "s" sa dulo para siguradong laging magtugma
-                // Halimbawa: Ang "Desserts" at "Dessert" ay parehong magiging "dessert" sa checking
-                const btnCat = this.selectedCategory.toLowerCase().trim().replace(/s$/, '');
-                const dbCat = p.cat ? p.cat.toLowerCase().trim().replace(/s$/, '') : '';
-                
-                // 3. I-match sila
-                const matchesCat = this.selectedCategory === 'All' || dbCat === btnCat;
-                
-                return matchesSearch && matchesCat;
-            });
-        },
-        
-
+            get filteredProducts() {
+                return this.products.filter(p => {
+                    const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                    const btnCat = this.selectedCategory.toLowerCase().trim().replace(/s$/, '');
+                    const dbCat = p.cat ? p.cat.toLowerCase().trim().replace(/s$/, '') : '';
+                    const matchesCat = this.selectedCategory === 'All' || dbCat === btnCat;
+                    return matchesSearch && matchesCat;
+                });
+            },
+            
             get cartTotal() {
                 return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             },
@@ -179,17 +233,83 @@
                 return '₱' + parseFloat(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             },
 
-            addToCart(product, addonValue) {
-                let addonPrice = 0;
-                let addonName = 'Default';
-
-                if (addonValue && addonValue.includes('|')) {
-                    const parts = addonValue.split('|');
-                    addonName = parts[0];
-                    addonPrice = parseInt(parts[1]) || 0;
+            // Modal Functions
+          // Modal Functions
+          // Modal Functions
+            openCustomizeModal(product) {
+                this.selectedFood = product;
+                
+                // Kapag walang add-ons galing sa database, i-mamatch natin base sa pangalan ng product 
+                // para parehong-pareho sa menu.blade.php mo
+                if (!this.selectedFood.addOns || this.selectedFood.addOns.length === 0) {
+                    const itemName = this.selectedFood.name.toLowerCase();
+                    
+                    if (itemName.includes('burger steak')) {
+                        this.selectedFood.addOns = [
+                            {name: 'Extra Cheese', price: 20}, 
+                            {name: 'Bacon', price: 30}, 
+                            {name: 'Fried Egg', price: 15}
+                        ];
+                    } else if (itemName.includes('carbonara')) {
+                        this.selectedFood.addOns = [
+                            {name: 'Extra Bacon', price: 25}, 
+                            {name: 'Garlic Bread', price: 30}
+                        ];
+                    } else if (itemName.includes('ice tea') || itemName.includes('icetea')) {
+                        this.selectedFood.addOns = [
+                            {name: 'Lemon Slice', price: 5}, 
+                            {name: 'Extra Ice', price: 0}
+                        ];
+                    } else if (itemName.includes('mozarella')) {
+                        this.selectedFood.addOns = [
+                            {name: 'Marinara Sauce', price: 10}
+                        ];
+                    } else if (itemName.includes('leche flan')) {
+                        this.selectedFood.addOns = [
+                            {name: 'Extra Caramel', price: 15}
+                        ];
+                    } else {
+                        // Kung may ibang item na wala sa listahan, empty lang siya
+                        this.selectedFood.addOns = []; 
+                    }
                 }
 
-                let cartId = product.id + '-' + addonName;
+                if (!this.selectedFood.selectedAddOns) {
+                    this.selectedFood.selectedAddOns = [];
+                }
+                
+                this.tempSelectedNames = this.selectedFood.selectedAddOns.map(a => a.name);
+                this.showModal = true;
+            },
+
+
+
+            confirmAddOns() {
+                if (this.selectedFood && this.selectedFood.addOns) {
+                    this.selectedFood.selectedAddOns = this.selectedFood.addOns.filter(addon => 
+                        this.tempSelectedNames.includes(addon.name)
+                    );
+                }
+                this.showModal = false;
+            },
+
+            closeCustomizeModal() {
+                this.showModal = false;
+                this.selectedFood = null;
+                this.tempSelectedNames = [];
+            },
+
+            // Updated Add to Cart logic to support new structure
+            addToCart(product) {
+                // Default to empty array if no customizations were selected
+                const selectedAddOns = product.selectedAddOns || [];
+                
+                const addOnPrice = selectedAddOns.reduce((sum, addon) => sum + addon.price, 0);
+                const finalUnitPrice = product.price + addOnPrice;
+                
+                const addonNameStr = selectedAddOns.length > 0 ? selectedAddOns.map(a => a.name).join(', ') : 'Default';
+                const cartId = product.id + '-' + addonNameStr;
+
                 let foundIndex = this.cart.findIndex(i => i.cartId === cartId);
 
                 if (foundIndex > -1) { 
@@ -199,152 +319,147 @@
                         ...product, 
                         cartId: cartId,
                         qty: 1, 
-                        addonName: addonName,
-                        price: product.price + addonPrice
+                        addonName: addonNameStr,
+                        // Override product price in cart to reflect base + addons
+                        price: finalUnitPrice 
                     });
                 }
+                
+                // Clear selections after adding
+                product.selectedAddOns = [];
             },
 
             removeFromCart(index) {
                 this.cart.splice(index, 1);
             },
 
-           completeOrder() {
-    if (this.cart.length === 0) return;
+            completeOrder() {
+                if (this.cart.length === 0) return;
 
-    const orderID = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    
-    // Gagawa ng temporary data para sa print (Huwag i-assign sa this.receiptData)
-    const tempReceiptData = {
-        orderId: orderID,
-        orderType: this.orderType,
-        customerName: 'WALK-IN CUSTOMER',
-        items: [...this.cart],
-        totalAmount: this.cartTotal,
-        // Pinalitan ang '2-digit' ng 'numeric' para mawala ang leading zero (0)
-timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-    };
+                const orderID = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                
+                const tempReceiptData = {
+                    orderId: orderID,
+                    orderType: this.orderType,
+                    customerName: 'WALK-IN CUSTOMER',
+                    items: [...this.cart],
+                    totalAmount: this.cartTotal,
+                    timestamp: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                };
 
-    const orderForChef = {
-        id: orderID,
-        table: this.orderType,
-        status: 'Pending',
-        items: this.cart.map(item => ({
-            name: item.name + (item.addonName !== 'Default' ? ' (' + item.addonName + ')' : ''),
-            qty: item.qty,
-            done: false
-        })),
-        note: "Direct Order",
-        timestamp: new Date().getTime()
-    };
+                const orderForChef = {
+                    id: orderID,
+                    table: this.orderType,
+                    status: 'Pending',
+                    items: this.cart.map(item => ({
+                        name: item.name + (item.addonName !== 'Default' ? ' (' + item.addonName + ')' : ''),
+                        qty: item.qty,
+                        done: false
+                    })),
+                    note: "Direct Order",
+                    timestamp: new Date().getTime()
+                };
 
-    localStorage.setItem('ub_chef_new_order', JSON.stringify(orderForChef));
+                localStorage.setItem('ub_chef_new_order', JSON.stringify(orderForChef));
 
-    this.cart.forEach(item => {
-        Alpine.store('inventory').updateStock(item.id, item.qty);
-    });
+                this.cart.forEach(item => {
+                    Alpine.store('inventory').updateStock(item.id, item.qty);
+                });
 
-    // REKTA PRINT agad bago i-clear ang cart
-    this.triggerIsolatedPrint(tempReceiptData);
+                this.triggerIsolatedPrint(tempReceiptData);
 
-    this.cart = [];
-    this.orderType = 'DINE IN'; // Reset order type
-},
-
+                this.cart = [];
+                this.orderType = 'DINE IN'; 
+            },
 
             closeReceipt() {
                 this.receiptData = null;
                 this.orderType = 'DINE IN';
             },
 
-         // CLASSIC CASHIER PRINT FORMAT
-       triggerIsolatedPrint(data) {
-    if (!data) return;
+            triggerIsolatedPrint(data) {
+                if (!data) return;
 
-    let itemsHTML = '';
-    data.items.forEach(item => {
-        itemsHTML += `
-        <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-            <div style="width: 20px;">${item.qty}</div>
-            <div style="flex: 1; padding-left: 5px;">
-                <div style="text-transform: uppercase;">${item.name}</div>
-                ${item.addonName !== 'Default' ? `<div style="font-size: 10px; font-style: italic;">+ ${item.addonName}</div>` : ''}
-            </div>
-        </div>`;
-    });
+                let itemsHTML = '';
+                data.items.forEach(item => {
+                    itemsHTML += `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                        <div style="width: 20px;">${item.qty}</div>
+                        <div style="flex: 1; padding-left: 5px;">
+                            <div style="text-transform: uppercase;">${item.name}</div>
+                            ${item.addonName !== 'Default' ? `<div style="font-size: 10px; font-style: italic;">+ ${item.addonName}</div>` : ''}
+                        </div>
+                    </div>`;
+                });
 
-    let iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    let doc = iframe.contentWindow.document;
+                let iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                let doc = iframe.contentWindow.document;
 
-// Sa loob ng doc.write style at body...
-doc.write(`
-        <html>
-        <head>
-            <style>
-                body { font-family: 'Courier New', monospace; width: 80mm; padding: 4mm; color: black; font-size: 12px; margin: 0; }
-                .text-center { text-align: center; }
-                .divider { border-bottom: 1px dashed black; margin: 5px 0; }
-                .bold { font-weight: bold; }
-                .total { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 10px; }
-                /* Pinag-isang style para sa box */
-                .highlight-box { font-size: 24px; font-weight: bold; border: 2px solid black; margin: 10px 0; padding: 10px; text-transform: uppercase; text-align: center; }
-            </style>
-        </head>
-        <body>
-            <div class="text-center">
-                <div class="bold" style="font-size: 14px;">UNIVERSITY OF BATANGAS</div>
-                <div style="font-size: 10px;">Hilltop Rd, Batangas City, 4200 Batangas</div>
-                <div class="divider"></div>
-                
-                <div class="highlight-box">${data.orderType}</div> 
-            </div>
-            
-            <div style="font-size: 10px; margin-top: 5px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <span>Order ID:</span>
-                    <span class="bold">${data.orderId}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>Date:</span>
-                    <span>${data.timestamp}</span>
-                </div>
-            </div>
+                doc.write(`
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: 'Courier New', monospace; width: 80mm; padding: 4mm; color: black; font-size: 12px; margin: 0; }
+                            .text-center { text-align: center; }
+                            .divider { border-bottom: 1px dashed black; margin: 5px 0; }
+                            .bold { font-weight: bold; }
+                            .total { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 10px; }
+                            .highlight-box { font-size: 24px; font-weight: bold; border: 2px solid black; margin: 10px 0; padding: 10px; text-transform: uppercase; text-align: center; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="text-center">
+                            <div class="bold" style="font-size: 14px;">UNIVERSITY OF BATANGAS</div>
+                            <div style="font-size: 10px;">Hilltop Rd, Batangas City, 4200 Batangas</div>
+                            <div class="divider"></div>
+                            
+                            <div class="highlight-box">${data.orderType}</div> 
+                        </div>
+                        
+                        <div style="font-size: 10px; margin-top: 5px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Order ID:</span>
+                                <span class="bold">${data.orderId}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Date:</span>
+                                <span>${data.timestamp}</span>
+                            </div>
+                        </div>
 
-            <div class="divider"></div>
-            
-            <div style="display: flex; font-weight: bold; margin-bottom: 5px; font-size: 10px;">
-                <div style="width: 20px;">QTY</div>
-                <div style="flex: 1; padding-left: 5px;">ITEM/S</div>
-            </div>
+                        <div class="divider"></div>
+                        
+                        <div style="display: flex; font-weight: bold; margin-bottom: 5px; font-size: 10px;">
+                            <div style="width: 20px;">QTY</div>
+                            <div style="flex: 1; padding-left: 5px;">ITEM/S</div>
+                        </div>
 
-            ${itemsHTML}
+                        ${itemsHTML}
 
-            <div class="divider"></div>
-            
-            <div class="total">
-                <span>TOTAL:</span>
-                <span>${this.formatCurrency(data.totalAmount)}</span>
-            </div>
+                        <div class="divider"></div>
+                        
+                        <div class="total">
+                            <span>TOTAL:</span>
+                            <span>${this.formatCurrency(data.totalAmount)}</span>
+                        </div>
 
-            <div class="text-center" style="margin-top: 25px; font-size: 10px;">
-                <div class="bold">THANK YOU!</div>
-                <div>Please come again.</div>
-            </div>
-        </body>
-        </html>
-`);
-doc.close();
+                        <div class="text-center" style="margin-top: 25px; font-size: 10px;">
+                            <div class="bold">THANK YOU!</div>
+                            <div>Please come again.</div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                doc.close();
 
-
-    setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        setTimeout(() => { document.body.removeChild(iframe); }, 1000);
-    }, 500);
-}
-
-}
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                    setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+                }, 500);
+            }
+        }
     }
 </script>

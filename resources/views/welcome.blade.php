@@ -187,7 +187,7 @@
                 <div class="bg-white p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-2 min-h-[300px] md:min-h-[450px] flex flex-col justify-center relative overflow-hidden group">
                     <div class="absolute -right-2 -top-4 text-[6rem] md:text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">2</div>
                     <h4 class="font-black text-xl md:text-2xl mb-4 md:mb-6 ub-text-maroon relative z-10">GUEST JOURNEY</h4>
-                    <p class="text-base md:text-xl text-slate-600 leading-relaxed relative z-10">QR scan identification, digital ordering, and real-time bill calculation.</p>
+                    <p class="text-base md:text-xl text-slate-600 leading-relaxed relative z-10">QR scan identification, digital ordering and booking reservation.</p>
                 </div>
                 <div class="bg-white p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-xl reveal-hidden delay-3 min-h-[300px] md:min-h-[450px] flex flex-col justify-center relative overflow-hidden group sm:col-span-2 lg:col-span-1">
                     <div class="absolute -right-2 -top-4 text-[6rem] md:text-[10rem] font-black text-slate-50 group-hover:text-red-50 transition-colors">3</div>
